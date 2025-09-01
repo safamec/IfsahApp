@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using IfashApp.Models;
+using IfsahApp.Models;
 
 namespace IfashApp.Controllers;
 

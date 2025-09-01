@@ -1,4 +1,5 @@
 using IfsahApp.Data;
+using IfsahApp.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +15,9 @@ builder.Services.AddLocalization(options => options.ResourcesPath = "Resources")
 builder.Services.AddControllersWithViews()
     .AddViewLocalization()
     .AddDataAnnotationsLocalization();
+
+// Register the fake AD service (Singleton is fine since it's in-memory)
+builder.Services.AddSingleton<IAdUserService, AdUserService>();
 
 var app = builder.Build();
 

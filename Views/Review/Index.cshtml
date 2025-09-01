@@ -1,3 +1,7 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+
 @model List<YourProjectNamespace.Models.CaseItem>
 
 @{
@@ -152,19 +156,19 @@
 </style>
 
 <div class="dashboard-wrapper">
-    <h2>Review Dashboard</h2>
-    <p class="text-muted">Assigned Diclosure Cases</p>
+    <h2>@Localizer["ReviewDashboard"]</h2>
+<p class="text-muted">@Localizer["AssignedDisclosureCases"]</p>
 
-    <!-- Header row -->
-    <div class="header-row">
-        <div class="header-item">Status</div>
-        <div class="header-item">Type</div>
-        <div class="header-item">Reference</div>
-        <div class="header-item">Date</div>
-        <div class="header-item">Location</div>
-        <div class="header-item description">Description</div>
-        <div class="header-item action">Action</div>
-    </div>
+<div class="header-row">
+    <div class="header-item">@Localizer["Status"]</div>
+    <div class="header-item">@Localizer["Type"]</div>
+    <div class="header-item">@Localizer["Reference"]</div>
+    <div class="header-item">@Localizer["Date"]</div>
+    <div class="header-item">@Localizer["Location"]</div>
+    <div class="header-item description">@Localizer["Description"]</div>
+    <div class="header-item action">@Localizer["Action"]</div>
+</div>
+
 
     <!-- Case cards -->
     <div class="cases-container">
@@ -190,7 +194,8 @@
                     @caseItem.Description
                 </div>
                 <div class="case-field action">
-                    <a href="#" class="review-button">Review Case</a>
+                    <a href="#" class="review-button">@Localizer["ReviewCase"]</a>
+
                 </div>
             </div>
         }

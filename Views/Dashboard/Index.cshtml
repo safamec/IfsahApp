@@ -10,12 +10,7 @@
             <option value="InProgress">@Localizer["InProgress"]</option>
             <option value="Closed">@Localizer["Closed"]</option>
         </select>
-
-        <select class="form-select w-auto" id="auditSelect" onchange="applyFilters()">
-            <option value="All">@Localizer["AllAudits"]</option>
-            <option value="Internal">Internal</option>
-            <option value="External">External</option>
-        </select>
+        @* Audit filter removed *@
     </div>
 
     <table class="table table-bordered table-dark table-hover text-center">
@@ -23,7 +18,7 @@
             <tr>
                 <th>@Localizer["HeaderActions"]</th>
                 <th>@Localizer["HeaderStatus"]</th>
-                <th>@Localizer["HeaderAudit"]</th>
+                @* Audit header removed *@
                 <th>@Localizer["HeaderLocation"]</th>
                 <th>@Localizer["HeaderDate"]</th>
                 <th>@Localizer["HeaderType"]</th>
@@ -31,14 +26,13 @@
             </tr>
         </thead>
         <tbody>
-            @* Sample rows for demo purposes *@
+            @* Sample rows without Audit column *@
             <tr>
                 <td>
                     <a href="#" class="btn btn-sm btn-primary">@Localizer["ActionView"]</a>
                     <a href="#" class="btn btn-sm btn-success">@Localizer["ActionEdit"]</a>
                 </td>
                 <td><span class="badge bg-warning text-dark">Open</span></td>
-                <td>Internal</td>
                 <td>Headquarters</td>
                 <td>@DateTime.Now.ToString("yyyy-MM-dd")</td>
                 <td>Compliance</td>
@@ -50,7 +44,6 @@
                     <a href="#" class="btn btn-sm btn-success">@Localizer["ActionEdit"]</a>
                 </td>
                 <td><span class="badge bg-info text-dark">InProgress</span></td>
-                <td>External</td>
                 <td>Branch Office</td>
                 <td>@DateTime.Now.AddDays(-3).ToString("yyyy-MM-dd")</td>
                 <td>Safety</td>
@@ -62,7 +55,6 @@
                     <a href="#" class="btn btn-sm btn-success">@Localizer["ActionEdit"]</a>
                 </td>
                 <td><span class="badge bg-success">Closed</span></td>
-                <td>Internal</td>
                 <td>Warehouse</td>
                 <td>@DateTime.Now.AddDays(-10).ToString("yyyy-MM-dd")</td>
                 <td>Financial</td>
@@ -74,14 +66,13 @@
                     <a href="#" class="btn btn-sm btn-success">@Localizer["ActionEdit"]</a>
                 </td>
                 <td><span class="badge bg-warning text-dark">Open</span></td>
-                <td>External</td>
                 <td>Remote Site</td>
                 <td>@DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd")</td>
                 <td>Operations</td>
                 <td>REF-112233</td>
             </tr>
 
-            @* Actual data rows *@
+            @* Actual data rows without Audit column *@
             @foreach (var item in Model)
             {
                 <tr>
@@ -90,7 +81,6 @@
                         <a href="@item.EditUrl" class="btn btn-sm btn-success">@Localizer["ActionEdit"]</a>
                     </td>
                     <td><span class="badge bg-warning text-dark">@item.Status</span></td>
-                    <td>@item.Audit</td>
                     <td>@item.Location</td>
                     <td>@item.Date.ToString("yyyy-MM-dd")</td>
                     <td>@item.Type</td>
@@ -105,10 +95,9 @@
     <script>
         function applyFilters() {
             const status = document.getElementById('statusSelect').value;
-            const audit = document.getElementById('auditSelect').value;
             const url = new URL(window.location.href);
             url.searchParams.set("status", status);
-            url.searchParams.set("audit", audit);
+            // Audit parameter removed
             window.location.href = url;
         }
     </script>

@@ -173,10 +173,6 @@
     <value>التدقيق</value>
     <comment/>
   </data>
-  <data name="AllStatuses" xml:space="preserve">
-    <value>جميع الحالات</value>
-    <comment/>
-  </data>
   <data name="AllAudits" xml:space="preserve">
     <value>جميع التدقيقات</value>
     <comment/>
@@ -187,6 +183,22 @@
   </data>
   <data name="AuditExternal" xml:space="preserve">
     <value>خارجي</value>
+    <comment/>
+  </data>
+  <data name="AllStatus" xml:space="preserve">
+    <value>الحالة</value>
+    <comment/>
+  </data>
+  <data name="StatusOpen" xml:space="preserve">
+    <value>مفتوح</value>
+    <comment/>
+  </data>
+  <data name="StatusInProgress" xml:space="preserve">
+    <value>قيد التنفيذ</value>
+    <comment/>
+  </data>
+  <data name="StatusClosed" xml:space="preserve">
+    <value>مغلق</value>
     <comment/>
   </data>
 </root>

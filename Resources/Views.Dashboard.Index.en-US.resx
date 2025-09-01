@@ -185,4 +185,16 @@
     <value>External</value>
     <comment/>
   </data>
+  <data name="StatusOpen" xml:space="preserve">
+    <value>Open</value>
+    <comment/>
+  </data>
+  <data name="StatusInProgress" xml:space="preserve">
+    <value>InProgress</value>
+    <comment/>
+  </data>
+  <data name="StatusClosed" xml:space="preserve">
+    <value>Closed</value>
+    <comment/>
+  </data>
 </root>

@@ -11,8 +11,6 @@ public class Disclosure
 
     [Required, MaxLength(300)]
     public string Description { get; set; }
-    public string Audit { get; set; }
-
 
     public DateTime? IncidentStartDate { get; set; }
     public DateTime? IncidentEndDate { get; set; }

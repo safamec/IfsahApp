@@ -16,7 +16,7 @@ namespace IfsahApp.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string status = "All", string audit = "All")
+        public async Task<IActionResult> Index(string status = "All")
         {
             var query = _context.Disclosures
                                 .Include(d => d.DisclosureType)
@@ -28,12 +28,6 @@ namespace IfsahApp.Controllers
                 query = query.Where(d => d.Status == status);
             }
 
-            // Filter by Audit
-            if (!string.IsNullOrEmpty(audit) && audit != "All")
-            {
-                query = query.Where(d => d.Audit == audit);
-            }
-
             var model = await query.Select(d => new DisclosureDashboardViewModel
             {
                 Reference = d.DisclosureNumber,
@@ -41,14 +35,12 @@ namespace IfsahApp.Controllers
                 Date = d.SubmittedAt,
                 Location = d.Location,
                 Status = d.Status,
-                Audit = d.Audit,
+                // Audit removed
                 ActionUrl = Url.Action("Details", "Disclosure", new { id = d.Id }),
                 EditUrl = Url.Action("Edit", "Disclosure", new { id = d.Id })
             }).ToListAsync();
 
-            // Pass the selected filters to ViewData to keep dropdown selected value
             ViewData["SelectedStatus"] = status;
-            ViewData["SelectedAudit"] = audit;
 
             return View(model);
         }

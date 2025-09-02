@@ -14,6 +14,7 @@ namespace IfsahApp.Controllers
             _email = email;
         }
 
+        // GET /api/email/send
         [HttpGet("send")]
         public async Task<IActionResult> SendTest()
         {

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace IfsahApp.Models;
@@ -23,8 +24,14 @@ public class User
 
     public bool IsActive { get; set; } = true;
 
-    // Navigation properties initialized to empty lists to avoid nulls
+    // Disclosures submitted by this user
     public ICollection<Disclosure> SubmittedDisclosures { get; set; } = new List<Disclosure>();
 
-    public ICollection<DisclosureAssignment> AssignedDisclosures { get; set; } = new List<DisclosureAssignment>();
+    // Disclosures assigned to this user
+    public ICollection<Disclosure> AssignedDisclosures { get; set; } = new List<Disclosure>();
+
+    public static implicit operator User(string v)
+    {
+        throw new NotImplementedException();
+    }
 }

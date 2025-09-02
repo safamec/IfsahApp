@@ -1,4 +1,6 @@
-@model IEnumerable<DisclosureDashboardViewModel>
+@model IEnumerable<IfsahApp.ViewModels.DisclosureDashboardViewModel>
+@using IfsahApp.Enums
+
 @inject IfsahApp.Services.IEnumLocalizer EnumLocalizer
 @inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 
@@ -6,14 +8,15 @@
     <h2 class="text-center mb-4">@Localizer["DashboardTitle"]</h2>
 
     <!-- Filter Dropdown -->
-<select class="form-select w-auto" id="statusSelect" onchange="applyFilters()">
-    @foreach (var item in (IEnumerable<SelectListItem>)ViewBag.StatusList)
-    {
-        <option value="@item.Value" selected="@(item.Selected ? "selected" : null)">
-            @item.Text
-        </option>
-    }
-</select>
+    <select class="form-select w-auto" id="statusSelect" onchange="applyFilters()">
+        @foreach (var item in (IEnumerable<SelectListItem>)ViewBag.StatusList)
+        {
+            <option value="@item.Value" selected="@(item.Selected ? "selected" : null)">
+                @item.Text
+            </option>
+        }
+    </select>
+
     <!-- Disclosures Table -->
     <table class="table table-bordered table-hover text-center align-middle">
         <thead class="table-secondary">
@@ -26,37 +29,40 @@
                 <th>@Localizer["HeaderReference"]</th>
             </tr>
         </thead>
-       <tbody>
-    @foreach (var item in Model)
-    {
-        var badgeClass = item.Status switch
-        {
-            DisclosureStatus.New => "bg-warning text-dark",
-            DisclosureStatus.Assigned => "bg-info text-dark",
-            DisclosureStatus.InReview => "bg-primary text-white",
-            DisclosureStatus.Completed => "bg-success",
-            _ => "bg-secondary"
-        };
+        <tbody>
+            @foreach (var item in Model)
+            {
+                var badgeClass = item.Status switch
+                {
+                    DisclosureStatus.New => "bg-warning text-dark",
+                    DisclosureStatus.Assigned => "bg-info text-dark",
+                    DisclosureStatus.InReview => "bg-primary text-white",
+                    DisclosureStatus.Completed => "bg-success",
+                    _ => "bg-secondary"
+                };
 
-        <tr>
-            <td>
-                <a href="@Url.Action("Details", "Disclosure", new { id = item.Id })" 
-                   class="btn btn-sm btn-primary">@Localizer["ActionView"]</a>
-                <a href="@Url.Action("Edit", "Disclosure", new { id = item.Id })" 
-                   class="btn btn-sm btn-success">@Localizer["ActionEdit"]</a>
-            </td>
-            <td>
-                <span class="badge @badgeClass">
-                    @EnumLocalizer.LocalizeEnum(item.Status)
-                </span>
-            </td>
-            <td>@item.Location</td>
-            <td>@item.Date.ToString("yyyy-MM-dd")</td>
-            <td>@item.Type</td>
-            <td>@item.Reference</td>
-        </tr>
-    }
-</tbody>
+                <tr>
+                    <td>
+                        <!-- Fixed: use Details action instead of View -->
+                        <a asp-action="Details"
+                           asp-controller="Dashboard"
+                           asp-route-id="@item.Id"
+                           class="btn btn-sm btn-primary">
+                            @Localizer["ActionView"]
+                        </a>
+                    </td>
+                    <td>
+                        <span class="badge @badgeClass">
+                            @EnumLocalizer.LocalizeEnum(item.Status)
+                        </span>
+                    </td>
+                    <td>@item.Location</td>
+                    <td>@item.Date.ToString("yyyy-MM-dd")</td>
+                    <td>@item.Type</td>
+                    <td>@item.Reference</td>
+                </tr>
+            }
+        </tbody>
     </table>
 </div>
 

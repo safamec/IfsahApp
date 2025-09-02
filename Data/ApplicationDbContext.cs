@@ -22,6 +22,9 @@ public class ApplicationDbContext : DbContext
     public DbSet<DisclosureAssignment> DisclosureAssignments { get; set; }
     public DbSet<DisclosureReview> DisclosureReviews { get; set; }
 
+    // Comments for admin
+    public DbSet<Comment> Comments { get; set; }
+
     // Role Delegation
     public DbSet<RoleDelegation> RoleDelegations { get; set; }
 
@@ -54,18 +57,18 @@ public class ApplicationDbContext : DbContext
 
         // One-to-one: DisclosureReview
         modelBuilder.Entity<DisclosureReview>()
-    .HasOne(dr => dr.Disclosure)
-    .WithOne(d => d.FinalReview)
-    .HasForeignKey<DisclosureReview>(dr => dr.DisclosureId)
-    .OnDelete(DeleteBehavior.Cascade); // ✅ this is okay
+            .HasOne(dr => dr.Disclosure)
+            .WithOne(d => d.FinalReview)
+            .HasForeignKey<DisclosureReview>(dr => dr.DisclosureId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<DisclosureReview>()
             .HasOne(dr => dr.Reviewer)
             .WithMany()
             .HasForeignKey(dr => dr.ReviewerId)
-            .OnDelete(DeleteBehavior.Restrict); // ✅ FIX: prevent cascade path error
+            .OnDelete(DeleteBehavior.Restrict);
 
-        // RoleDelegation with restricted deletes
+        // RoleDelegation
         modelBuilder.Entity<RoleDelegation>()
             .HasOne(d => d.FromUser)
             .WithMany()
@@ -103,30 +106,50 @@ public class ApplicationDbContext : DbContext
             .WithOne(p => p.Disclosure)
             .HasForeignKey(p => p.DisclosureId);
 
-        // ✅ DisclosureAssignments: prevent multiple cascade paths
+        // DisclosureAssignments
         modelBuilder.Entity<DisclosureAssignment>()
             .HasOne(a => a.Disclosure)
             .WithMany(d => d.Assignments)
             .HasForeignKey(a => a.DisclosureId)
-            .OnDelete(DeleteBehavior.Cascade); // keep cascade here
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<DisclosureAssignment>()
             .HasOne(a => a.Examiner)
             .WithMany()
             .HasForeignKey(a => a.ExaminerId)
-            .OnDelete(DeleteBehavior.Restrict); // prevent cascade path
+            .OnDelete(DeleteBehavior.Restrict);
 
-        // ✅ DisclosureNotes: prevent multiple cascade paths
+        // DisclosureNotes
         modelBuilder.Entity<DisclosureNote>()
             .HasOne(n => n.Disclosure)
             .WithMany(d => d.Notes)
             .HasForeignKey(n => n.DisclosureId)
-            .OnDelete(DeleteBehavior.Cascade); // this is okay
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<DisclosureNote>()
             .HasOne(n => n.Author)
             .WithMany()
             .HasForeignKey(n => n.AuthorId)
-            .OnDelete(DeleteBehavior.Restrict); // ✅ avoid multiple cascade paths
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Comments
+        modelBuilder.Entity<Comment>()
+            .HasOne(c => c.Disclosure)
+            .WithMany(d => d.Comments)
+            .HasForeignKey(c => c.DisclosureId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // ✅ Explicitly configure multiple User relationships
+        modelBuilder.Entity<Disclosure>()
+            .HasOne(d => d.SubmittedBy)
+            .WithMany(u => u.SubmittedDisclosures)
+            .HasForeignKey(d => d.SubmittedById)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Disclosure>()
+            .HasOne(d => d.AssignedToUser)
+            .WithMany(u => u.AssignedDisclosures)
+            .HasForeignKey(d => d.AssignedToUserId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

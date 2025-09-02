@@ -1,48 +1,86 @@
-using IfsahApp.Data;
-using IfsahApp.Services;
-using Microsoft.EntityFrameworkCore;
+using IfsahApp.Data;        // Import your EF Core database context (ApplicationDbContext)
+using IfsahApp.Services;    // Import your custom services (AD service, Email service, etc.)
+using Microsoft.EntityFrameworkCore; // Import EF Core functionality for DbContext and SQLite
 
 var builder = WebApplication.CreateBuilder(args);
+// Creates a new WebApplicationBuilder to configure services and the HTTP pipeline
 
-// Register ApplicationDbContext with SQLite provider
+// =============================
+// 1. Register Database Context
+// =============================
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Registers ApplicationDbContext with dependency injection (DI) using SQLite
+// Connection string is fetched from appsettings.json under "DefaultConnection"
 
-// Add localization services (optional, you can remove if not needed)
+// =============================
+// 2. Localization Services
+// =============================
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+// Enables localization (multi-language support) and tells ASP.NET to look for resource files in /Resources
 
-// Add MVC with localization support
 builder.Services.AddControllersWithViews()
-    .AddViewLocalization()
-    .AddDataAnnotationsLocalization();
+    .AddViewLocalization()              // Enables localized views (e.g., Index.en.cshtml, Index.ar.cshtml)
+    .AddDataAnnotationsLocalization();  // Enables localized validation messages (from resource files)
 
-// Register the fake AD service (Singleton is fine since it's in-memory)
+// =============================
+// 3. Custom Services
+// =============================
 builder.Services.AddSingleton<IAdUserService, AdUserService>();
+// Registers your fake Active Directory service as a Singleton
+// (in-memory, so one instance is enough for the whole app lifetime)
 
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
+// Reads SMTP settings (host, port, username, password, etc.) from appsettings.json into SmtpSettings class
+
+builder.Services.AddTransient<IEmailService, SmtpEmailService>();
+// Registers Email service (creates a new instance each time it's requested)
+
+// =============================
+// 4. Build Application
+// =============================
 var app = builder.Build();
+// Builds the WebApplication with all the registered services and configuration
 
-// Seed the database (creates users, disclosure types, and initial disclosures)
+// =============================
+// 5. Database Seeding
+// =============================
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     DbSeeder.Seed(dbContext);
+    // Seeds the database with initial data (users, disclosure types, sample disclosures, etc.)
 }
 
-// Localization options (optional)
-var supportedCultures = new[] { "en-US", "ar" };
+// =============================
+// 6. Localization Configuration
+// =============================
+var supportedCultures = new[] { "en", "ar" };
+// Define which cultures your app supports (English + Arabic)
+
 var localizationOptions = new RequestLocalizationOptions()
-    .SetDefaultCulture("ar")
-    .AddSupportedCultures(supportedCultures)
+    .SetDefaultCulture("ar")            // Default culture is Arabic
+    .AddSupportedCultures(supportedCultures)   // Supports both English and Arabic
     .AddSupportedUICultures(supportedCultures);
 
 app.UseRequestLocalization(localizationOptions);
+// Applies the localization settings to the request pipeline
 
-// Middleware
-app.UseStaticFiles();
-app.UseRouting();
-app.UseAuthorization();
+// =============================
+// 7. Middleware Pipeline
+// =============================
+app.UseStaticFiles();  // Serves static files (CSS, JS, images, etc.) from wwwroot folder
+app.UseRouting();      // Enables endpoint routing
+app.UseAuthorization();// Enables authorization checks (e.g., [Authorize] attributes)
 
-// Map default controller route
+// =============================
+// 8. Routing
+// =============================
 app.MapDefaultControllerRoute();
+// Sets up default route pattern: {controller=Home}/{action=Index}/{id?}
 
+// =============================
+// 9. Run Application
+// =============================
 app.Run();
+// Starts the web server and listens for incoming HTTP requests

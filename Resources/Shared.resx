@@ -117,84 +117,20 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="DashboardTitle" xml:space="preserve">
-    <value>Admin Dashboard</value>
-    <comment/>
-  </data>
-  <data name="DashboardDesc" xml:space="preserve">
-    <value>Manage and review all disclosures</value>
-    <comment/>
-  </data>
-  <data name="HeaderReference" xml:space="preserve">
-    <value>Reference</value>
-    <comment/>
-  </data>
-  <data name="HeaderType" xml:space="preserve">
-    <value>Type</value>
-    <comment/>
-  </data>
-  <data name="HeaderDate" xml:space="preserve">
-    <value>Date</value>
-    <comment/>
-  </data>
-  <data name="HeaderStatus" xml:space="preserve">
-    <value>Status</value>
-    <comment/>
-  </data>
-  <data name="HeaderLocation" xml:space="preserve">
-    <value>Location</value>
-    <comment/>
-  </data>
-  <data name="ActionView" xml:space="preserve">
-    <value>View</value>
-    <comment/>
-  </data>
-  <data name="ActionEdit" xml:space="preserve">
-    <value>Edit</value>
-    <comment/>
-  </data>
-  <data name="IfashApp" xml:space="preserve">
+  <data name="AppName" xml:space="preserve">
     <value>IfashApp</value>
     <comment/>
   </data>
-  <data name="Home" xml:space="preserve">
+  <data name="NavHome" xml:space="preserve">
     <value>Home</value>
     <comment/>
   </data>
-  <data name="Privacy" xml:space="preserve">
+  <data name="NavPrivacy" xml:space="preserve">
     <value>Privacy</value>
     <comment/>
   </data>
-  <data name="HeaderAudit" xml:space="preserve">
-    <value>Audit</value>
-    <comment/>
-  </data>
-  <data name="AllStatuses" xml:space="preserve">
-    <value>All Statuses</value>
-    <comment/>
-  </data>
-  <data name="AllAudits" xml:space="preserve">
-    <value>All Audits</value>
-    <comment/>
-  </data>
-  <data name="AuditInternal" xml:space="preserve">
-    <value>Internal</value>
-    <comment/>
-  </data>
-  <data name="AuditExternal" xml:space="preserve">
-    <value>External</value>
-    <comment/>
-  </data>
-  <data name="StatusOpen" xml:space="preserve">
-    <value>Open</value>
-    <comment/>
-  </data>
-  <data name="StatusInProgress" xml:space="preserve">
-    <value>InProgress</value>
-    <comment/>
-  </data>
-  <data name="StatusClosed" xml:space="preserve">
-    <value>Closed</value>
+  <data name="NavLanguage" xml:space="preserve">
+    <value>Language</value>
     <comment/>
   </data>
 </root>

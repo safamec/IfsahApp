@@ -117,56 +117,20 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="DashboardTitle" xml:space="preserve">
-    <value>لوحة القيادة</value>
+  <data name="AppName" xml:space="preserve">
+    <value>تطبيق افصاح</value>
     <comment/>
   </data>
-  <data name="AllStatus" xml:space="preserve">
-    <value>الكل</value>
+  <data name="NavHome" xml:space="preserve">
+    <value>الصفحة الرئيسية</value>
     <comment/>
   </data>
-  <data name="Open" xml:space="preserve">
-    <value>مفتوح</value>
+  <data name="NavPrivacy" xml:space="preserve">
+    <value>الخصوصية</value>
     <comment/>
   </data>
-  <data name="InProgress" xml:space="preserve">
-    <value>جاري التنفيذ</value>
-    <comment/>
-  </data>
-  <data name="Closed" xml:space="preserve">
-    <value>مغلق</value>
-    <comment/>
-  </data>
-  <data name="HeaderActions" xml:space="preserve">
-    <value>الإجراءات</value>
-    <comment/>
-  </data>
-  <data name="HeaderStatus" xml:space="preserve">
-    <value>الحالة</value>
-    <comment/>
-  </data>
-  <data name="HeaderLocation" xml:space="preserve">
-    <value>الموقع</value>
-    <comment/>
-  </data>
-  <data name="HeaderDate" xml:space="preserve">
-    <value>التاريخ</value>
-    <comment/>
-  </data>
-  <data name="HeaderType" xml:space="preserve">
-    <value>النوع</value>
-    <comment/>
-  </data>
-  <data name="HeaderReference" xml:space="preserve">
-    <value>المرجع</value>
-    <comment/>
-  </data>
-  <data name="ActionView" xml:space="preserve">
-    <value>عرض</value>
-    <comment/>
-  </data>
-  <data name="ActionEdit" xml:space="preserve">
-    <value>تعديل</value>
+  <data name="NavLanguage" xml:space="preserve">
+    <value>اللغة</value>
     <comment/>
   </data>
 </root>

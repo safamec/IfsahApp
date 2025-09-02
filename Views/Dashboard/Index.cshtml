@@ -1,24 +1,22 @@
 @inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 
 <div class="dashboard-container container-fluid pt-4">
-    <h2 class="text-center text-white mb-4">@Localizer["DashboardTitle"]</h2>
+    <h2 class="text-center mb-4">@Localizer["DashboardTitle"]</h2>
 
-    <div class="search-filter-bar mb-4 d-flex gap-3 flex-wrap">
+    <div class="search-filter-bar mb-4 d-flex gap-3 flex-wrap justify-content-center">
         <select class="form-select w-auto" id="statusSelect" onchange="applyFilters()">
             <option value="All">@Localizer["AllStatus"]</option>
             <option value="Open">@Localizer["Open"]</option>
             <option value="InProgress">@Localizer["InProgress"]</option>
             <option value="Closed">@Localizer["Closed"]</option>
         </select>
-        @* Audit filter removed *@
     </div>
 
-    <table class="table table-bordered table-dark table-hover text-center">
+    <table class="table table-bordered table-hover text-center align-middle">
         <thead class="table-secondary">
             <tr>
                 <th>@Localizer["HeaderActions"]</th>
                 <th>@Localizer["HeaderStatus"]</th>
-                @* Audit header removed *@
                 <th>@Localizer["HeaderLocation"]</th>
                 <th>@Localizer["HeaderDate"]</th>
                 <th>@Localizer["HeaderType"]</th>
@@ -26,7 +24,7 @@
             </tr>
         </thead>
         <tbody>
-            @* Sample rows without Audit column *@
+            @* Sample static rows, for demo/testing purpose *@
             <tr>
                 <td>
                     <a href="#" class="btn btn-sm btn-primary">@Localizer["ActionView"]</a>
@@ -72,15 +70,23 @@
                 <td>REF-112233</td>
             </tr>
 
-            @* Actual data rows without Audit column *@
+            @* Actual dynamic data rows *@
             @foreach (var item in Model)
             {
+                var badgeClass = item.Status switch
+                {
+                    "Open" => "bg-warning text-dark",
+                    "InProgress" => "bg-info text-dark",
+                    "Closed" => "bg-success",
+                    _ => "bg-secondary"
+                };
+
                 <tr>
                     <td>
                         <a href="@item.ActionUrl" class="btn btn-sm btn-primary">@Localizer["ActionView"]</a>
                         <a href="@item.EditUrl" class="btn btn-sm btn-success">@Localizer["ActionEdit"]</a>
                     </td>
-                    <td><span class="badge bg-warning text-dark">@item.Status</span></td>
+                    <td><span class="badge @badgeClass">@item.Status</span></td>
                     <td>@item.Location</td>
                     <td>@item.Date.ToString("yyyy-MM-dd")</td>
                     <td>@item.Type</td>
@@ -97,7 +103,6 @@
             const status = document.getElementById('statusSelect').value;
             const url = new URL(window.location.href);
             url.searchParams.set("status", status);
-            // Audit parameter removed
             window.location.href = url;
         }
     </script>

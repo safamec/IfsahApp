@@ -1,33 +1,35 @@
 using Microsoft.AspNetCore.Mvc;
-using YourProjectNamespace.Models;
+using Microsoft.EntityFrameworkCore;
+using IfsahApp.Data;
+using IfsahApp.Models;
 
-namespace YourProjectNamespace.Controllers
+namespace IfsahApp.Controllers
 {
     public class ReviewController : Controller
     {
-        public IActionResult Index()
+        private readonly ApplicationDbContext _context;
+
+        public ReviewController(ApplicationDbContext context)
         {
-            var cases = new List<CaseItem>
-            {
-                new CaseItem
+            _context = context;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            // Get all disclosures including their type
+            var cases = await _context.Disclosures
+                .Include(d => d.DisclosureType)
+                .OrderByDescending(d => d.SubmittedAt) // newest first
+                .Select(d => new CaseItem
                 {
-                    Type = "Financial Misconduct",
-                    Reference = "VR-1704567890-abc123def",
-                    Date = new DateTime(2024, 12, 15),
-                    Location = "Finance Department, Building A",
-                    Status = "Under Review",
-                    Description = "Suspected unauthorized financial transactions in Q4 2024"
-                },
-                new CaseItem
-                {
-                    Type = "Policy Breach",
-                    Reference = "VR-1704567894-mno234pqr",
-                    Date = new DateTime(2024, 12, 16),
-                    Location = "IT Department",
-                    Status = "Under Review",
-                    Description = "Company policy violations regarding data handling procedures"
-                }
-            };
+                    Type = d.DisclosureType.Name,
+                    Reference = d.DisclosureNumber,
+                    Date = d.SubmittedAt,
+                    Location = d.Location,
+                    Status = d.Status,
+                    Description = d.Description
+                })
+                .ToListAsync();
 
             return View(cases);
         }

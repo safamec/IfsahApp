@@ -1,4 +1,4 @@
-namespace YourProjectNamespace.Models
+namespace IfsahApp.Models
 {
     public class CaseItem
     {

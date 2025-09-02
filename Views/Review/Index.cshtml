@@ -1,4 +1,5 @@
-@model List<IfsahApp.Models.CaseItem>
+@model List<CaseItem>
+@using IfsahApp.Models
 
 @{
     ViewBag.Title = "Review Dashboard";
@@ -65,9 +66,9 @@
                 <div class="case-field description">
                     @caseItem.Description
                 </div>
-                <div class="case-field action">
-                    <a href="#" class="review-button">Review Case</a>
-                </div>
+               <a href="@Url.Action("ReviewDisclosure", "Review", new { reference = caseItem.Reference })" class="review-button">
+    Review Case
+</a>
             </div>
         }
     </div>

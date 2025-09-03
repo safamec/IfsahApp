@@ -6,41 +6,44 @@ using IfsahApp.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using IfsahApp.Services;
 
 namespace IfsahApp.Controllers;
 
-    public class ReviewController : Controller
+
+public class ReviewController : Controller
+{
+    private readonly ApplicationDbContext _context;
+    private readonly IEnumLocalizer _enumLocalizer;
+    public ReviewController(ApplicationDbContext context, IEnumLocalizer enumLocalizer)
     {
-        private readonly ApplicationDbContext _context;
+        _context = context;
+        _enumLocalizer = enumLocalizer;
+    }
 
-        public ReviewController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+    public async Task<IActionResult> Index()
+    {
+        // Get all disclosures including their type
+        var cases = await _context.Disclosures
+            .Include(d => d.DisclosureType)
+            .OrderByDescending(d => d.SubmittedAt) // newest first
+            .Select(d => new CaseItem
+            {
+                Type = d.DisclosureType.Name,
+                Reference = d.DisclosureNumber,
+                Date = d.SubmittedAt,
+                Location = d.Location,
+                Status = _enumLocalizer.LocalizeEnum(d.Status),
+                Description = d.Description
+            })
+            .ToListAsync();
 
-        public async Task<IActionResult> Index()
-        {
-            // Get all disclosures including their type
-            var cases = await _context.Disclosures
-                .Include(d => d.DisclosureType)
-                .OrderByDescending(d => d.SubmittedAt) // newest first
-                .Select(d => new CaseItem
-                {
-                    Type = d.DisclosureType.Name,
-                    Reference = d.DisclosureNumber,
-                    Date = d.SubmittedAt,
-                    Location = d.Location,
-                    Status = d.Status,
-                    Description = d.Description
-                })
-                .ToListAsync();
+        return View(cases);
+    }
 
-            return View(cases);
-        }
-
-        public IActionResult ReviewDisclosure()
-        {
-            var disclosureCases = new List<CaseItem>
+    public IActionResult ReviewDisclosure()
+    {
+        var disclosureCases = new List<CaseItem>
             {
                 new CaseItem
                 {
@@ -62,39 +65,39 @@ namespace IfsahApp.Controllers;
                 }
             };
 
-            // Pass the first item only (a single CaseItem)
-            return View(disclosureCases.FirstOrDefault());
-        }
-        [HttpPost]
-public async Task<IActionResult> SubmitReview(string reviewerNotes, IFormFile attachment)
-{
-    // Optional: Save file if uploaded
-    if (attachment != null && attachment.Length > 0)
+        // Pass the first item only (a single CaseItem)
+        return View(disclosureCases.FirstOrDefault());
+    }
+    [HttpPost]
+    public async Task<IActionResult> SubmitReview(string reviewerNotes, IFormFile attachment)
     {
-        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-
-        if (!Directory.Exists(uploadsFolder))
+        // Optional: Save file if uploaded
+        if (attachment != null && attachment.Length > 0)
         {
-            Directory.CreateDirectory(uploadsFolder);
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var filePath = Path.Combine(uploadsFolder, Path.GetFileName(attachment.FileName));
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await attachment.CopyToAsync(stream);
+            }
+
+            // You can store this path if needed
         }
 
-        var filePath = Path.Combine(uploadsFolder, Path.GetFileName(attachment.FileName));
+        // Optional: Log or store reviewer notes
+        Console.WriteLine("Reviewer Notes: " + reviewerNotes);
 
-        using (var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await attachment.CopyToAsync(stream);
-        }
-
-        // You can store this path if needed
+        // Redirect or return a view
+        return RedirectToAction("Index");
     }
 
-    // Optional: Log or store reviewer notes
-    Console.WriteLine("Reviewer Notes: " + reviewerNotes);
-
-    // Redirect or return a view
-    return RedirectToAction("Index");
 }
 
-    }
-    
 

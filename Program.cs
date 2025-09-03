@@ -36,6 +36,9 @@ builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpS
 builder.Services.AddTransient<IEmailService, SmtpEmailService>();
 // Registers Email service (creates a new instance each time it's requested)
 
+builder.Services.AddScoped<IEnumLocalizer, EnumLocalizer>();
+// Register Enum localizer
+
 // =============================
 // 4. Build Application
 // =============================

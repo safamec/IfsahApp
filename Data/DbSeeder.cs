@@ -1,5 +1,5 @@
-
-
+using IfsahApp.Enums;
+using IfsahApp.Helpers;
 using IfsahApp.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -57,31 +57,136 @@ public static class DbSeeder
                 new Disclosure
                 {
                     Id = 1,
-                    DisclosureNumber = "DISC-2025-0001",
+                    DisclosureNumber = DisclosureNumberGeneratorHelper.Generate(),
                     Description = "Unauthorized access to system",
                     IncidentStartDate = new DateTime(2025, 8, 30),
                     IncidentEndDate = new DateTime(2025, 8, 31),
                     Location = "Main Office",
                     SubmittedAt = DateTime.UtcNow,
-                    Status = "New",
-                    DisclosureTypeId = 1, // Safety
-                    SubmittedById = 1,   // Ahmed
+                    Status = DisclosureStatus.New,
+                    DisclosureTypeId = 1,
+                    SubmittedById = 1,
                     IsAccuracyConfirmed = false
                 },
                 new Disclosure
                 {
                     Id = 2,
-                    DisclosureNumber = "DISC-2025-0002",
+                    DisclosureNumber = DisclosureNumberGeneratorHelper.Generate(),
                     Description = "Data breach reported",
                     IncidentStartDate = new DateTime(2025, 9, 1),
                     Location = "Headquarters",
                     SubmittedAt = DateTime.UtcNow,
-                    Status = "InReview",
-                    DisclosureTypeId = 2, // Compliance
-                    SubmittedById = 2,   // Fatima
+                    Status = DisclosureStatus.InReview,
+                    DisclosureTypeId = 2,
+                    SubmittedById = 2,
+                    IsAccuracyConfirmed = true
+                },
+                new Disclosure
+                {
+                    Id = 3,
+                    DisclosureNumber = DisclosureNumberGeneratorHelper.Generate(),
+                    Description = "Unreported financial transaction",
+                    IncidentStartDate = new DateTime(2025, 7, 15),
+                    Location = "Finance Dept.",
+                    SubmittedAt = DateTime.UtcNow,
+                    Status = DisclosureStatus.Assigned,
+                    DisclosureTypeId = 2,
+                    SubmittedById = 1,
+                    IsAccuracyConfirmed = false
+                },
+                new Disclosure
+                {
+                    Id = 4,
+                    DisclosureNumber = DisclosureNumberGeneratorHelper.Generate(),
+                    Description = "Unauthorized software installation",
+                    IncidentStartDate = new DateTime(2025, 8, 5),
+                    Location = "IT Dept.",
+                    SubmittedAt = DateTime.UtcNow,
+                    Status = DisclosureStatus.Completed,
+                    DisclosureTypeId = 1,
+                    SubmittedById = 2,
+                    IsAccuracyConfirmed = true
+                },
+                new Disclosure
+                {
+                    Id = 5,
+                    DisclosureNumber = DisclosureNumberGeneratorHelper.Generate(),
+                    Description = "Misuse of company resources",
+                    IncidentStartDate = new DateTime(2025, 6, 20),
+                    Location = "Branch Office",
+                    SubmittedAt = DateTime.UtcNow,
+                    Status = DisclosureStatus.New,
+                    DisclosureTypeId = 2,
+                    SubmittedById = 1,
+                    IsAccuracyConfirmed = false
+                },
+                new Disclosure
+                {
+                    Id = 6,
+                    DisclosureNumber = DisclosureNumberGeneratorHelper.Generate(),
+                    Description = "Physical security breach",
+                    IncidentStartDate = new DateTime(2025, 8, 1),
+                    Location = "Warehouse",
+                    SubmittedAt = DateTime.UtcNow,
+                    Status = DisclosureStatus.InReview,
+                    DisclosureTypeId = 1,
+                    SubmittedById = 2,
+                    IsAccuracyConfirmed = true
+                },
+                new Disclosure
+                {
+                    Id = 7,
+                    DisclosureNumber = DisclosureNumberGeneratorHelper.Generate(),
+                    Description = "Delayed compliance reporting",
+                    IncidentStartDate = new DateTime(2025, 7, 30),
+                    Location = "Audit Dept.",
+                    SubmittedAt = DateTime.UtcNow,
+                    Status = DisclosureStatus.Assigned,
+                    DisclosureTypeId = 2,
+                    SubmittedById = 1,
+                    IsAccuracyConfirmed = false
+                },
+                new Disclosure
+                {
+                    Id = 8,
+                    DisclosureNumber = DisclosureNumberGeneratorHelper.Generate(),
+                    Description = "Unauthorized disclosure of confidential data",
+                    IncidentStartDate = new DateTime(2025, 8, 12),
+                    Location = "Main Office",
+                    SubmittedAt = DateTime.UtcNow,
+                    Status = DisclosureStatus.Completed,
+                    DisclosureTypeId = 2,
+                    SubmittedById = 2,
+                    IsAccuracyConfirmed = true
+                },
+                new Disclosure
+                {
+                    Id = 9,
+                    DisclosureNumber = DisclosureNumberGeneratorHelper.Generate(),
+                    Description = "Safety hazard in office premises",
+                    IncidentStartDate = new DateTime(2025, 8, 20),
+                    Location = "HQ Building",
+                    SubmittedAt = DateTime.UtcNow,
+                    Status = DisclosureStatus.New,
+                    DisclosureTypeId = 1,
+                    SubmittedById = 1,
+                    IsAccuracyConfirmed = false
+                },
+                new Disclosure
+                {
+                    Id = 10,
+                    DisclosureNumber = DisclosureNumberGeneratorHelper.Generate(),
+                    Description = "Non-compliance with internal audit",
+                    IncidentStartDate = new DateTime(2025, 9, 1),
+                    Location = "Audit Dept.",
+                    SubmittedAt = DateTime.UtcNow,
+                    Status = DisclosureStatus.InReview,
+                    DisclosureTypeId = 2,
+                    SubmittedById = 2,
                     IsAccuracyConfirmed = true
                 }
             );
+
             context.SaveChanges();
         }
     }

@@ -133,4 +133,8 @@
     <value>اللغة</value>
     <comment/>
   </data>
+  <data name="AllStatus" xml:space="preserve">
+    <value>الكل</value>
+    <comment/>
+  </data>
 </root>

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using IfsahApp.Enums;
 
 namespace IfsahApp.Models;
 
@@ -21,7 +22,8 @@ public class Disclosure
     [Required]
     public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
 
-    public string Status { get; set; } = "New"; // New, Assigned, InReview, Completed
+    // Use enum instead of string
+    public DisclosureStatus Status { get; set; } = DisclosureStatus.New;
 
     [Required]
     public int DisclosureTypeId { get; set; }

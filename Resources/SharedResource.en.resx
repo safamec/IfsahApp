@@ -133,4 +133,8 @@
     <value>Language</value>
     <comment/>
   </data>
+  <data name="AllStatus" xml:space="preserve">
+    <value>All</value>
+    <comment/>
+  </data>
 </root>

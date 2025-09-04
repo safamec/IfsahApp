@@ -23,7 +23,6 @@ namespace IfsahApp.Models
 
     [Display(Name = "Incident End Date")]
     [DataType(DataType.Date)]
-    [Required(ErrorMessage = "Incident end date is required.")]
     public DateTime? IncidentEndDate { get; set; }
 
 

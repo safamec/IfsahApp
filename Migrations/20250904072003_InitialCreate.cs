@@ -75,13 +75,14 @@ namespace IfsahApp.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     DisclosureNumber = table.Column<string>(type: "TEXT", nullable: false),
                     Description = table.Column<string>(type: "TEXT", maxLength: 300, nullable: false),
-                    IncidentStartDate = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    IncidentStartDate = table.Column<DateTime>(type: "TEXT", nullable: false),
                     IncidentEndDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Location = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
                     SubmittedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Status = table.Column<string>(type: "TEXT", nullable: false),
+                    Status = table.Column<int>(type: "INTEGER", nullable: false),
                     DisclosureTypeId = table.Column<int>(type: "INTEGER", nullable: false),
                     SubmittedById = table.Column<int>(type: "INTEGER", nullable: false),
+                    AssignedToUserId = table.Column<int>(type: "INTEGER", nullable: true),
                     IsAccuracyConfirmed = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
@@ -94,11 +95,17 @@ namespace IfsahApp.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
+                        name: "FK_Disclosures_Users_AssignedToUserId",
+                        column: x => x.AssignedToUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
                         name: "FK_Disclosures_Users_SubmittedById",
                         column: x => x.SubmittedById,
                         principalTable: "Users",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -182,6 +189,34 @@ namespace IfsahApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Comments",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    DisclosureId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Text = table.Column<string>(type: "TEXT", nullable: false),
+                    AuthorId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Comments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Comments_Disclosures_DisclosureId",
+                        column: x => x.DisclosureId,
+                        principalTable: "Disclosures",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Comments_Users_AuthorId",
+                        column: x => x.AuthorId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DisclosureAssignments",
                 columns: table => new
                 {
@@ -190,8 +225,7 @@ namespace IfsahApp.Migrations
                     DisclosureId = table.Column<int>(type: "INTEGER", nullable: false),
                     ExaminerId = table.Column<int>(type: "INTEGER", nullable: false),
                     AssignedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Status = table.Column<string>(type: "TEXT", nullable: false),
-                    UserId = table.Column<int>(type: "INTEGER", nullable: true)
+                    Status = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -208,11 +242,6 @@ namespace IfsahApp.Migrations
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_DisclosureAssignments_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -326,6 +355,16 @@ namespace IfsahApp.Migrations
                 column: "PerformedById");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Comments_AuthorId",
+                table: "Comments",
+                column: "AuthorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Comments_DisclosureId",
+                table: "Comments",
+                column: "DisclosureId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_DisclosureAssignments_DisclosureId",
                 table: "DisclosureAssignments",
                 column: "DisclosureId");
@@ -334,11 +373,6 @@ namespace IfsahApp.Migrations
                 name: "IX_DisclosureAssignments_ExaminerId",
                 table: "DisclosureAssignments",
                 column: "ExaminerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DisclosureAssignments_UserId",
-                table: "DisclosureAssignments",
-                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DisclosureAttachments_DisclosureId",
@@ -370,6 +404,11 @@ namespace IfsahApp.Migrations
                 name: "IX_DisclosureReviews_ReviewerId",
                 table: "DisclosureReviews",
                 column: "ReviewerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Disclosures_AssignedToUserId",
+                table: "Disclosures",
+                column: "AssignedToUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Disclosures_DisclosureTypeId",
@@ -419,6 +458,9 @@ namespace IfsahApp.Migrations
         {
             migrationBuilder.DropTable(
                 name: "AuditLogs");
+
+            migrationBuilder.DropTable(
+                name: "Comments");
 
             migrationBuilder.DropTable(
                 name: "DisclosureAssignments");

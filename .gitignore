@@ -83,7 +83,6 @@ desktop.ini
 *.pubxml
 *.publishproj
 publish/
-wwwroot/lib/
 
 # Coverage & test results
 *.coverage
@@ -96,8 +95,6 @@ docker-compose.override.yml
 .docker/
 
 # Entity Framework Migrations (generated snapshots can stay if needed)
-Migrations/*.Designer.cs
-Migrations/*Snapshot.cs
 
 # SQLite / Local databases
 *.db

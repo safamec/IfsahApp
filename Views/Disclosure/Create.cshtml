@@ -1,125 +1,301 @@
-@model IfsahApp.Models.Disclosure
-
-@using Microsoft.AspNetCore.Mvc.Localization
-@inject IViewLocalizer Localizer
+@model IfsahApp.ViewModels.DisclosureFormViewModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 
 @{
-    Layout = null;
-    ViewData["Title"] = Localizer["PageTitle"];
+    ViewData["Title"] = "Report Disclosure";
 }
 
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-<head>
-    <meta charset="utf-8" />
-    <title>@ViewData["Title"] - IfsahApp</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-</head>
-<body class="bg-light">
 
     <div class="container mt-5" style="max-width: 600px;">
         <h3 class="text-start">@Localizer["PageTitle"]</h3>
 
         <form asp-action="Create" method="post" enctype="multipart/form-data" novalidate>
             <div class="mb-3">
-                <label asp-for="DisclosureTypeId" class="form-label">@Localizer["DisclosureType"]</label>
-                <select asp-for="DisclosureTypeId" class="form-select"
+                <label asp-for="Disclosure.DisclosureTypeId" class="form-label">Type of Report</label>
+                <select asp-for="Disclosure.DisclosureTypeId" class="form-select"
                         asp-items='@(new SelectList(ViewBag.DisclosureTypes, "Id", "Name"))'>
-                    <option value="">@Localizer["SelectDisclosure"]</option>
+                    <option value="">-- Select Report Type --</option>
                 </select>
-                <span asp-validation-for="DisclosureTypeId" class="text-danger"></span>
+                <span asp-validation-for="Disclosure.DisclosureTypeId" class="text-danger"></span>
             </div>
 
             <div class="mb-3">
-                <label asp-for="Description" class="form-label">@Localizer["Description"]</label>
-                <textarea asp-for="Description" rows="4" class="form-control" placeholder="@Localizer["DescriptionPlaceholder"]"></textarea>
-                <span asp-validation-for="Description" class="text-danger"></span>
+                <label asp-for="Disclosure.Description" class="form-label">Description</label>
+                <textarea asp-for="Disclosure.Description" rows="4" class="form-control"
+                          placeholder="Write your description here..."></textarea>
+                <span asp-validation-for="Disclosure.Description" class="text-danger"></span>
             </div>
 
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label asp-for="IncidentStartDate" class="form-label">@Localizer["IncidentDate"]</label>
-                    <input asp-for="IncidentStartDate" class="form-control" type="date" />
-                    <span asp-validation-for="IncidentStartDate" class="text-danger"></span>
-                </div>
+            <div class="mb-3">
+                <label class="form-label">Report Date Range</label>
+                <input id="dateRangePicker" type="text" class="form-control" autocomplete="off"
+                       placeholder="Select date range" />
 
-                <div class="col-md-6">
-                    <label asp-for="Location" class="form-label">@Localizer["Location"]</label>
-                    <input asp-for="Location" class="form-control" placeholder="@Localizer["LocationPlaceholder"]" />
-                    <span asp-validation-for="Location" class="text-danger"></span>
-                </div>
+                <input type="hidden" asp-for="Disclosure.IncidentStartDate" />
+                <input type="hidden" asp-for="Disclosure.IncidentEndDate" />
+
+                <span asp-validation-for="Disclosure.IncidentStartDate" class="text-danger"></span>
+                <span asp-validation-for="Disclosure.IncidentEndDate" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Disclosure.Location" class="form-label">Violation Location</label>
+                <input asp-for="Disclosure.Location" class="form-control" placeholder="Location of violation" />
+                <span asp-validation-for="Disclosure.Location" class="text-danger"></span>
             </div>
 
             <div class="row">
-                <!-- Suspected People -->
                 <div class="col-md-6">
-                    <label class="form-label fw-bold">@Localizer["SuspectedPeople"]</label>
-                    <div id="suspected-people-list">
-                        <div class="input-group mb-2">
-                            <input type="text" name="SuspectedPeopleNames" class="form-control" placeholder="@Localizer["PersonName"]" />
-                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="addInput('suspected-people-list')">@Localizer["Add"]</button>
-                        </div>
-                    </div>
+                    <label class="form-label fw-bold">Suspected People</label>
+                    <div id="suspected-people-list"></div>
+                    <button type="button" class="btn btn-outline-primary btn-sm mt-2" data-list="suspected-people-list"
+                            onclick="openPersonModal(this)">+ Add Suspected Person</button>
                 </div>
 
-                <!-- Related People -->
                 <div class="col-md-6">
-                    <label class="form-label fw-bold">@Localizer["RelatedPeople"]</label>
-                    <div id="related-people-list">
-                        <div class="input-group mb-2">
-                            <input type="text" name="RelatedPeopleNames" class="form-control" placeholder="@Localizer["PersonName"]" />
-                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="addInput('related-people-list')">@Localizer["Add"]</button>
-                        </div>
-                    </div>
+                    <label class="form-label fw-bold">Related People</label>
+                    <div id="related-people-list"></div>
+                    <button type="button" class="btn btn-outline-primary btn-sm mt-2" data-list="related-people-list"
+                            onclick="openPersonModal(this)">+ Add Related Person</button>
                 </div>
             </div>
 
-            <!-- Attachments -->
-            <div class="mb-3">
-                <label class="form-label">@Localizer["Attachments"]</label>
-                <input type="file" name="Attachments" multiple class="form-control" />
-                <small class="text-muted">@Localizer["MultiFilesHint"]</small>
+            <div class="mb-3 mt-3">
+                <label class="form-label">Attachments</label>
+                <input id="fileInput" name="Attachments" type="file" multiple class="form-control"
+                       accept=".jpg,.jpeg,.png,.gif,.bmp,.mp4,.mov,.avi,.wmv,.mkv,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" />
+                <small class="text-muted">Allowed types: images, videos, PDF, Word, Excel, PowerPoint (Max 10MB each)</small>
+                <div id="previewList" class="mt-3"></div>
             </div>
 
-            <button type="submit" class="btn btn-success w-100">@Localizer["Submit"]</button>
+            <button type="submit" class="btn btn-success w-100">Submit Disclosure</button>
         </form>
     </div>
 
-    <!-- Scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+    <!-- Modal -->
+    <div class="modal fade" id="personModal" tabindex="-1" aria-labelledby="personModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="personForm" class="modal-content" onsubmit="return savePerson(event)">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="personModalLabel">Add Person Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="targetListId" />
+                    <div class="mb-3">
+                        <label for="personName" class="form-label">Name *</label>
+                        <input type="text" class="form-control" id="personName" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="personEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="personEmail" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="personPhone" class="form-label">Phone</label>
+                        <input type="text" class="form-control" id="personPhone" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="personOrganization" class="form-label">Organization</label>
+                        <input type="text" class="form-control" id="personOrganization" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Add Person</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @section Scripts{
+         <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        const personPlaceholder = "@Localizer["PersonName"]";
-        const removeText = "@Localizer["Remove"]";
+        $(function () {
+            $('#dateRangePicker').daterangepicker({
+                autoUpdateInput: false,
+                locale: {
+                    cancelLabel: 'Clear',
+                    format: 'YYYY-MM-DD'
+                }
+            });
 
-        function addInput(containerId) {
-            const container = document.getElementById(containerId);
+            $('#dateRangePicker').on('apply.daterangepicker', function (ev, picker) {
+                $(this).val(picker.startDate.format('YYYY-MM-DD') + ' to ' + picker.endDate.format('YYYY-MM-DD'));
+                $('input[name="Disclosure.IncidentStartDate"]').val(picker.startDate.format('YYYY-MM-DD'));
+                $('input[name="Disclosure.IncidentEndDate"]').val(picker.endDate.format('YYYY-MM-DD'));
+            });
+
+            $('#dateRangePicker').on('cancel.daterangepicker', function () {
+                $(this).val('');
+                $('input[name="Disclosure.IncidentStartDate"]').val('');
+                $('input[name="Disclosure.IncidentEndDate"]').val('');
+            });
+        });
+
+        let bootstrapModal;
+        document.addEventListener('DOMContentLoaded', function () {
+            bootstrapModal = new bootstrap.Modal(document.getElementById('personModal'));
+        });
+
+        function openPersonModal(button) {
+            document.getElementById('personForm').reset();
+            document.getElementById('targetListId').value = button.getAttribute('data-list');
+            bootstrapModal.show();
+        }
+
+        function savePerson(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('personName').value.trim();
+            const email = document.getElementById('personEmail').value.trim();
+            const phone = document.getElementById('personPhone').value.trim();
+            const org = document.getElementById('personOrganization').value.trim();
+            const listId = document.getElementById('targetListId').value;
+
+            if (!name) {
+                alert("Name is required");
+                return false;
+            }
+
+            const container = document.getElementById(listId);
+
             const div = document.createElement('div');
             div.classList.add('input-group', 'mb-2');
 
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.name = containerId === 'suspected-people-list' ? 'SuspectedPeopleNames' : 'RelatedPeopleNames';
-            input.className = 'form-control';
-            input.placeholder = personPlaceholder;
+            const index = container.children.length;
+
+            const inputName = document.createElement('input');
+            inputName.type = 'text';
+            inputName.name = listId === 'suspected-people-list'
+                ? `SuspectedPersons[${index}].Name`
+                : `RelatedPersons[${index}].Name`;
+            inputName.className = 'form-control';
+            inputName.value = name;
+            inputName.readOnly = true;
+
+            const hiddenEmail = document.createElement('input');
+            hiddenEmail.type = 'hidden';
+            hiddenEmail.name = inputName.name.replace('.Name', '.Email');
+            hiddenEmail.value = email;
+
+            const hiddenPhone = document.createElement('input');
+            hiddenPhone.type = 'hidden';
+            hiddenPhone.name = inputName.name.replace('.Name', '.Phone');
+            hiddenPhone.value = phone;
+
+            const hiddenOrg = document.createElement('input');
+            hiddenOrg.type = 'hidden';
+            hiddenOrg.name = inputName.name.replace('.Name', '.Organization');
+            hiddenOrg.value = org;
 
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'btn btn-outline-danger';
-            btn.textContent = removeText;
-            btn.onclick = function () { removeInput(btn); };
+            btn.textContent = '×';
+            btn.onclick = function () { div.remove(); };
 
-            div.appendChild(input);
+            div.appendChild(inputName);
+            div.appendChild(hiddenEmail);
+            div.appendChild(hiddenPhone);
+            div.appendChild(hiddenOrg);
             div.appendChild(btn);
+
             container.appendChild(div);
+
+            bootstrapModal.hide();
+            return false;
         }
 
-        function removeInput(button) {
-            button.parentElement.remove();
-        }
+        // File Preview and Icons logic with delete functionality
+        const fileInput = document.getElementById('fileInput');
+        const previewList = document.getElementById('previewList');
+
+        fileInput.addEventListener('change', function () {
+            previewList.innerHTML = '';
+
+            const allowedTypes = {
+                images: ['jpg', 'jpeg', 'png', 'gif', 'bmp'],
+                videos: ['mp4', 'mov', 'avi', 'wmv', 'mkv'],
+                documents: ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx']
+            };
+
+            function getFileExtension(filename) {
+                return filename.split('.').pop().toLowerCase();
+            }
+
+            function getIconClass(extension) {
+                if (allowedTypes.images.includes(extension)) return 'bi-file-image text-primary';
+                if (allowedTypes.videos.includes(extension)) return 'bi-file-play text-warning';
+                if (extension === 'pdf') return 'bi-file-earmark-pdf text-danger';
+                if (['doc', 'docx'].includes(extension)) return 'bi-file-earmark-word text-primary';
+                if (['xls', 'xlsx'].includes(extension)) return 'bi-file-earmark-excel text-success';
+                if (['ppt', 'pptx'].includes(extension)) return 'bi-file-earmark-powerpoint text-danger';
+                return 'bi-file-earmark-text'; // generic file icon
+            }
+
+            let totalSize = 0;
+
+            // Convert FileList to array to allow modifications
+            let filesArray = Array.from(fileInput.files);
+
+            filesArray.forEach((file, index) => {
+                totalSize += file.size;
+
+                const extension = getFileExtension(file.name);
+                const iconClass = getIconClass(extension);
+
+                const div = document.createElement('div');
+                div.className = 'd-flex align-items-center mb-2';
+                div.dataset.index = index;
+
+                const icon = document.createElement('i');
+                icon.className = `bi ${iconClass} fs-3 me-2`;
+
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = file.name;
+
+                const sizeSpan = document.createElement('span');
+                sizeSpan.className = 'text-muted ms-3';
+                sizeSpan.style.fontSize = '0.85rem';
+                sizeSpan.textContent = `(${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
+
+                // Delete button
+                const btnDelete = document.createElement('button');
+                btnDelete.type = 'button';
+                btnDelete.className = 'btn btn-outline-danger btn-sm ms-auto';
+                btnDelete.textContent = '×';
+
+                btnDelete.onclick = function () {
+                    filesArray.splice(index, 1);
+
+                    // Reset the files property of input
+                    const dataTransfer = new DataTransfer();
+                    filesArray.forEach(f => dataTransfer.items.add(f));
+                    fileInput.files = dataTransfer.files;
+
+                    // Re-trigger change event to refresh preview
+                    fileInput.dispatchEvent(new Event('change'));
+                };
+
+                div.appendChild(icon);
+                div.appendChild(nameSpan);
+                div.appendChild(sizeSpan);
+                div.appendChild(btnDelete);
+
+                previewList.appendChild(div);
+            });
+
+            if (filesArray.length > 0) {
+                const totalSizeMB = (totalSize / (1024 * 1024)).toFixed(2);
+                const sizeDiv = document.createElement('div');
+                sizeDiv.className = 'mt-2 fw-bold text-dark';
+                sizeDiv.textContent = `Total File Size: ${totalSizeMB} MB`;
+                previewList.appendChild(sizeDiv);
+            }
+        });
     </script>
-</body>
-</html>
+    }
+

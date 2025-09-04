@@ -15,11 +15,20 @@ namespace IfsahApp.Models
         [Required, MaxLength(300)]
         public string Description { get; set; } = string.Empty;
 
-        public DateTime? IncidentStartDate { get; set; }
-        public DateTime? IncidentEndDate { get; set; }
+    
+    [Display(Name = "Incident Start Date")]
+    [DataType(DataType.Date)]
+    [Required(ErrorMessage = "Incident start date is required.")]
+    public DateTime? IncidentStartDate { get; set; }
 
-        [MaxLength(100)]
-        public string Location { get; set; } = string.Empty;
+    [Display(Name = "Incident End Date")]
+    [DataType(DataType.Date)]
+    [Required(ErrorMessage = "Incident end date is required.")]
+    public DateTime? IncidentEndDate { get; set; }
+
+
+    [MaxLength(100)]
+    public string Location { get; set; }
 
         [Required]
         public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;

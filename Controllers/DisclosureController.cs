@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using IfsahApp.Models;
 using IfsahApp.Data;
+using IfsahApp.ViewModels;
+using System.IO;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using IfsahApp.Services;
-
-namespace IfsahApp.Controllers;
 
 public class DisclosureController : Controller
 {
@@ -20,99 +21,131 @@ public class DisclosureController : Controller
         _enumLocalizer = enumLocalizer;
     }
 
-    // GET: /Disclosure/Create
-    [HttpGet]
-    public IActionResult Create()
-    {
-        ViewBag.DisclosureTypes = _context.DisclosureTypes.ToList();
-        return View();
-    }
-
-    // POST: /Disclosure/Create
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(
-        Disclosure model,
-        List<IFormFile> Attachments,
-        List<string> SuspectedPeopleNames,
-        List<string> RelatedPeopleNames)
-    {
-        if (ModelState.IsValid)
+        // GET: /Disclosure/Create
+        [HttpGet]
+        public IActionResult Create()
         {
-            // Optional: Generate a disclosure number
-            model.DisclosureNumber = $"DISC-{DateTime.UtcNow.Year}-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
+            ViewBag.DisclosureTypes = _context.DisclosureTypes.ToList();
 
-            // Set the current user (mock or get from auth)
-            model.SubmittedById = 1; // Replace with actual user ID from login
-
-            // Handle suspected people
-            if (SuspectedPeopleNames != null)
+            var viewModel = new DisclosureFormViewModel
             {
-                foreach (var name in SuspectedPeopleNames)
-                {
-                    if (!string.IsNullOrWhiteSpace(name))
-                    {
-                        model.SuspectedPeople.Add(new SuspectedPerson { Name = name });
-                    }
-                }
-            }
+                Disclosure = new Disclosure()
+            };
 
-            // Handle related people
-            if (RelatedPeopleNames != null)
-            {
-                foreach (var name in RelatedPeopleNames)
-                {
-                    if (!string.IsNullOrWhiteSpace(name))
-                    {
-                        model.RelatedPeople.Add(new RelatedPerson { Name = name });
-                    }
-                }
-            }
-
-            // Handle file attachments
-            if (Attachments != null && Attachments.Count > 0)
-            {
-                model.Attachments = new List<DisclosureAttachment>();
-
-                foreach (var file in Attachments)
-                {
-                    if (file.Length > 0)
-                    {
-                        var uploads = Path.Combine(_env.WebRootPath, "uploads");
-                        Directory.CreateDirectory(uploads);
-
-                        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                        var filePath = Path.Combine(uploads, fileName);
-
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await file.CopyToAsync(stream);
-                        }
-
-                        model.Attachments.Add(new DisclosureAttachment
-                        {
-                            FileName = fileName,
-                            FileType = Path.GetExtension(file.FileName)?.TrimStart('.'),
-                            FileSize = file.Length
-                        });
-                    }
-                }
-            }
-
-            // Save to DB
-            _context.Disclosures.Add(model);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Success"); // You can implement a success view
+            return View(viewModel);
         }
 
-        ViewBag.DisclosureTypes = _context.DisclosureTypes.ToList(); // Repopulate dropdown
-        return View(model);
-    }
+        // POST: /Disclosure/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(DisclosureFormViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var disclosure = model.Disclosure;
 
-    // Optional Success page
-    public IActionResult Success()
-    {
-        return View();
+                disclosure.DisclosureNumber = $"DISC-{DateTime.UtcNow.Year}-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
+                disclosure.SubmittedById = 1;
+
+
+
+                if (disclosure.SuspectedPeople == null)
+                    disclosure.SuspectedPeople = new List<SuspectedPerson>();
+
+                if (disclosure.RelatedPeople == null)
+                    disclosure.RelatedPeople = new List<RelatedPerson>();
+
+
+
+                if (model.SuspectedPersons != null && model.SuspectedPersons.Count > 0)
+                {
+                    foreach (var suspected in model.SuspectedPersons)
+                    {
+                        disclosure.SuspectedPeople.Add(suspected);
+                    }
+                }
+
+                if (model.RelatedPersons != null && model.RelatedPersons.Count > 0)
+                {
+                    foreach (var related in model.RelatedPersons)
+                    {
+                        disclosure.RelatedPeople.Add(related);
+                    }
+                }
+
+
+                var allowedExtensions = new[] {
+                 ".jpg", ".jpeg", ".png", ".gif", ".bmp",
+                 ".mp4", ".mov", ".avi", ".wmv", ".mkv",
+                 ".pdf",
+                 ".doc", ".docx",
+                 ".xls", ".xlsx",
+                 ".ppt", ".pptx"
+                 };
+
+                const long maxFileSize = 10 * 1024 * 1024; // 10 MB
+
+                if (model.Attachments != null && model.Attachments.Count > 0)
+                {
+                    var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads");
+                    Directory.CreateDirectory(uploadsFolder);
+
+                    // Ensure list is initialized
+                    disclosure.Attachments ??= new List<DisclosureAttachment>();
+
+                    foreach (var file in model.Attachments)
+                    {
+                        if (file.Length > 0)
+                        {
+                            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+                            // Check allowed extension
+                            if (!allowedExtensions.Contains(extension))
+                            {
+                                ModelState.AddModelError("Attachments", $"File type '{extension}' is not allowed.");
+                                continue; // Skip this file
+                            }
+
+                            // Check file size
+                            if (file.Length > maxFileSize)
+                            {
+                                ModelState.AddModelError("Attachments", $"File '{file.FileName}' exceeds the 10MB size limit.");
+                                continue; // Skip this file
+                            }
+
+                            // Generate unique filename
+                            var uniqueFileName = $"{Guid.NewGuid()}{extension}";
+                            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                            // Save file
+                            using (var stream = new FileStream(filePath, FileMode.Create))
+                            {
+                                await file.CopyToAsync(stream);
+                            }
+
+                            // Save attachment info
+                            disclosure.Attachments.Add(new DisclosureAttachment
+                            {
+                                FileName = uniqueFileName,
+                                FileType = extension.TrimStart('.'),
+                                FileSize = file.Length
+                            });
+                        }
+                    }
+                }
+
+
+
+                _context.Disclosures.Add(disclosure);
+                await _context.SaveChangesAsync();
+
+            return RedirectToAction("Success");
+        }
+
+            ViewBag.DisclosureTypes = _context.DisclosureTypes.ToList();
+
+            return View(model);
+        }
+
+
     }
-}

@@ -104,6 +104,3 @@ docker-compose.override.yml
 
 # Others
 _ReSharper.Caches/
-
-# Solution files
-*.sln

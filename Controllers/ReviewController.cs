@@ -2,10 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using IfsahApp.Data;
 using IfsahApp.Models;
-using IfsahApp.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using IfsahApp.Services;
 
 namespace IfsahApp.Controllers;

@@ -1,5 +1,6 @@
 using IfsahApp.Data;        // Import your EF Core database context (ApplicationDbContext)
 using IfsahApp.Services;    // Import your custom services (AD service, Email service, etc.)
+using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.EntityFrameworkCore; // Import EF Core functionality for DbContext and SQLite
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,6 +40,9 @@ builder.Services.AddTransient<IEmailService, SmtpEmailService>();
 builder.Services.AddScoped<IEnumLocalizer, EnumLocalizer>();
 // Register Enum localizer
 
+builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
+// Enable Windows Authentication
+
 // =============================
 // 4. Build Application
 // =============================
@@ -74,12 +78,15 @@ app.UseRequestLocalization(localizationOptions);
 // =============================
 app.UseStaticFiles();  // Serves static files (CSS, JS, images, etc.) from wwwroot folder
 app.UseRouting();      // Enables endpoint routing
+app.UseAuthentication(); // Enables authentication
 app.UseAuthorization();// Enables authorization checks (e.g., [Authorize] attributes)
 
 // =============================
 // 8. Routing
 // =============================
-app.MapDefaultControllerRoute();
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Account}/{action=Login}/{id?}");
 // Sets up default route pattern: {controller=Home}/{action=Index}/{id?}
 
 // =============================

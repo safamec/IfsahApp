@@ -94,8 +94,6 @@ coverage/
 docker-compose.override.yml
 .docker/
 
-# Entity Framework Migrations (generated snapshots can stay if needed)
-
 # SQLite / Local databases
 *.db
 *.sqlite
@@ -106,3 +104,6 @@ docker-compose.override.yml
 
 # Others
 _ReSharper.Caches/
+
+# Solution files
+*.sln

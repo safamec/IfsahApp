@@ -1,0 +1,157 @@
+@model List<IfsahApp.Models.CaseItem>
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewBag.Title = Localizer["ReviewDashboard"];
+}
+<style>
+    body {
+        background-color: #111827;
+        color: #d1d5db;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .dashboard-wrapper {
+        max-width: 1100px;
+        margin: 20px auto;
+        padding: 0;
+    }
+
+    h2 {
+        color: white;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .text-muted {
+        color: #9ca3af !important;
+        margin-bottom: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #1f2937;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    thead {
+        background-color: #374151;
+        text-transform: uppercase;
+        color: #9ca3af;
+        font-weight: 700;
+        font-size: 0.9rem;
+        letter-spacing: 0.05em;
+    }
+
+    th, td {
+        padding: 12px 16px;
+        text-align: left;
+        font-size: 1rem;
+    }
+
+    tbody tr {
+        border-bottom: 1px solid #2d3748;
+        transition: background-color 0.3s ease;
+    }
+
+    tbody tr:hover {
+        background-color: #374151;
+    }
+
+    .status-value {
+        color: #3b82f6;
+        font-weight: 500;
+    }
+
+    .review-button {
+        color: #10b981;
+        border: 2px solid #10b981;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        white-space: nowrap;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .review-button:hover {
+        background-color: #10b981;
+        color: white;
+    }
+
+    @@media (max-width: 700px) {
+        table, thead, tbody, th, td, tr {
+            display: block;
+        }
+
+        thead {
+            display: none;
+        }
+
+        td {
+            padding: 10px;
+            text-align: right;
+            position: relative;
+        }
+
+        td::before {
+            content: attr(data-label);
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            color: #9ca3af;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+    }
+</style>
+
+<div class="dashboard-wrapper">
+    <h2>@Localizer["ReviewDashboard"]</h2>
+    <p class="text-muted">@Localizer["AssignedDisclosureCases"]</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>@Localizer["Action"]</th>
+                <th>@Localizer["Status"]</th>
+                <th>@Localizer["Location"]</th>
+                <th>@Localizer["Date"]</th>
+                <th>@Localizer["Type"]</th>
+                <th>@Localizer["Reference"]</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var caseItem in Model)
+            {
+                <tr>
+                    <td data-label="@Localizer["Action"]">
+                        <a href="@Url.Action("ReviewDisclosure", "Review", new { reference = caseItem.Reference })" class="review-button">
+                            @Localizer["ReviewCase"]
+                        </a>
+                    </td>
+                    <td data-label="@Localizer["Status"]">
+                        <span class="status-value">@caseItem.Status</span>
+                    </td>
+                    <td data-label="@Localizer["Location"]">
+                        @caseItem.Location
+                    </td>
+                    <td data-label="@Localizer["Date"]">
+                        @caseItem.Date.ToString("yyyy-MM-dd")
+                    </td>
+                    <td data-label="@Localizer["Type"]">
+                        @caseItem.Type
+                    </td>
+                    <td data-label="@Localizer["Reference"]">
+                        <code>@caseItem.Reference</code>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

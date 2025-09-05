@@ -1,0 +1,101 @@
+@model IfsahApp.Models.Disclosure
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <!-- Big card container -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+
+                    <h2 class="card-title mb-4 text-center">@Model.DisclosureNumber - @Model.DisclosureType?.Name</h2>
+
+                    <p><strong>Description:</strong> @Model.Description</p>
+                    <p><strong>Location:</strong> @Model.Location</p>
+                    <p><strong>Status:</strong> @Model.Status</p>
+                    <p><strong>Submitted At:</strong> @Model.SubmittedAt.ToString("yyyy-MM-dd")</p>
+                    <p><strong>Submitted By:</strong> @Model.SubmittedBy?.FullName</p>
+                    <p><strong>Assigned To:</strong> @(Model.AssignedToUser?.FullName ?? "Unassigned")</p>
+
+                    <hr />
+
+                    <h4>Notes</h4>
+                    @if (Model.Notes?.Any() == true)
+                    {
+                        <ul>
+                            @foreach (var note in Model.Notes)
+                            {
+                                <li>
+                                    <strong>@note.Author?.FullName</strong> on @note.CreatedAt.ToString("g")<br />
+                                    @note.Content
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>No notes available.</p>
+                    }
+
+                    <h4>Attachments</h4>
+                    @if (Model.Attachments?.Any() == true)
+                    {
+                        <ul>
+                            @foreach (var att in Model.Attachments)
+                            {
+                                <li>
+                                    <a href="@att.FullPath" target="_blank">@att.FileName</a>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>No attachments.</p>
+                    }
+
+                    <hr />
+
+                    <h4>Admin Comments & Assignment</h4>
+                    @if (Model.Comments?.Any() == true)
+                    {
+                        <ul>
+                            @foreach (var c in Model.Comments.OrderByDescending(x => x.CreatedAt))
+                            {
+                                <li>
+                                    <strong>@c.Author</strong> on @c.CreatedAt.ToString("g")<br />
+                                    @c.Text
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>No comments yet.</p>
+                    }
+
+                    <form asp-action="AddComment" method="post">
+                        <input type="hidden" name="disclosureId" value="@Model.Id" />
+                        <div class="mb-3">
+                            <label for="commentText" class="form-label">Add Comment</label>
+                            <textarea name="commentText" id="commentText" class="form-control" rows="3" placeholder="Enter comment"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="assignToDiscloserId" class="form-label">Assign to Discloser</label>
+                            <select name="assignToDiscloserId" id="assignToDiscloserId" class="form-select">
+                                <option value="">-- Select Discloser --</option>
+                                @foreach (var d in (List<IfsahApp.Models.User>)ViewBag.Disclosers)
+                                {
+                                    <option value="@d.Id">@d.FullName (@d.ADUserName)</option>
+                                }
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+
+                </div> <!-- card-body -->
+            </div> <!-- card -->
+
+        </div> <!-- col -->
+    </div> <!-- row -->
+</div> <!-- container -->

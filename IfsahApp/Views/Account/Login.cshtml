@@ -1,0 +1,17 @@
+@model IfsahApp.Services.AdUser
+
+@{
+    ViewData["Title"] = "Welcome";
+}
+
+<h2>Welcome, @Model.DisplayName!</h2>
+
+<table>
+    <tr><th>Username:</th><td>@Model.SamAccountName</td></tr>
+    <tr><th>Email:</th><td>@Model.Email</td></tr>
+    <tr><th>Department:</th><td>@Model.Department</td></tr>
+</table>
+
+<form method="post" asp-action="Logout">
+    <button type="submit">Logout</button>
+</form>

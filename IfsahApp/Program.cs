@@ -1,30 +1,38 @@
 using IfsahApp.Data;
 using IfsahApp.Services;
-using IfsahApp.Services.AdUser;
-using IfsahApp.Authentication;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Negotiate;
-using Microsoft.EntityFrameworkCore;
-using IfsahApp.Services.Email;
-using IfsahApp.Options;
 using IfsahApp.Middleware;
 using IfsahApp.Extensions;
+using IfsahApp.Services.Email;
+using IfsahApp.Services.AdUser;
+using Microsoft.EntityFrameworkCore;
 
-var builder = WebApplication.CreateBuilder(args);
+var options = new WebApplicationOptions
+{
+    ContentRootPath = Directory.GetCurrentDirectory(),
+    WebRootPath = Path.Combine(Directory.GetCurrentDirectory(), "Web", "wwwroot")
+};
+
+var builder = WebApplication.CreateBuilder(options);
 
 // =============================
 // 1. Database
 // =============================
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<ApplicationDbContext>(dbOptions =>
+    dbOptions.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // =============================
-// 2. Localization
+// 2. Localization + Views
 // =============================
-builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+builder.Services.AddLocalization(opts => opts.ResourcesPath = "Resources");
 builder.Services.AddControllersWithViews()
-       .AddViewLocalization()
-       .AddDataAnnotationsLocalization();
+    .AddViewLocalization()
+    .AddDataAnnotationsLocalization()
+    .AddRazorOptions(opts =>
+    {
+        opts.ViewLocationFormats.Clear();
+        opts.ViewLocationFormats.Add("/Web/Views/{1}/{0}.cshtml");
+        opts.ViewLocationFormats.Add("/Web/Views/Shared/{0}.cshtml");
+    });
 
 // =============================
 // 3. Custom Services
@@ -64,24 +72,24 @@ builder.Services.AddAuthorization(options =>
 var app = builder.Build();
 
 // =============================
-// 7. DB seeding
+// 7. DB Seeding
 // =============================
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    DbSeeder.Seed(dbContext);
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    DbSeeder.Seed(db);
 }
 
 // =============================
 // 8. Localization options
 // =============================
 var supportedCultures = new[] { "en", "ar" };
-var localizationOptions = new RequestLocalizationOptions()
+var locOptions = new RequestLocalizationOptions()
     .SetDefaultCulture("ar")
     .AddSupportedCultures(supportedCultures)
     .AddSupportedUICultures(supportedCultures);
 
-app.UseRequestLocalization(localizationOptions);
+app.UseRequestLocalization(locOptions);
 
 // =============================
 // 9. Middleware pipeline
@@ -90,8 +98,6 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-
-// Middleware: ensure AD profile exists
 app.UseAdUser();
 
 // =============================

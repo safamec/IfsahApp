@@ -1,23 +1,33 @@
-namespace IfsahApp.Services;
+using IfsahApp.Options;
+using Microsoft.Extensions.Options;
 
-public sealed class FakeAdUserService : IAdUserService
+namespace IfsahApp.Services.AdUser
 {
-    private static readonly List<AdUser> _users = new()
+    public class FakeAdUserService : IAdUserService
+    {
+        private readonly DevUserOptions _devUserOptions;
+
+        // Predefined fake users for dev/testing
+        private readonly List<AdUser> _users = new()
         {
-            new AdUser { SamAccountName = "ahmed", DisplayName = "Ahmed Al Wahaibi", Email = "ahmed@example.com", Department = "IT" },
-            new AdUser { SamAccountName = "jdoe", DisplayName = "John Doe", Email = "jdoe@example.com", Department = "IT" },
-            new AdUser { SamAccountName = "asmith", DisplayName = "Alice Smith", Email = "asmith@example.com", Department = "HR" },
-            new AdUser { SamAccountName = "bking", DisplayName = "Bob King", Email = "bking@example.com", Department = "Finance" }
+            new AdUser { SamAccountName = "ahmed", DisplayName = "Ahmed Al Wahaibi", Email = "ahmed@corp.com", Department = "IT" },
+            new AdUser { SamAccountName = "jdoe", DisplayName = "John Doe", Email = "jdoe@corp.com", Department = "HR" }
         };
 
-    public Task<AdUser?> FindByWindowsIdentityAsync(string windowsIdentityName, CancellationToken ct = default)
-    {
-        var parts = windowsIdentityName.Split('\\', StringSplitOptions.RemoveEmptyEntries);
-        string sam = parts.Length == 2 ? parts[1] : parts[0];
+        public FakeAdUserService(IOptions<DevUserOptions> devUserOptions)
+        {
+            _devUserOptions = devUserOptions.Value;
+        }
 
-        var user = _users.FirstOrDefault(u =>
-            string.Equals(u.SamAccountName, sam, StringComparison.OrdinalIgnoreCase));
+        public Task<AdUser?> FindByWindowsIdentityAsync(string windowsIdentityName, CancellationToken ct = default)
+        {
+            // Use CLI-selected user if present, otherwise fallback to identity
+            string sam = _devUserOptions.SamAccountName ?? windowsIdentityName.Split('\\').Last();
 
-        return Task.FromResult(user);
+            var user = _users.FirstOrDefault(u =>
+                string.Equals(u.SamAccountName, sam, StringComparison.OrdinalIgnoreCase));
+
+            return Task.FromResult(user);
+        }
     }
 }

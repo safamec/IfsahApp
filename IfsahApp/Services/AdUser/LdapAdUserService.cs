@@ -1,20 +1,22 @@
 using System.DirectoryServices.Protocols;
 using System.Net;
 
-namespace IfsahApp.Services
+namespace IfsahApp.Services.AdUser;
+
+public sealed class LdapAdUserService : IAdUserService
 {
-    public sealed class LdapAdUserService : IAdUserService
+    private readonly IConfiguration _config;
+    private readonly ILogger<LdapAdUserService> _logger;
+
+    public LdapAdUserService(IConfiguration config, ILogger<LdapAdUserService> logger)
     {
-        private readonly IConfiguration _config;
-        private readonly ILogger<LdapAdUserService> _logger;
+        _config = config;
+        _logger = logger;
+    }
 
-        public LdapAdUserService(IConfiguration config, ILogger<LdapAdUserService> logger)
-        {
-            _config = config;
-            _logger = logger;
-        }
-
-        public async Task<AdUser?> FindByWindowsIdentityAsync(string windowsIdentityName, CancellationToken ct = default)
+    public async Task<AdUser?> FindByWindowsIdentityAsync(string windowsIdentityName, CancellationToken ct = default)
+    {
+        return await Task.Run(() =>
         {
             // Strip domain prefix if present (CORP\ahmed -> ahmed)
             var parts = windowsIdentityName.Split('\\', StringSplitOptions.RemoveEmptyEntries);
@@ -38,7 +40,8 @@ namespace IfsahApp.Services
                     searchBase,
                     $"(&(objectClass=user)(sAMAccountName={sam}))",
                     SearchScope.Subtree,
-                    "sAMAccountName", "displayName", "mail", "department");
+                    "sAMAccountName", "displayName", "mail", "department"
+                );
 
                 var response = (SearchResponse)connection.SendRequest(request);
 
@@ -60,6 +63,6 @@ namespace IfsahApp.Services
             }
 
             return null;
-        }
+        }, ct);
     }
 }

@@ -1,13 +1,14 @@
 using IfsahApp.Data;
 using IfsahApp.Services;
+using IfsahApp.Services.AdUser;
 using IfsahApp.Authentication;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
-using System.Security.Claims;
 using IfsahApp.Services.Email;
+using IfsahApp.Options;
 using IfsahApp.Middleware;
+using IfsahApp.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,20 +44,9 @@ else
 builder.Services.AddScoped<IEnumLocalizer, EnumLocalizer>();
 
 // =============================
-// 4. Authentication
+// 4. Authentication & AD Service
 // =============================
-bool isDev = builder.Environment.IsDevelopment();
-
-if (isDev)
-{
-    builder.Services.AddAuthentication("Fake")
-           .AddScheme<AuthenticationSchemeOptions, FakeAuthHandler>("Fake", null);
-}
-else
-{
-    builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
-           .AddNegotiate();
-}
+builder.Services.AddAppAuthentication(builder.Environment, args);
 
 // =============================
 // 5. Authorization
@@ -102,7 +92,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Middleware: ensure AD profile exists
-app.UseEnsureAdUser(isDev);
+app.UseAdUser();
 
 // =============================
 // 10. Routing

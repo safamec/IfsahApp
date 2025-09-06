@@ -1,32 +1,49 @@
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.Options;
+using IfsahApp.Options;
 using System.Security.Claims;
+using IfsahApp.Services.AdUser;
 using System.Text.Encodings.Web;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Authentication;
 
-namespace IfsahApp.Authentication
+namespace IfsahApp.Authentication;
+
+public class FakeAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
-    public class FakeAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+    private readonly IAdUserService _adUserService;
+    private readonly DevUserOptions _devUserOptions;
+
+    public FakeAuthHandler(
+        IOptionsMonitor<AuthenticationSchemeOptions> options,
+        ILoggerFactory logger,
+        UrlEncoder encoder,
+        IAdUserService adUserService,
+        IOptions<DevUserOptions> devUserOptions
+    ) : base(options, logger, encoder)
     {
-        public FakeAuthHandler(
-            IOptionsMonitor<AuthenticationSchemeOptions> options,
-            ILoggerFactory logger,
-            UrlEncoder encoder,
-            ISystemClock clock)
-            : base(options, logger, encoder, clock) { }
+        _adUserService = adUserService;
+        _devUserOptions = devUserOptions.Value;
+    }
 
-        protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+    protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
+    {
+        string windowsIdentityName = _devUserOptions.SamAccountName ?? Environment.UserName;
+
+        var adUser = await _adUserService.FindByWindowsIdentityAsync(windowsIdentityName);
+        if (adUser == null)
+            return AuthenticateResult.Fail($"User '{windowsIdentityName}' not found in AD.");
+
+        var claims = new[]
         {
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.Name, "CORP\\ahmed"),
-                new Claim(ClaimTypes.Sid, "S-1-5-21-FAKE-DEV")
-            };
+            new Claim(ClaimTypes.Name, adUser.SamAccountName),
+            new Claim(ClaimTypes.GivenName, adUser.DisplayName),
+            new Claim(ClaimTypes.Email, adUser.Email),
+            new Claim("Department", adUser.Department)
+        };
 
-            var identity = new ClaimsIdentity(claims, Scheme.Name);
-            var principal = new ClaimsPrincipal(identity);
-            var ticket = new AuthenticationTicket(principal, Scheme.Name);
+        var identity = new ClaimsIdentity(claims, Scheme.Name);
+        var principal = new ClaimsPrincipal(identity);
+        var ticket = new AuthenticationTicket(principal, Scheme.Name);
 
-            return Task.FromResult(AuthenticateResult.Success(ticket));
-        }
+        return AuthenticateResult.Success(ticket);
     }
 }

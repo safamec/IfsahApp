@@ -1,4 +1,4 @@
-using IfsahApp.Services;
+using IfsahApp.Services.AdUser;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,16 +14,14 @@ public class AccountController : Controller
     [HttpGet]
     public IActionResult Login()
     {
-        // AD user injected by middleware
         if (HttpContext.Items.TryGetValue("AdUser", out var obj) && obj is AdUser adUser)
         {
-            // Pass user to the view
-            return View(adUser);
+            return View(adUser); // shows the CLI-selected user
         }
 
-        // If no AD profile found, redirect to AccessDenied
         return RedirectToAction("AccessDenied");
     }
+
 
     // =============================
     // Access Denied Page

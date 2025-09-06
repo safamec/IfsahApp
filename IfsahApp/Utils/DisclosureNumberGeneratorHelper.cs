@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 
-namespace IfsahApp.Helpers;
+namespace IfsahApp.Utils;
 
 public static class DisclosureNumberGeneratorHelper
 {

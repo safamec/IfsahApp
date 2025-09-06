@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace IfsahApp.Models;
+namespace IfsahApp.Core.Models;
 
 public class UserNotificationPreference
 {
@@ -8,7 +8,7 @@ public class UserNotificationPreference
 
     [Required]
     public int UserId { get; set; }
-    public User User { get; set; }
+    public User? User { get; set; }
 
     public bool NotifyOnSubmission { get; set; } = true;
     public bool NotifyOnAssignment { get; set; } = true;

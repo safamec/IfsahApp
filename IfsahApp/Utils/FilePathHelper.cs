@@ -1,6 +1,6 @@
-using IfsahApp.Configuration;
+using IfsahApp.Config;
 
-namespace IfsahApp.Helpers;
+namespace IfsahApp.Utils;
 
 public static class FilePathHelper
 {

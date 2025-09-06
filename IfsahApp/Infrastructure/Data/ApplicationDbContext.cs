@@ -1,7 +1,7 @@
-using IfsahApp.Models;
+using IfsahApp.Core.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace IfsahApp.Data;
+namespace IfsahApp.Infrastructure.Data;
 
 public class ApplicationDbContext : DbContext
 {

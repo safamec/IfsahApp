@@ -1,6 +1,4 @@
-using Microsoft.Extensions.Configuration;
-
-namespace IfsahApp.Configuration;
+namespace IfsahApp.Config;
 
 public static class AppSettings
 {

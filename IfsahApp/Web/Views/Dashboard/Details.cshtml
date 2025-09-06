@@ -1,4 +1,4 @@
-@model IfsahApp.Models.Disclosure
+@model Disclosure
 
 <div class="container my-5">
     <div class="row justify-content-center">
@@ -84,7 +84,7 @@
                             <label for="assignToDiscloserId" class="form-label">Assign to Discloser</label>
                             <select name="assignToDiscloserId" id="assignToDiscloserId" class="form-select">
                                 <option value="">-- Select Discloser --</option>
-                                @foreach (var d in (List<IfsahApp.Models.User>)ViewBag.Disclosers)
+                                @foreach (var d in (List<User>)ViewBag.Disclosers)
                                 {
                                     <option value="@d.Id">@d.FullName (@d.ADUserName)</option>
                                 }

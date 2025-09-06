@@ -1,11 +1,11 @@
-using IfsahApp.Options;
+using IfsahApp.Config;
 using System.Security.Claims;
-using IfsahApp.Services.AdUser;
+using IfsahApp.Infrastructure.Services.AdUser;
 using System.Text.Encodings.Web;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authentication;
 
-namespace IfsahApp.Authentication;
+namespace IfsahApp.Infrastructure.Services.Authentication;
 
 public class FakeAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {

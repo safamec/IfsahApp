@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.Builder;
-
-namespace IfsahApp.Middleware;
+namespace IfsahApp.Web.Middleware.Auth;
 
 public static class AdUserMiddlewareExtensions
 {

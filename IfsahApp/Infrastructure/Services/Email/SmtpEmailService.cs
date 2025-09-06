@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace IfsahApp.Services.Email;
+namespace IfsahApp.Infrastructure.Services.Email;
 
 public class SmtpEmailService : IEmailService
 {

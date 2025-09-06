@@ -1,4 +1,4 @@
-namespace IfsahApp.Options;
+namespace IfsahApp.Config;
 
 public class DevUserOptions
 {

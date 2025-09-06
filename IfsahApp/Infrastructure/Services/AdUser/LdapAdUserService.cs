@@ -1,7 +1,7 @@
 using System.DirectoryServices.Protocols;
 using System.Net;
 
-namespace IfsahApp.Services.AdUser;
+namespace IfsahApp.Infrastructure.Services.AdUser;
 
 public sealed class LdapAdUserService : IAdUserService
 {

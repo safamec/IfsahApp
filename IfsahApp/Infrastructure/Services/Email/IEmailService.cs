@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace IfsahApp.Services.Email;
+namespace IfsahApp.Infrastructure.Services.Email;
 
 public interface IEmailService
 {

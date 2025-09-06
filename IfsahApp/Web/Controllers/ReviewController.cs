@@ -1,36 +1,29 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using IfsahApp.Data;
-using IfsahApp.Models;
-using IfsahApp.Services;
+using IfsahApp.Infrastructure.Data;
+using IfsahApp.Core.Models;
+using IfsahApp.Infrastructure.Services;
 
-namespace IfsahApp.Controllers;
+namespace IfsahApp.Web.Controllers;
 
-
-public class ReviewController : Controller
+public class ReviewController(ApplicationDbContext context, IEnumLocalizer enumLocalizer) : Controller
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IEnumLocalizer _enumLocalizer;
-    public ReviewController(ApplicationDbContext context, IEnumLocalizer enumLocalizer)
-    {
-        _context = context;
-        _enumLocalizer = enumLocalizer;
-    }
+    private readonly ApplicationDbContext _context = context;
+    private readonly IEnumLocalizer _enumLocalizer = enumLocalizer;
 
     public async Task<IActionResult> Index()
     {
-        // Get all disclosures including their type
         var cases = await _context.Disclosures
             .Include(d => d.DisclosureType)
-            .OrderByDescending(d => d.SubmittedAt) // newest first
+            .OrderByDescending(d => d.SubmittedAt)
             .Select(d => new CaseItem
             {
-                Type = d.DisclosureType.Name,
+                Type = d.DisclosureType != null ? d.DisclosureType.Name : "N/A",
                 Reference = d.DisclosureNumber,
                 Date = d.SubmittedAt,
-                Location = d.Location,
+                Location = d.Location ?? string.Empty,
                 Status = _enumLocalizer.LocalizeEnum(d.Status),
-                Description = d.Description
+                Description = d.Description ?? string.Empty
             })
             .ToListAsync();
 

@@ -1,9 +1,9 @@
-using IfsahApp.Enums;
-using IfsahApp.Helpers;
-using IfsahApp.Models;
+using IfsahApp.Core.Enums;
+using IfsahApp.Utils;
+using IfsahApp.Core.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace IfsahApp.Data;
+namespace IfsahApp.Infrastructure.Data;
 
 public static class DbSeeder
 {

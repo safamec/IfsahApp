@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Localization;
 
-namespace IfsahApp.Services;
+namespace IfsahApp.Infrastructure.Services;
 
 public interface IEnumLocalizer
 {
@@ -22,7 +22,7 @@ public class EnumLocalizer : IEnumLocalizer
         var assemblyName = type.Assembly.GetName().Name!;
 
         // Prefix "Enums." so it looks inside Resources/Enums
-        var localizer = _factory.Create($"Enums.{type.Name}", assemblyName);
+        var localizer = _factory.Create($"Core.Enums.{type.Name}", assemblyName);
 
         return localizer[value.ToString()] ?? value.ToString();
     }

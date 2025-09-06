@@ -1,20 +1,11 @@
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-
-namespace IfsahApp.Services.Email;
+namespace IfsahApp.Infrastructure.Services.Email;
 
 /// <summary>
 /// Fake email sender for Development - logs emails instead of sending.
 /// </summary>
-public class FakeEmailService : IEmailService
+public class FakeEmailService(ILogger<FakeEmailService> logger) : IEmailService
 {
-    private readonly ILogger<FakeEmailService> _logger;
-
-    public FakeEmailService(ILogger<FakeEmailService> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<FakeEmailService> _logger = logger;
 
     public Task SendAsync(string to, string subject, string body, bool isHtml = false, CancellationToken ct = default)
     {

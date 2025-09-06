@@ -1,15 +1,10 @@
-using IfsahApp.Services.AdUser;
+using IfsahApp.Infrastructure.Services.AdUser;
 
-namespace IfsahApp.Middleware;
+namespace IfsahApp.Web.Middleware.Auth;
 
-public class AdUserMiddleware
+public class AdUserMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
-
-    public AdUserMiddleware(RequestDelegate next)
-    {
-        _next = next;
-    }
+    private readonly RequestDelegate _next = next;
 
     public async Task InvokeAsync(HttpContext context, IAdUserService adService)
     {

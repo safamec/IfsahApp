@@ -1,7 +1,7 @@
-using IfsahApp.Enums;
+using IfsahApp.Core.Enums;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace IfsahApp.ViewModels;
+namespace IfsahApp.Core.ViewModels;
 
 public class DisclosureDetailsViewModel
 {

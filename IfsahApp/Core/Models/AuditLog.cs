@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace IfsahApp.Models;
+namespace IfsahApp.Core.Models;
 
 public class AuditLog
 {
@@ -9,13 +9,15 @@ public class AuditLog
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 
     [Required]
-    public string Action { get; set; }
+    public string Action { get; set; } = string.Empty; // initialized to avoid null
 
     [Required]
     public int PerformedById { get; set; }
-    public User PerformedBy { get; set; }
 
-    public string IPAddress { get; set; }
+    public User? PerformedBy { get; set; } // nullable navigation property
 
-    public string Context { get; set; } // e.g. "DisclosureSubmission", "Assignment", etc.
+    public string? IPAddress { get; set; } // optional, nullable
+
+    public string? Context { get; set; } // optional, nullable (e.g., "DisclosureSubmission", "Assignment")
 }
+

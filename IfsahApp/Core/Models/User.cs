@@ -1,7 +1,6 @@
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace IfsahApp.Models;
+namespace IfsahApp.Core.Models;
 
 public class User
 {

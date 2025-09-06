@@ -1,10 +1,10 @@
-using IfsahApp.Data;
-using IfsahApp.Services;
-using IfsahApp.Middleware;
-using IfsahApp.Extensions;
-using IfsahApp.Services.Email;
-using IfsahApp.Services.AdUser;
+using IfsahApp.Infrastructure.Data;
+using IfsahApp.Infrastructure.Services;
+using IfsahApp.Utils;
+using IfsahApp.Infrastructure.Services.Email;
+using IfsahApp.Infrastructure.Services.AdUser;
 using Microsoft.EntityFrameworkCore;
+using IfsahApp.Web.Middleware.Auth;
 
 var options = new WebApplicationOptions
 {

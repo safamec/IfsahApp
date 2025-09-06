@@ -1,6 +1,6 @@
-using IfsahApp.Enums;
+using IfsahApp.Core.Enums;
 
-namespace IfsahApp.ViewModels;
+namespace IfsahApp.Core.ViewModels;
 
 public class DisclosureDashboardViewModel
 {

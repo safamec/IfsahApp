@@ -1,10 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace IfsahApp.Models;
+namespace IfsahApp.Core.Models;
 
-/// <summary>
-/// Represents a category or type of disclosure (e.g., Conflict of Interest, Misconduct, etc.)
-/// </summary>
 public class DisclosureType
 {
     public int Id { get; set; }

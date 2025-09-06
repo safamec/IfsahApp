@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using IfsahApp.Helpers;
+using IfsahApp.Utils;
 
-namespace IfsahApp.Models;
+namespace IfsahApp.Core.Models;
 
 public class DisclosureAttachment
 {

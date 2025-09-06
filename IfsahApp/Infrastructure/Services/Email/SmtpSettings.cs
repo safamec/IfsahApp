@@ -1,4 +1,4 @@
-namespace IfsahApp.Services.Email;
+namespace IfsahApp.Infrastructure.Services.Email;
 
 /// <summary>
 /// SMTP configuration bound from appsettings.json

@@ -1,5 +1,5 @@
 
-namespace IfsahApp.Enums;
+namespace IfsahApp.Core.Enums;
 
 public enum DisclosureStatus
 {

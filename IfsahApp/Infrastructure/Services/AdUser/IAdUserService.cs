@@ -1,4 +1,4 @@
-namespace IfsahApp.Services.AdUser;
+namespace IfsahApp.Infrastructure.Services.AdUser;
 
 public class AdUser
 {

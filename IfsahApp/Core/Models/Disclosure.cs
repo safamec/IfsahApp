@@ -1,21 +1,18 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using IfsahApp.Enums;
+using IfsahApp.Core.Enums;
 
-namespace IfsahApp.Models
+namespace IfsahApp.Core.Models;
+
+public class Disclosure
 {
-    public class Disclosure
-    {
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        [Required]
-        public string DisclosureNumber { get; set; } = string.Empty; // e.g., DISC-2025-0001
+    [Required]
+    public string DisclosureNumber { get; set; } = string.Empty; // e.g., DISC-2025-0001
 
-        [Required, MaxLength(300)]
-        public string Description { get; set; } = string.Empty;
+    [Required, MaxLength(300)]
+    public string Description { get; set; } = string.Empty;
 
-    
     [Display(Name = "Incident Start Date")]
     [DataType(DataType.Date)]
     [Required(ErrorMessage = "Incident start date is required.")]
@@ -25,39 +22,39 @@ namespace IfsahApp.Models
     [DataType(DataType.Date)]
     public DateTime? IncidentEndDate { get; set; }
 
-
     [MaxLength(100)]
-    public string Location { get; set; }
+    public string? Location { get; set; } // optional
 
-        [Required]
-        public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
+    [Required]
+    public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
 
-        // Use enum instead of string
-        public DisclosureStatus Status { get; set; } = DisclosureStatus.New;
+    public DisclosureStatus Status { get; set; } = DisclosureStatus.New;
 
-        [Required]
-        public int DisclosureTypeId { get; set; }
-        public DisclosureType DisclosureType { get; set; }
+    [Required]
+    public int DisclosureTypeId { get; set; }
 
-        [Required]
-        public int SubmittedById { get; set; }
-        public User SubmittedBy { get; set; }
+    public DisclosureType? DisclosureType { get; set; } // nullable nav property
 
-        // Assign disclosure to a discloser
-        public int? AssignedToUserId { get; set; }
-        public User AssignedToUser { get; set; }
+    [Required]
+    public int SubmittedById { get; set; }
 
-        // Strongly typed collections
-        public ICollection<SuspectedPerson> SuspectedPeople { get; set; } = new List<SuspectedPerson>();
-        public ICollection<RelatedPerson> RelatedPeople { get; set; } = new List<RelatedPerson>();
-        public ICollection<DisclosureAttachment> Attachments { get; set; } = new List<DisclosureAttachment>();
-        public ICollection<DisclosureNote> Notes { get; set; } = new List<DisclosureNote>();
-        public ICollection<DisclosureAssignment> Assignments { get; set; } = new List<DisclosureAssignment>();
-        public DisclosureReview FinalReview { get; set; }
+    public User? SubmittedBy { get; set; } // nullable nav property
 
-        // Admin comments
-        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+    public int? AssignedToUserId { get; set; }
 
-        public bool IsAccuracyConfirmed { get; set; }
-    }
+    public User? AssignedToUser { get; set; } // nullable nav property
+
+    // Strongly typed collections
+    public ICollection<SuspectedPerson> SuspectedPeople { get; set; } = new List<SuspectedPerson>();
+    public ICollection<RelatedPerson> RelatedPeople { get; set; } = new List<RelatedPerson>();
+    public ICollection<DisclosureAttachment> Attachments { get; set; } = new List<DisclosureAttachment>();
+    public ICollection<DisclosureNote> Notes { get; set; } = new List<DisclosureNote>();
+    public ICollection<DisclosureAssignment> Assignments { get; set; } = new List<DisclosureAssignment>();
+    public DisclosureReview? FinalReview { get; set; } // nullable, may not exist
+
+    // Admin comments
+    public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+
+    public bool IsAccuracyConfirmed { get; set; }
 }
+

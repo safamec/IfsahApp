@@ -1,9 +1,9 @@
-using IfsahApp.Services.AdUser;
+using IfsahApp.Infrastructure.Services.AdUser;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace IfsahApp.Controllers;
+namespace IfsahApp.Web.Controllers;
 
 [Authorize] // All actions require authenticated users
 public class AccountController : Controller

@@ -1,0 +1,144 @@
+:root {
+    --primary-color: #0d6efd;
+    --secondary-color: #6c757d;
+    --bg-color-light: #fff;
+    --bg-color-dark: #1a1a1a;
+    --text-color-light: #000;
+    --text-color-dark: #f8f9fa;
+    --card-bg-light: #fff;
+    --card-bg-dark: #2d2d2d;
+}
+
+body {
+    background-color: var(--bg-color-light);
+    color: var(--text-color-light);
+}
+
+/* RTL / LTR text alignment */
+[dir="rtl"] { text-align: right; }
+[dir="ltr"] { text-align: left; }
+
+/* Header */
+.header-top {
+    background-color: #f8f9fa;
+    padding: 8px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.main-header {
+    background: linear-gradient(135deg, var(--primary-color), #0043a4);
+    color: white;
+    padding: 15px 0;
+}
+
+.ministry-logo i {
+    font-size: 2.5rem;
+    color: #ffc107;
+}
+
+/* Language Switcher */
+.language-switcher .btn.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* Navbar Logo */
+.logo-om {
+    height: 40px;
+    width: 40px;
+    fill: white; /* Use fill for SVGs */
+}
+
+/* Footer */
+.footer {
+    background: linear-gradient(135deg, #2c3e50, #1a2530);
+    color: white;
+}
+
+/* Fade-in animations */
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Skip link for accessibility */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: #000;
+    color: white;
+    padding: 8px;
+    z-index: 100;
+    transition: top 0.3s;
+}
+
+.skip-link:focus { top: 0; }
+
+/* Image section */
+.image-section {
+    margin: 30px 0;
+    text-align: center;
+}
+
+.image-container {
+    max-width: 600px;
+    margin: 0 auto;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.image-container img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.image-caption {
+    margin-top: 15px;
+    font-style: italic;
+    color: #666;
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+    --bg-color: var(--bg-color-dark);
+    --text-color: var(--text-color-dark);
+    --card-bg: var(--card-bg-dark);
+}
+
+[data-theme="dark"] body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .header-top {
+    background-color: var(--bg-color-dark);
+    border-bottom: 1px solid #444;
+}
+
+[data-theme="dark"] .card {
+    background-color: var(--card-bg);
+    border-color: #444;
+}
+
+[data-theme="dark"] .navbar-dark {
+    background-color: var(--bg-color-dark) !important;
+}
+
+[data-theme="dark"] .image-container {
+    border-color: #444;
+}
+
+[data-theme="dark"] .image-caption {
+    color: #aaa;
+}

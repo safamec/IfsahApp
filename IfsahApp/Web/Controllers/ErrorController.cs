@@ -1,6 +1,6 @@
+using IfsahApp.Core.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using IfsahApp.Models;
 
 public class ErrorController : Controller
 {

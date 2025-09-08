@@ -1,0 +1,16 @@
+{
+  "name": "ifsahapp",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "restore": "dotnet restore IfsahApp\\IfsahApp.csproj && powershell -Command \"pushd IfsahApp\\Web; libman restore; popd\"",
+    "build": "dotnet build IfsahApp\\IfsahApp.csproj",
+    "start": "dotnet run --project IfsahApp\\IfsahApp.csproj",
+    "watch": "dotnet watch run --project IfsahApp\\IfsahApp.csproj",
+    "lib": "node libman.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

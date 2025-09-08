@@ -1,14 +1,12 @@
-using IfsahApp.Data;
-using IfsahApp.Enums;
-using IfsahApp.Models;
-using IfsahApp.ViewModels;
+using IfsahApp.Infrastructure.Data;
+using IfsahApp.Core.Enums;
+using IfsahApp.Core.Models;
+using IfsahApp.Core.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace IfsahApp.Controllers
+namespace IfsahApp.Web.Controllers
 {
     public class AdminController : Controller
     {
@@ -20,7 +18,7 @@ namespace IfsahApp.Controllers
         }
 
         // GET: Admin/Assign/5
-        public async Task<IActionResult> Assign(int id)
+        public IActionResult Assign(int id)
         {
             var disclosureDetails = new DisclosureDetailsViewModel
             {
@@ -32,8 +30,8 @@ namespace IfsahApp.Controllers
                 Status = DisclosureStatus.InReview,
                 Description = "There was a suspected unauthorized access detected on the server.",
 
-                Comments = new List<CommentViewModel>
-                {
+                Comments =
+                [
                     new CommentViewModel
                     {
                         Text = "Initial investigation started.",
@@ -46,18 +44,18 @@ namespace IfsahApp.Controllers
                         Author = "AdminUser2",
                         CreatedAt = DateTime.Now.AddDays(-1)
                     }
-                },
+                ],
 
                 NewComment = string.Empty,
 
                 AssignToUserId = 3,
 
-                AvailableUsers = new List<SelectListItem>
-                {
+                AvailableUsers =
+                [
                     new SelectListItem { Text = "User One", Value = "1" },
                     new SelectListItem { Text = "User Two", Value = "2" },
                     new SelectListItem { Text = "User Three", Value = "3" }
-                }
+                ]
             };
 
             return View(disclosureDetails);

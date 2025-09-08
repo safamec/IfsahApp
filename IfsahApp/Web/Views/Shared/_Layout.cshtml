@@ -5,144 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="نظام تلقي الإفصاحات - وزارة الطاقة والمعادن - حماية المبلغين وتعزيز الشفافية" />
     <title>نظام تلقي الإفصاحات</title>
-
     <!-- Bootstrap RTL CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
 
-    <!-- Bootstrap Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
-
-    <style>
-        :root {
-            --primary-color: #0d6efd;
-            --secondary-color: #6c757d;
-        }
-        
-        [dir="rtl"] {
-            text-align: right;
-        }
-        
-        [dir="ltr"] {
-            text-align: left;
-        }
-        
-        .header-top {
-            background-color: #f8f9fa;
-            padding: 8px 0;
-            border-bottom: 1px solid #e9ecef;
-        }
-        
-        .main-header {
-            background: linear-gradient(135deg, var(--primary-color), #0043a4);
-            color: white;
-            padding: 15px 0;
-        }
-        
-        .ministry-logo i {
-            font-size: 2.5rem;
-            color: #ffc107;
-        }
-        
-        .language-switcher .btn.active {
-            background-color: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
-        
-        .footer {
-            background: linear-gradient(135deg, #2c3e50, #1a2530);
-            color: white;
-        }
-        
-        .fade-in {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.5s ease, transform 0.5s ease;
-        }
-        
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        .skip-link {
-            position: absolute;
-            top: -40px;
-            left: 0;
-            background: #000;
-            color: white;
-            padding: 8px;
-            z-index: 100;
-            transition: top 0.3s;
-        }
-        
-        .skip-link:focus {
-            top: 0;
-        }
-        
-        /* تحسينات للوضع الداكن */
-        [data-theme="dark"] {
-            --primary-color: #0d6efd;
-            --secondary-color: #6c757d;
-            --bg-color: #1a1a1a;
-            --text-color: #f8f9fa;
-            --card-bg: #2d2d2d;
-        }
-        
-        [data-theme="dark"] body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-        }
-        
-        [data-theme="dark"] .header-top {
-            background-color: #2d2d2d;
-            border-bottom: 1px solid #444;
-        }
-        
-        [data-theme="dark"] .card {
-            background-color: var(--card-bg);
-            border-color: #444;
-        }
-        
-        [data-theme="dark"] .navbar-dark {
-            background-color: #1a1a1a !important;
-        }
-        
-        /* أنماط إضافية للصورة */
-        .image-section {
-            margin: 30px 0;
-            text-align: center;
-        }
-        
-        .image-container {
-            max-width: 600px;
-            margin: 0 auto;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .image-container img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-        
-        .image-caption {
-            margin-top: 15px;
-            font-style: italic;
-            color: #666;
-        }
-        
-        [data-theme="dark"] .image-container {
-            border-color: #444;
-        }
-        
-        [data-theme="dark"] .image-caption {
-            color: #aaa;
-        }
-    </style>
 </head>
 <body data-theme="light">
     <!-- رابط تخطي التنقل للمستخدمين ذوي الاحتياجات الخاصة -->
@@ -189,7 +56,9 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
             <a class="navbar-brand" href="/">
-                <i class="bi bi-shield-shaded me-2"></i>
+                 <svg class="logo-om">
+        <use xlink:href="images/sprite.svg#logo-om"></use>
+    </svg>
                 <span data-translate="system_short_name">نظام الإفصاحات</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
@@ -296,6 +165,7 @@
     </div>
 
     <main role="main" class="container my-4 fade-in" id="main-content">
+      
         <div class="card shadow-sm">
             <div class="card-body">
                 <h2 data-translate="welcome_title">مرحباً بك في نظام تلقي الإفصاحات</h2>
@@ -308,7 +178,7 @@
                 </div>
             </div>
         </div>
-        
+          @RenderBody()
         <!-- قسم الصورة المضافة -->
         <div class="image-section fade-in">
             <div class="card shadow-sm">
@@ -374,12 +244,8 @@
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
     <!-- Bootstrap JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
 
     <script>
         // بيانات الترجمة

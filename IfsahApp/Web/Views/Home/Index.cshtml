@@ -1,8 +1,83 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "الصفحة الرئيسية";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="hero-section fade-in">
+    <div class="hero-content">
+        <h2>نظام تلقي الإفصاحات الآمن</h2>
+        <p>منصة آمنة ومشفرة لتلقي الإفصاحات والبلاغات بسرية تامة وحماية كاملة للمبلغين</p>
+        <a href="/Disclosures/Create" class="cta-button">
+            <i class="bi bi-plus-circle"></i>
+            تقديم إفصاح جديد
+        </a>
+    </div>
 </div>
+
+<div class="stats-section fade-in">
+    <div class="row">
+        <div class="col-md-3 stat-item">
+            <div class="stat-number" id="total-disclosures">127</div>
+            <div class="stat-label">إجمالي الإفصاحات</div>
+        </div>
+        <div class="col-md-3 stat-item">
+            <div class="stat-number" id="processed-disclosures">98</div>
+            <div class="stat-label">تم معالجتها</div>
+        </div>
+        <div class="col-md-3 stat-item">
+            <div class="stat-number" id="pending-disclosures">29</div>
+            <div class="stat-label">قيد المراجعة</div>
+        </div>
+        <div class="col-md-3 stat-item">
+            <div class="stat-number">100%</div>
+            <div class="stat-label">مستوى الأمان</div>
+        </div>
+    </div>
+</div>
+
+<div class="features-section fade-in">
+    <h3 class="text-center mb-4">ميزات النظام</h3>
+    <ul class="feature-list">
+        <li><i class="bi bi-shield-lock"></i> تشفير SSL 256-bit</li>
+        <li><i class="bi bi-person-check"></i> حماية هوية المبلغين</li>
+        <li><i class="bi bi-clock-history"></i> متابعة الحالة في الوقت الفعلي</li>
+        <li><i class="bi bi-phone"></i> دعم عبر تطبيقات الهاتف</li>
+        <li><i class="bi bi-people"></i> دعم متعدد اللغات</li>
+        <li><i class="bi bi-bar-chart-line"></i> تقارير مفصلة</li>
+    </ul>
+</div>
+
+@section Scripts {
+    <script>
+        function animateValue(id, start, end, duration) {
+            let obj = document.getElementById(id);
+            let range = end - start;
+            let current = start;
+            let increment = end > start ? 1 : -1;
+            let stepTime = Math.abs(Math.floor(duration / range));
+            let timer = setInterval(function () {
+                current += increment;
+                obj.innerHTML = current;
+                if (current == end) {
+                    clearInterval(timer);
+                }
+            }, stepTime);
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            animateValue("total-disclosures", 0, 127, 2000);
+            animateValue("processed-disclosures", 0, 98, 2000);
+            animateValue("pending-disclosures", 0, 29, 2000);
+
+            const faders = document.querySelectorAll('.fade-in');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            });
+            faders.forEach(fader => observer.observe(fader));
+        });
+    </script>
+}

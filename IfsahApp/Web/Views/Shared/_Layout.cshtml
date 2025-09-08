@@ -1,114 +1,742 @@
-﻿@using System.Globalization
-@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
-@inject IfsahApp.Infrastructure.Data.ApplicationDbContext Db
-@{
-    var adUserName = User.Identity?.Name?.Split('\\').Last().ToLower();
-    var dbUser = Db.Users.FirstOrDefault(u => u.ADUserName.ToLower() == adUserName);
-    var fullName = dbUser?.FullName ?? adUserName;
-}
-
 <!DOCTYPE html>
-<html lang="@CultureInfo.CurrentUICulture.TwoLetterISOLanguageName" dir="@(CultureInfo.CurrentUICulture.TextInfo.IsRightToLeft ? "rtl" : "ltr")">
+<html lang="ar" data-theme="light" dir="rtl">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>@ViewData["Title"] - IfashApp</title>
+    <meta name="description" content="نظام تلقي الإفصاحات - وزارة الطاقة والمعادن - حماية المبلغين وتعزيز الشفافية" />
+    <title>نظام تلقي الإفصاحات</title>
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" />
+    <!-- Bootstrap RTL CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
 
-    <!-- Your custom CSS -->
-    <link href="~/css/site.css" rel="stylesheet" />
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+        }
+        
+        [dir="rtl"] {
+            text-align: right;
+        }
+        
+        [dir="ltr"] {
+            text-align: left;
+        }
+        
+        .header-top {
+            background-color: #f8f9fa;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-color), #0043a4);
+            color: white;
+            padding: 15px 0;
+        }
+        
+        .ministry-logo i {
+            font-size: 2.5rem;
+            color: #ffc107;
+        }
+        
+        .language-switcher .btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .footer {
+            background: linear-gradient(135deg, #2c3e50, #1a2530);
+            color: white;
+        }
+        
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #000;
+            color: white;
+            padding: 8px;
+            z-index: 100;
+            transition: top 0.3s;
+        }
+        
+        .skip-link:focus {
+            top: 0;
+        }
+        
+        /* تحسينات للوضع الداكن */
+        [data-theme="dark"] {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --bg-color: #1a1a1a;
+            --text-color: #f8f9fa;
+            --card-bg: #2d2d2d;
+        }
+        
+        [data-theme="dark"] body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        
+        [data-theme="dark"] .header-top {
+            background-color: #2d2d2d;
+            border-bottom: 1px solid #444;
+        }
+        
+        [data-theme="dark"] .card {
+            background-color: var(--card-bg);
+            border-color: #444;
+        }
+        
+        [data-theme="dark"] .navbar-dark {
+            background-color: #1a1a1a !important;
+        }
+        
+        /* أنماط إضافية للصورة */
+        .image-section {
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .image-container {
+            max-width: 600px;
+            margin: 0 auto;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .image-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .image-caption {
+            margin-top: 15px;
+            font-style: italic;
+            color: #666;
+        }
+        
+        [data-theme="dark"] .image-container {
+            border-color: #444;
+        }
+        
+        [data-theme="dark"] .image-caption {
+            color: #aaa;
+        }
+    </style>
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-lg">
-            <div class="container-fluid px-4">
-                <a class="navbar-brand" href="/">IfashApp</a>
+<body data-theme="light">
+    <!-- رابط تخطي التنقل للمستخدمين ذوي الاحتياجات الخاصة -->
+    <a href="#main-content" class="skip-link">تخطي إلى المحتوى الرئيسي</a>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+    <!-- Header Top -->
+    <div class="header-top">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            <div class="header-controls d-flex align-items-center">
+                <div class="language-switcher me-3">
+                    <button id="ar-btn" class="btn btn-outline-secondary btn-sm active" onclick="switchLanguage('ar')">العربية</button>
+                    <button id="en-btn" class="btn btn-outline-secondary btn-sm" onclick="switchLanguage('en')">English</button>
+                </div>
+                <button class="theme-toggle btn btn-outline-secondary btn-sm" onclick="toggleTheme()" title="تبديل الوضع الداكن">
+                    <i class="bi bi-moon-fill" id="theme-icon"></i>
+                    <span class="d-none d-sm-inline">تبديل النمط</span>
                 </button>
+            </div>
+        </div>
+    </div>
 
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/">@Localizer["Home"]</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/Privacy">@Localizer["Privacy"]</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">@Localizer["Language"]</a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="?culture=en">English</a></li>
-                                <li><a class="dropdown-item" href="?culture=ar">العربية</a></li>
-                            </ul>
-                        </li>
+    <!-- Main Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content d-flex justify-content-between align-items-center">
+                <div class="logo-section d-flex align-items-center">
+                   <div class="ministry-logo me-3">
+    <svg class="logo-icon">
+        <use xlink:href="images/sprite.svg#logo"></use>
+    </svg>
+</div>
 
-                        <!-- Theme toggle button -->
-                        <li class="nav-item ms-3">
-                            <button id="themeToggleBtn" class="btn btn-outline-primary" aria-label="Toggle dark mode">
-                                🌙 Dark Mode
-                            </button>
-                        </li>
-                        <li class="nav-item">
-                            <span class="navbar-text">
-                                @fullName
-                            </span>
-                        </li>
-                    </ul>
+                    
+                </div>
+                <div class="system-title fw-bold fs-5">
+                    <i class="bi bi-file-earmark-lock me-2"></i>
+                    <span data-translate="system_name">نظام تلقي الإفصاحات</span>
                 </div>
             </div>
-        </nav>
+        </div>
     </header>
 
-    <main class="container-fluid py-4">
-        @RenderBody()
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-shield-shaded me-2"></i>
+                <span data-translate="system_short_name">نظام الإفصاحات</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="تبديل التنقل">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" aria-current="page">
+                            <i class="bi bi-house me-1"></i>
+                            <span data-translate="home">الرئيسية</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" id="new-disclosure-nav">
+                        <a class="nav-link" href="#">
+                            <i class="bi bi-plus-circle me-1"></i>
+                            <span data-translate="new_disclosure">إفصاح جديد</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" id="dashboard-nav">
+                        <a class="nav-link" href="#">
+                            <i class="bi bi-speedometer2 me-1"></i>
+                            <span data-translate="dashboard">لوحة التحكم</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" id="reports-nav">
+                        <a class="nav-link" href="#">
+                            <i class="bi bi-file-bar-graph me-1"></i>
+                            <span data-translate="reports">التقارير</span>
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" 
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-three-dots me-1"></i>
+                            <span data-translate="more">المزيد</span>
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    <i class="bi bi-question-circle me-2"></i>
+                                    <span data-translate="faq">الأسئلة الشائعة</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    <i class="bi bi-book me-2"></i>
+                                    <span data-translate="user_guide">دليل الاستخدام</span>
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    <i class="bi bi-envelope me-2"></i>
+                                    <span data-translate="contact_us">اتصل بنا</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item" id="login-nav">
+                        <a class="nav-link" href="#" onclick="simulateLogin()">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>
+                            <span data-translate="login">تسجيل الدخول</span>
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown" id="user-nav" style="display: none;">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle me-1"></i>
+                            <span data-translate="user">المستخدم</span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    <i class="bi bi-person me-2"></i>
+                                    <span data-translate="profile">الملف الشخصي</span>
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="logout()">
+                                    <i class="bi bi-box-arrow-right me-2"></i>
+                                    <span data-translate="logout">تسجيل الخروج</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showHelp()">
+                            <i class="bi bi-question-circle me-1"></i>
+                            <span data-translate="help">المساعدة</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages Container -->
+    <div class="container mt-3">
+        <div id="messages-container"></div>
+    </div>
+
+    <main role="main" class="container my-4 fade-in" id="main-content">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 data-translate="welcome_title">مرحباً بك في نظام تلقي الإفصاحات</h2>
+                <p data-translate="welcome_message">
+                    نظام آمن وسري للإفصاح عن المخالفات في وزارة الطاقة والمعادن. نحن نضمن حماية المبلغين وتقديم الدعم اللازم.
+                </p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                    <button class="btn btn-primary me-md-2" data-translate="learn_more">تعرف أكثر</button>
+                    <button class="btn btn-outline-secondary" data-translate="contact">اتصل بنا</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- قسم الصورة المضافة -->
+        <div class="image-section fade-in">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h3 class="mb-3">شعار وزارة الطاقة والمعادن</h3>
+                    <div class="image-container">
+                        <!-- استبدل "logo.png" بمسار صورتك -->
+                        <img src="logo.png" alt="شعار وزارة الطاقة والمعادن">
+                    </div>
+                    <p class="image-caption mt-3">شعار وزارة الطاقة والمعادن الرسمي</p>
+                </div>
+            </div>
+        </div>
     </main>
 
-    <footer>
-        &copy; 2025 - IfashApp - <a href="/Privacy" class="text-decoration-none">@Localizer["Privacy"]</a>
+    <!-- Footer -->
+    <footer class="footer py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5 class="text-white">
+                        <i class="bi bi-shield-shaded me-2"></i>
+                        <span data-translate="ministry_name">وزارة الطاقة والمعادن</span>
+                    </h5>
+                    <p class="mb-2" data-translate="footer_mission">
+                        نعمل على تعزيز الشفافية ومكافحة الفساد وحماية المبلغين
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="me-3" title="تويتر"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="me-3" title="فيسبوك"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="me-3" title="لينكد إن"><i class="bi bi-linkedin"></i></a>
+                        <a href="#" title="يوتيوب"><i class="bi bi-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <h5 class="text-white" data-translate="contact_info">معلومات التواصل</h5>
+                    <p><i class="bi bi-geo-alt me-2"></i> <span data-translate="location">مسقط، سلطنة عُمان</span></p>
+                    <p><i class="bi bi-telephone me-2"></i> +968 24640555</p>
+                    <p><i class="bi bi-envelope me-2"></i> info@mem.gov.om</p>
+                </div>
+                <div class="col-md-4">
+                    <h5 class="text-white" data-translate="security_privacy">الأمان والخصوصية</h5>
+                    <p><i class="bi bi-shield-check me-2"></i> <span data-translate="ssl_encryption">تشفير SSL 256-bit</span></p>
+                    <p><i class="bi bi-lock me-2"></i> <span data-translate="data_protection">حماية البيانات وفقاً لأعلى المعايير</span></p>
+                    <p><i class="bi bi-eye-slash me-2"></i> <span data-translate="confidentiality">سرية المعلومات مضمونة</span></p>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-1" data-translate="copyright">© جميع الحقوق محفوظة 2025 - وزارة الطاقة والمعادن</p>
+                    <div class="footer-links">
+                        <a href="#" class="text-decoration-none me-3" data-translate="privacy_policy">سياسة الخصوصية</a>
+                        <a href="#" class="text-decoration-none me-3" data-translate="terms_conditions">الشروط والأحكام</a>
+                        <a href="#" class="text-decoration-none" data-translate="sitemap">خريطة الموقع</a>
+                    </div>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <p><i class="bi bi-shield-lock-fill me-2"></i> <span data-translate="info_confidentiality">سرية المعلومات مضمونة</span></p>
+                </div>
+            </div>
+        </div>
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
-    <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Theme toggle script -->
     <script>
-        (function() {
-            const themeToggleBtn = document.getElementById('themeToggleBtn');
-            const body = document.body;
-
-            // Initialize theme from localStorage or system preference
-            const savedTheme = localStorage.getItem('theme');
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-                body.classList.add('dark-mode');
-                themeToggleBtn.textContent = '☀️ Light Mode';
+        // بيانات الترجمة
+        const translations = {
+            ar: {
+                ministry_name: "وزارة الطاقة والمعادن",
+                country_name: "سلطنة عُمان",
+                ministry_name_en: "Ministry of Energy and Minerals",
+                system_name: "نظام تلقي الإفصاحات",
+                system_short_name: "نظام الإفصاحات",
+                home: "الرئيسية",
+                new_disclosure: "إفصاح جديد",
+                dashboard: "لوحة التحكم",
+                reports: "التقارير",
+                more: "المزيد",
+                faq: "الأسئلة الشائعة",
+                user_guide: "دليل الاستخدام",
+                contact_us: "اتصل بنا",
+                login: "تسجيل الدخول",
+                user: "المستخدم",
+                profile: "الملف الشخصي",
+                logout: "تسجيل الخروج",
+                help: "المساعدة",
+                welcome_title: "مرحباً بك في نظام تلقي الإفصاحات",
+                welcome_message: "نظام آمن وسري للإفصاح عن المخالفات في وزارة الطاقة والمعادن. نحن نضمن حماية المبلغين وتقديم الدعم اللازم.",
+                learn_more: "تعرف أكثر",
+                contact: "اتصل بنا",
+                footer_mission: "نعمل على تعزيز الشفافية ومكافحة الفساد وحماية المبلغين",
+                contact_info: "معلومات التواصل",
+                location: "مسقط، سلطنة عُمان",
+                security_privacy: "الأمان والخصوصية",
+                ssl_encryption: "تشفير SSL 256-bit",
+                data_protection: "حماية البيانات وفقاً لأعلى المعايير",
+                confidentiality: "سرية المعلومات مضمونة",
+                copyright: "© جميع الحقوق محفوظة 2025 - وزارة الطاقة والمعادن",
+                privacy_policy: "سياسة الخصوصية",
+                terms_conditions: "الشروط والأحكام",
+                sitemap: "خريطة الموقع",
+                info_confidentiality: "سرية المعلومات مضمونة"
+            },
+            en: {
+                ministry_name: "Ministry of Energy and Minerals",
+                country_name: "Sultanate of Oman",
+                ministry_name_en: "Ministry of Energy and Minerals",
+                system_name: "Disclosure Receiving System",
+                system_short_name: "Disclosure System",
+                home: "Home",
+                new_disclosure: "New Disclosure",
+                dashboard: "Dashboard",
+                reports: "Reports",
+                more: "More",
+                faq: "FAQ",
+                user_guide: "User Guide",
+                contact_us: "Contact Us",
+                login: "Login",
+                user: "User",
+                profile: "Profile",
+                logout: "Logout",
+                help: "Help",
+                welcome_title: "Welcome to the Disclosure Receiving System",
+                welcome_message: "A secure and confidential system for reporting violations at the Ministry of Energy and Minerals. We ensure whistleblower protection and necessary support.",
+                learn_more: "Learn More",
+                contact: "Contact Us",
+                footer_mission: "We work to enhance transparency, combat corruption, and protect whistleblowers",
+                contact_info: "Contact Information",
+                location: "Muscat, Sultanate of Oman",
+                security_privacy: "Security & Privacy",
+                ssl_encryption: "SSL 256-bit Encryption",
+                data_protection: "Data protection according to highest standards",
+                confidentiality: "Information confidentiality guaranteed",
+                copyright: "© All rights reserved 2025 - Ministry of Energy and Minerals",
+                privacy_policy: "Privacy Policy",
+                terms_conditions: "Terms & Conditions",
+                sitemap: "Sitemap",
+                info_confidentiality: "Information confidentiality guaranteed"
             }
+        };
 
-            themeToggleBtn.addEventListener('click', () => {
-                const isDark = body.classList.toggle('dark-mode');
+        // إدارة الحالة
+        let currentTheme = 'light';
+        let currentLanguage = 'ar';
+        let userRole = null;
+        let isLoggedIn = false;
 
-                if (isDark) {
-                    themeToggleBtn.textContent = '☀️ Light Mode';
-                    localStorage.setItem('theme', 'dark');
-                } else {
-                    themeToggleBtn.textContent = '🌙 Dark Mode';
-                    localStorage.setItem('theme', 'light');
+        // تهيئة التطبيق عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTheme();
+            initializeLanguage();
+            initializeAnimations();
+            bindEvents();
+            updateNavigationForUser();
+            
+            // عرض رسالة ترحيب
+            setTimeout(() => {
+                showMessage(currentLanguage === 'ar' ? 'مرحباً بك في نظام تلقي الإفصاحات' : 'Welcome to the Disclosure Receiving System', 'success');
+            }, 1000);
+        });
+
+        // ربط الأحداث
+        function bindEvents() {
+            // روابط التنقل
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (!this.getAttribute('onclick') && this.getAttribute('href') === '#') {
+                        e.preventDefault();
+                        const text = this.textContent.trim();
+                        showMessage(`${currentLanguage === 'ar' ? 'تم النقر على: ' : 'Clicked on: '}${text}`, 'info');
+                    }
+                });
+                
+                // تأثيرات hover
+                link.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+                
+                link.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        }
+
+        // إدارة السمة
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            
+            const themeIcon = document.getElementById('theme-icon');
+            if (themeIcon) {
+                themeIcon.className = currentTheme === 'light' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+            }
+            
+            localStorage.setItem('theme', currentTheme);
+            showMessage(currentLanguage === 'ar' ? 
+                `تم التبديل إلى الوضع ${currentTheme === 'light' ? 'الفاتح' : 'الداكن'}` : 
+                `Switched to ${currentTheme === 'light' ? 'light' : 'dark'} mode`, 'success');
+        }
+
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            currentTheme = savedTheme;
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            
+            const themeIcon = document.getElementById('theme-icon');
+            if (themeIcon) {
+                themeIcon.className = currentTheme === 'light' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+            }
+        }
+
+        // إدارة اللغة
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            
+            // تحديث الزر النشط
+            document.querySelectorAll('.language-switcher button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            if (lang === 'ar') {
+                document.getElementById('ar-btn').classList.add('active');
+            } else {
+                document.getElementById('en-btn').classList.add('active');
+            }
+            
+            // تحديث لغة واتجاه المستند
+            document.documentElement.lang = lang;
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            
+            // تحديث النصوص المترجمة
+            updateTextContent();
+            
+            localStorage.setItem('language', lang);
+            showMessage(lang === 'ar' ? 'تم التبديل إلى اللغة العربية' : 'Switched to English', 'success');
+        }
+
+        function updateTextContent() {
+            // تحديث جميع العناصر التي تحتوي على بيانات الترجمة
+            document.querySelectorAll('[data-translate]').forEach(element => {
+                const key = element.getAttribute('data-translate');
+                if (translations[currentLanguage][key]) {
+                    element.textContent = translations[currentLanguage][key];
                 }
             });
-        })();
+        }
+
+        function initializeLanguage() {
+            const savedLanguage = localStorage.getItem('language') || 'ar';
+            currentLanguage = savedLanguage;
+            
+            document.getElementById('ar-btn').classList.toggle('active', currentLanguage === 'ar');
+            document.getElementById('en-btn').classList.toggle('active', currentLanguage === 'en');
+            
+            document.documentElement.lang = currentLanguage;
+            document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+            
+            // تحديث النصوص المترجمة
+            updateTextContent();
+        }
+
+        // محاكاة تسجيل الدخول
+        function simulateLogin() {
+            const loginModal = `
+                <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" data-translate="login">تسجيل الدخول</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="loginForm">
+                                    <div class="mb-3">
+                                        <label for="username" class="form-label" data-translate="username">اسم المستخدم</label>
+                                        <input type="text" class="form-control" id="username" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="password" class="form-label" data-translate="password">كلمة المرور</label>
+                                        <input type="password" class="form-control" id="password" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100" data-translate="login">تسجيل الدخول</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // إضافة النموذج إلى DOM إذا لم يكن موجوداً
+            if (!document.getElementById('loginModal')) {
+                document.body.insertAdjacentHTML('beforeend', loginModal);
+                
+                // تحديث النصوص في النموذج
+                if (currentLanguage === 'en') {
+                    document.querySelector('[data-translate="login"]').textContent = 'Login';
+                    document.querySelector('[data-translate="username"]').textContent = 'Username';
+                    document.querySelector('[data-translate="password"]').textContent = 'Password';
+                }
+                
+                // إضافة معالج الحدث للنموذج
+                document.getElementById('loginForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    isLoggedIn = true;
+                    userRole = 'User';
+                    updateNavigationForUser();
+                    bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+                    showMessage(currentLanguage === 'ar' ? 'تم تسجيل الدخول بنجاح' : 'Logged in successfully', 'success');
+                });
+            }
+            
+            // عرض النموذج
+            const loginModalElement = new bootstrap.Modal(document.getElementById('loginModal'));
+            loginModalElement.show();
+        }
+
+        // تسجيل الخروج
+        function logout() {
+            isLoggedIn = false;
+            userRole = null;
+            updateNavigationForUser();
+            showMessage(currentLanguage === 'ar' ? 'تم تسجيل الخروج بنجاح' : 'Logged out successfully', 'info');
+        }
+
+        // تحديث التنقل حسب حالة المستخدم
+        function updateNavigationForUser() {
+            const loginNav = document.getElementById('login-nav');
+            const userNav = document.getElementById('user-nav');
+            const newDisclosureNav = document.getElementById('new-disclosure-nav');
+            const dashboardNav = document.getElementById('dashboard-nav');
+            const reportsNav = document.getElementById('reports-nav');
+
+            if (isLoggedIn) {
+                loginNav.style.display = 'none';
+                userNav.style.display = 'block';
+                newDisclosureNav.style.display = 'block';
+                
+                if (userRole === 'Admin') {
+                    dashboardNav.style.display = 'block';
+                    reportsNav.style.display = 'block';
+                } else {
+                    dashboardNav.style.display = 'none';
+                    reportsNav.style.display = 'none';
+                }
+            } else {
+                loginNav.style.display = 'block';
+                userNav.style.display = 'none';
+                newDisclosureNav.style.display = 'none';
+                dashboardNav.style.display = 'none';
+                reportsNav.style.display = 'none';
+            }
+        }
+
+        // عرض المساعدة
+        function showHelp() {
+            showMessage(currentLanguage === 'ar' ? 
+                'يمكنك الاتصال بنا على +968 24640555 للحصول على المساعدة' : 
+                'You can contact us at +968 24640555 for assistance', 'info');
+        }
+
+        // عرض الرسائل
+        function showMessage(message, type) {
+            const messagesContainer = document.getElementById('messages-container');
+            
+            // إزالة الرسائل القديمة
+            const existingAlerts = messagesContainer.querySelectorAll('.alert');
+            if (existingAlerts.length > 2) {
+                existingAlerts[0].remove();
+            }
+            
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type === 'error' ? 'danger' : type === 'info' ? 'info' : 'success'} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                <i class="bi ${type === 'error' ? 'bi-exclamation-circle-fill' : type === 'info' ? 'bi-info-circle-fill' : 'bi-check-circle-fill'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            messagesContainer.appendChild(alertDiv);
+            
+            // إخفاء تلقائي بعد 5 ثواني
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.classList.remove('show');
+                    setTimeout(() => alertDiv.remove(), 150);
+                }
+            }, 5000);
+        }
+
+        // الصور المتحركة
+        function initializeAnimations() {
+            const fadeElements = document.querySelectorAll('.fade-in');
+            
+            if (fadeElements.length > 0) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                        }
+                    });
+                }, { threshold: 0.1 });
+                
+                fadeElements.forEach(element => {
+                    observer.observe(element);
+                });
+            }
+        }
+
+        // تحسين إمكانية الوصول للوحة المفاتيح
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                // إغلاق القوائم المنسدلة المفتوحة
+                const openDropdowns = document.querySelectorAll('.dropdown-menu.show');
+                openDropdowns.forEach(dropdown => {
+                    const dropdownInstance = bootstrap.Dropdown.getInstance(dropdown.previousElementSibling);
+                    if (dropdownInstance) {
+                        dropdownInstance.hide();
+                    }
+                });
+            }
+        });
     </script>
 
     @RenderSection("Scripts", required: false)

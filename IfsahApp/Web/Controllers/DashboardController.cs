@@ -15,12 +15,12 @@ public class DashboardController(ApplicationDbContext context) : Controller
 {
     private readonly ApplicationDbContext _context = context;
 
-    // GET: Dashboard
-    public async Task<IActionResult> Index(string status = "All")
-    {
-        var query = _context.Disclosures
-            .Include(d => d.DisclosureType)
-            .AsQueryable();
+        // GET: Dashboard
+        public async Task<IActionResult> Index(string status = "All")
+        {
+            var query = _context.Disclosures
+                .Include(d => d.DisclosureType)
+                .AsQueryable();
 
         if (!string.Equals(status, "All", StringComparison.OrdinalIgnoreCase) &&
             Enum.TryParse<DisclosureStatus>(status, true, out var enumStatus))
@@ -113,8 +113,8 @@ public class DashboardController(ApplicationDbContext context) : Controller
             .Where(u => u.IsActive && u.Role == Role.Examiner)
             .ToListAsync();
 
-        return View(disclosure);
-    }
+            return View(disclosure);
+        }
 
     // POST: Dashboard/AddComment
     [HttpPost]
@@ -130,16 +130,16 @@ public class DashboardController(ApplicationDbContext context) : Controller
         // 1️⃣ Get the logged-in AD username
         var adUserName = User.Identity?.Name?.Split('\\').Last();
 
-        if (string.IsNullOrEmpty(adUserName))
-            return RedirectToAction("AccessDenied", "Account"); // safety check
+            if (string.IsNullOrEmpty(adUserName))
+                return RedirectToAction("AccessDenied", "Account"); // safety check
 
 
         // 2️⃣ Look up the user in the DB
         var currentUser = await _context.Users
             .FirstOrDefaultAsync(u => u.ADUserName.ToLower() == adUserName.ToLower());
 
-        if (currentUser == null)
-            return RedirectToAction("AccessDenied", "Account");
+            if (currentUser == null)
+                return RedirectToAction("AccessDenied", "Account");
 
         _context.Comments.Add(new Comment
         {
@@ -157,7 +157,7 @@ public class DashboardController(ApplicationDbContext context) : Controller
             CreatedAt = DateTime.UtcNow
         };
 
-        _context.Comments.Add(comment);
+            _context.Comments.Add(comment);
 
         if (assignToDiscloserId.HasValue)
         {

@@ -1,0 +1,21 @@
+@model List<AdUser>
+
+<h3>Select a User to Login</h3>
+
+<div class="row">
+    @foreach (var user in Model)
+    {
+        <div class="col-md-4 mb-3">
+            <form method="post" asp-action="Index">
+                <input type="hidden" name="selectedSamAccountName" value="@user.SamAccountName" />
+                <button type="submit" class="card text-start w-100 shadow-sm border-0 p-3 text-decoration-none">
+                    <div class="card-body">
+                        <h5 class="card-title">@user.DisplayName</h5>
+                        <p class="card-text">@user.SamAccountName</p>
+                        <p class="card-text text-muted">@user.Department</p>
+                    </div>
+                </button>
+            </form>
+        </div>
+    }
+</div>

@@ -3,28 +3,42 @@ using Microsoft.Extensions.Options;
 
 namespace IfsahApp.Infrastructure.Services.AdUser;
 
-public class FakeAdUserService : IAdUserService
+public class FakeAdUserService(IOptions<DevUserOptions> devUserOptions) : IAdUserService
 {
-    private readonly DevUserOptions _devUserOptions;
+    private readonly DevUserOptions _devUserOptions = devUserOptions.Value;
 
-    // Predefined fake users for dev/testing
-    private readonly List<AdUser> _users = new()
+    // Expose users as a public property so controllers can access them
+    public List<AdUser> Users { get; } =
+    [
+        new AdUser
         {
-            new AdUser { SamAccountName = "ahmed", DisplayName = "Ahmed Al Wahaibi", Email = "ahmed@corp.com", Department = "IT" },
-            new AdUser { SamAccountName = "jdoe", DisplayName = "John Doe", Email = "jdoe@corp.com", Department = "HR" }
-        };
-
-    public FakeAdUserService(IOptions<DevUserOptions> devUserOptions)
-    {
-        _devUserOptions = devUserOptions.Value;
-    }
+            SamAccountName = "ahmed.wahaibi",
+            DisplayName = "Ahmed Al Wahaibi",
+            Email = "ahmed@example.com",
+            Department = "Audit"
+        },
+        new AdUser
+        {
+            SamAccountName = "fatima.harthy",
+            DisplayName = "Fatima Al Harthy",
+            Email = "fatima@example.com",
+            Department = "Audit"
+        },
+        new AdUser
+        {
+            SamAccountName = "mohammed.said",
+            DisplayName = "Mohammed Al Said",
+            Email = "mohammed@example.com",
+            Department = "Audit"
+        }
+    ];
 
     public Task<AdUser?> FindByWindowsIdentityAsync(string windowsIdentityName, CancellationToken ct = default)
     {
-        // Use CLI-selected user if present, otherwise fallback to identity
+        // Use Dev-selected user if present, otherwise fallback to identity
         string sam = _devUserOptions.SamAccountName ?? windowsIdentityName.Split('\\').Last();
 
-        var user = _users.FirstOrDefault(u =>
+        var user = Users.FirstOrDefault(u =>
             string.Equals(u.SamAccountName, sam, StringComparison.OrdinalIgnoreCase));
 
         return Task.FromResult(user);

@@ -6,18 +6,11 @@ using IfsahApp.Infrastructure.Services;
 
 namespace IfsahApp.Web.Controllers;
 
-public class DisclosureController : Controller
+public class DisclosureController(ApplicationDbContext context, IWebHostEnvironment env, IEnumLocalizer enumLocalizer) : Controller
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IWebHostEnvironment _env;
-    private readonly IEnumLocalizer _enumLocalizer;
-
-    public DisclosureController(ApplicationDbContext context, IWebHostEnvironment env, IEnumLocalizer enumLocalizer)
-    {
-        _context = context;
-        _env = env;
-        _enumLocalizer = enumLocalizer;
-    }
+    private readonly ApplicationDbContext _context = context;
+    private readonly IWebHostEnvironment _env = env;
+    private readonly IEnumLocalizer _enumLocalizer = enumLocalizer;
 
     // GET: /Disclosure/Create
     [HttpGet]

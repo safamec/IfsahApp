@@ -98,6 +98,8 @@ docker-compose.override.yml
 *.db
 *.sqlite
 *.sqlite3
+*.db-wal
+*.db-shm
 
 # Logs
 *.log

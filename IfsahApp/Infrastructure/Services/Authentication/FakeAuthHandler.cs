@@ -7,22 +7,16 @@ using Microsoft.AspNetCore.Authentication;
 
 namespace IfsahApp.Infrastructure.Services.Authentication;
 
-public class FakeAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+public class FakeAuthHandler(
+    IOptionsMonitor<AuthenticationSchemeOptions> options,
+    ILoggerFactory logger,
+    UrlEncoder encoder,
+    IAdUserService adUserService,
+    IOptions<DevUserOptions> devUserOptions
+    ) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
-    private readonly IAdUserService _adUserService;
-    private readonly DevUserOptions _devUserOptions;
-
-    public FakeAuthHandler(
-        IOptionsMonitor<AuthenticationSchemeOptions> options,
-        ILoggerFactory logger,
-        UrlEncoder encoder,
-        IAdUserService adUserService,
-        IOptions<DevUserOptions> devUserOptions
-    ) : base(options, logger, encoder)
-    {
-        _adUserService = adUserService;
-        _devUserOptions = devUserOptions.Value;
-    }
+    private readonly IAdUserService _adUserService = adUserService;
+    private readonly DevUserOptions _devUserOptions = devUserOptions.Value;
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {

@@ -80,7 +80,7 @@ public class DashboardController(ApplicationDbContext context) : Controller
 
         // List of active disclosers for assignment dropdown
         ViewBag.Disclosers = await _context.Users
-            .Where(u => u.IsActive && u.Role == "Discloser")
+            .Where(u => u.IsActive && u.Role == Role.Examiner)
             .ToListAsync();
 
         return View(disclosure);
@@ -93,17 +93,31 @@ public class DashboardController(ApplicationDbContext context) : Controller
         if (string.IsNullOrWhiteSpace(commentText))
             return RedirectToAction(nameof(Details), new { id = disclosureId });
 
-        // Add comment
+        // 1️⃣ Get the logged-in AD username
+        var adUserName = User.Identity?.Name?.Split('\\').Last(); // get sAMAccountName
+
+        if (string.IsNullOrEmpty(adUserName))
+            return RedirectToAction("AccessDenied", "Account"); // safety check
+
+        // 2️⃣ Look up the user in the DB
+        var currentUser = await _context.Users
+            .FirstOrDefaultAsync(u => u.ADUserName.ToLower() == adUserName.ToLower());
+
+        if (currentUser == null)
+            return RedirectToAction("AccessDenied", "Account");
+
+        // 3️⃣ Create the comment
         var comment = new Comment
         {
             DisclosureId = disclosureId,
             Text = commentText,
-            Author = "Admin Name", // replace with actual logged-in admin name
+            AuthorId = currentUser.Id, // assign logged-in user
             CreatedAt = DateTime.UtcNow
         };
+
         _context.Comments.Add(comment);
 
-        // Assign disclosure to discloser if selected
+        // 4️⃣ Assign disclosure to discloser if selected
         if (assignToDiscloserId.HasValue)
         {
             var disclosure = await _context.Disclosures.FindAsync(disclosureId);

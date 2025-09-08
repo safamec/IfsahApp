@@ -54,7 +54,7 @@ builder.Services.AddScoped<IEnumLocalizer, EnumLocalizer>();
 // =============================
 // 4. Authentication & AD Service
 // =============================
-builder.Services.AddAppAuthentication(builder.Environment, args);
+builder.Services.AddAppAuthentication(builder.Environment);
 
 // =============================
 // 5. Authorization
@@ -103,9 +103,22 @@ app.UseAdUser();
 // =============================
 // 10. Routing
 // =============================
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Account}/{action=Login}/{id?}");
+if (app.Environment.IsDevelopment())
+{
+    // In development, default route goes to DevLogin/Index
+    app.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=DevLogin}/{action=Index}/{id?}"
+    );
+}
+else
+{
+    // In staging/production, default route goes to Account/Login
+    app.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Account}/{action=Login}/{id?}"
+    );
+}
 
 // =============================
 // 11. Run

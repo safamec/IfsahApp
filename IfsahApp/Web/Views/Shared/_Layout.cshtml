@@ -1,5 +1,11 @@
 ﻿@using System.Globalization
 @inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@inject IfsahApp.Infrastructure.Data.ApplicationDbContext Db
+@{
+    var adUserName = User.Identity?.Name?.Split('\\').Last().ToLower();
+    var dbUser = Db.Users.FirstOrDefault(u => u.ADUserName.ToLower() == adUserName);
+    var fullName = dbUser?.FullName ?? adUserName;
+}
 
 <!DOCTYPE html>
 <html lang="@CultureInfo.CurrentUICulture.TwoLetterISOLanguageName" dir="@(CultureInfo.CurrentUICulture.TextInfo.IsRightToLeft ? "rtl" : "ltr")">
@@ -49,6 +55,11 @@
                             <button id="themeToggleBtn" class="btn btn-outline-primary" aria-label="Toggle dark mode">
                                 🌙 Dark Mode
                             </button>
+                        </li>
+                        <li class="nav-item">
+                            <span class="navbar-text">
+                                @fullName
+                            </span>
                         </li>
                     </ul>
                 </div>

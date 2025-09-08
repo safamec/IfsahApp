@@ -23,7 +23,7 @@ public static class DbSeeder
                     FullName = "Ahmed Al Wahaibi",
                     Email = "ahmed@example.com",
                     Department = "Development",
-                    Role = "Employee",
+                    Role = Role.Admin,
                     IsActive = true
                 },
                 new User
@@ -33,7 +33,17 @@ public static class DbSeeder
                     FullName = "Fatima Al Harthy",
                     Email = "fatima@example.com",
                     Department = "Audit",
-                    Role = "AuditManager",
+                    Role = Role.Examiner,
+                    IsActive = true
+                },
+                new User
+                {
+                    Id = 3,
+                    ADUserName = "mohammed.said",
+                    FullName = "Mohammed Al Said",
+                    Email = "mohammed@example.com",
+                    Department = "Finance",
+                    Role = Role.User,
                     IsActive = true
                 }
             );

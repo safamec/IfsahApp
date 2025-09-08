@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using IfsahApp.Core.Enums;
 
 namespace IfsahApp.Core.Models;
 
@@ -18,19 +19,14 @@ public class User
     // Optional: can be null if department is not set
     public string? Department { get; set; }
 
-    // Optional: Employee, AuditManager, Examiner, etc.
-    public string? Role { get; set; }
+    [Required]
+    public Role Role { get; set; }
 
     public bool IsActive { get; set; } = true;
 
     // Disclosures submitted by this user
-    public ICollection<Disclosure> SubmittedDisclosures { get; set; } = new List<Disclosure>();
+    public ICollection<Disclosure> SubmittedDisclosures { get; set; } = [];
 
     // Disclosures assigned to this user
-    public ICollection<Disclosure> AssignedDisclosures { get; set; } = new List<Disclosure>();
-
-    public static implicit operator User(string v)
-    {
-        throw new NotImplementedException();
-    }
+    public ICollection<Disclosure> AssignedDisclosures { get; set; } = [];
 }

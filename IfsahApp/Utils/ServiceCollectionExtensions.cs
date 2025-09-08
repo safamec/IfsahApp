@@ -11,18 +11,16 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddAppAuthentication(
         this IServiceCollection services,
-        IWebHostEnvironment env,
-        string[] args)
+        IWebHostEnvironment env)
     {
         bool isDev = env.IsDevelopment();
         bool isStaging = env.IsStaging();
         bool isProd = env.IsProduction();
 
-        // 1️⃣ Handle CLI user for development
-        if (isDev && args.Length > 0)
+        // 1️⃣ Register DevUserOptions for UI login
+        if (isDev)
         {
-            string devUser = args[0].TrimStart('-', '/');
-            services.Configure<DevUserOptions>(opt => opt.SamAccountName = devUser);
+            services.Configure<DevUserOptions>(opt => opt.SamAccountName = string.Empty); // initially empty
         }
 
         // 2️⃣ Logging mode
@@ -32,9 +30,7 @@ public static class ServiceCollectionExtensions
 
             if (isDev)
             {
-                var options = provider.GetService<IOptions<DevUserOptions>>()?.Value;
-                string username = options?.SamAccountName ?? "(not set)";
-                logger.LogInformation("Authentication mode: Development (Fake login + Fake AD). Using username: {User}", username);
+                logger.LogInformation("Authentication mode: Development (Fake login + Fake AD). Username will be set via UI.");
             }
             else if (isStaging)
             {
@@ -55,7 +51,7 @@ public static class ServiceCollectionExtensions
                 .AddAuthentication("Fake")
                 .AddScheme<AuthenticationSchemeOptions, FakeAuthHandler>("Fake", options =>
                 {
-                    options.TimeProvider = TimeProvider.System; // ✅ correct place to set TimeProvider
+                    options.TimeProvider = TimeProvider.System;
                 });
 
             services.AddSingleton<IAdUserService, FakeAdUserService>();

@@ -3,14 +3,24 @@ using IfsahApp.Core.Models;
 using IfsahApp.Infrastructure.Data;
 using IfsahApp.Core.ViewModels;
 using IfsahApp.Infrastructure.Services;
+using AutoMapper;
 
 namespace IfsahApp.Web.Controllers;
 
-public class DisclosureController(ApplicationDbContext context, IWebHostEnvironment env, IEnumLocalizer enumLocalizer) : Controller
+public class DisclosureController : Controller
 {
-    private readonly ApplicationDbContext _context = context;
-    private readonly IWebHostEnvironment _env = env;
-    private readonly IEnumLocalizer _enumLocalizer = enumLocalizer;
+    private readonly ApplicationDbContext _context;
+    private readonly IWebHostEnvironment _env;
+    private readonly IEnumLocalizer _enumLocalizer;
+    private readonly IMapper _mapper;
+
+    public DisclosureController(ApplicationDbContext context, IWebHostEnvironment env, IEnumLocalizer enumLocalizer, IMapper mapper)
+    {
+        _context = context;
+        _env = env;
+        _enumLocalizer = enumLocalizer;
+        _mapper = mapper;
+    }
 
     // GET: /Disclosure/Create
     [HttpGet]
@@ -18,11 +28,7 @@ public class DisclosureController(ApplicationDbContext context, IWebHostEnvironm
     {
         ViewBag.DisclosureTypes = _context.DisclosureTypes.ToList();
 
-        var viewModel = new DisclosureFormViewModel
-        {
-            Disclosure = new Disclosure()
-        };
-
+        var viewModel = new DisclosureFormViewModel();
         return View(viewModel);
     }
 
@@ -33,23 +39,17 @@ public class DisclosureController(ApplicationDbContext context, IWebHostEnvironm
     {
         if (ModelState.IsValid)
         {
-            var disclosure = model.Disclosure;
+            // Map ViewModel directly to Disclosure model
+            var disclosure = _mapper.Map<Disclosure>(model);
 
-            if (disclosure != null)
-            {
-                disclosure.DisclosureNumber = $"DISC-{DateTime.UtcNow.Year}-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
-                disclosure.SubmittedById = 1;
-            }
-            else
-            {
-                // Handle the case when Disclosure is null
-                throw new InvalidOperationException("Disclosure cannot be null.");
-            }
+            disclosure.DisclosureNumber = $"DISC-{DateTime.UtcNow.Year}-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
+            disclosure.SubmittedById = 1;
 
-            disclosure.SuspectedPeople ??= [];
+            // Initialize collections if null
+            disclosure.SuspectedPeople ??= new List<SuspectedPerson>();
+            disclosure.RelatedPeople ??= new List<RelatedPerson>();
 
-            disclosure.RelatedPeople ??= [];
-
+            // Add suspected persons individually
             if (model.SuspectedPersons != null && model.SuspectedPersons.Count > 0)
             {
                 foreach (var suspected in model.SuspectedPersons)
@@ -58,6 +58,7 @@ public class DisclosureController(ApplicationDbContext context, IWebHostEnvironm
                 }
             }
 
+            // Add related persons individually
             if (model.RelatedPersons != null && model.RelatedPersons.Count > 0)
             {
                 foreach (var related in model.RelatedPersons)
@@ -66,7 +67,6 @@ public class DisclosureController(ApplicationDbContext context, IWebHostEnvironm
                 }
             }
 
-
             var allowedExtensions = new[] {
                  ".jpg", ".jpeg", ".png", ".gif", ".bmp",
                  ".mp4", ".mov", ".avi", ".wmv", ".mkv",
@@ -74,7 +74,7 @@ public class DisclosureController(ApplicationDbContext context, IWebHostEnvironm
                  ".doc", ".docx",
                  ".xls", ".xlsx",
                  ".ppt", ".pptx"
-                 };
+            };
 
             const long maxFileSize = 10 * 1024 * 1024; // 10 MB
 
@@ -83,7 +83,6 @@ public class DisclosureController(ApplicationDbContext context, IWebHostEnvironm
                 var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads");
                 Directory.CreateDirectory(uploadsFolder);
 
-                // Ensure list is initialized
                 disclosure.Attachments ??= new List<DisclosureAttachment>();
 
                 foreach (var file in model.Attachments)
@@ -92,31 +91,26 @@ public class DisclosureController(ApplicationDbContext context, IWebHostEnvironm
                     {
                         var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
 
-                        // Check allowed extension
                         if (!allowedExtensions.Contains(extension))
                         {
                             ModelState.AddModelError("Attachments", $"File type '{extension}' is not allowed.");
-                            continue; // Skip this file
+                            continue;
                         }
 
-                        // Check file size
                         if (file.Length > maxFileSize)
                         {
                             ModelState.AddModelError("Attachments", $"File '{file.FileName}' exceeds the 10MB size limit.");
-                            continue; // Skip this file
+                            continue;
                         }
 
-                        // Generate unique filename
                         var uniqueFileName = $"{Guid.NewGuid()}{extension}";
                         var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-                        // Save file
                         using (var stream = new FileStream(filePath, FileMode.Create))
                         {
                             await file.CopyToAsync(stream);
                         }
 
-                        // Save attachment info
                         disclosure.Attachments.Add(new DisclosureAttachment
                         {
                             FileName = uniqueFileName,
@@ -127,12 +121,10 @@ public class DisclosureController(ApplicationDbContext context, IWebHostEnvironm
                 }
             }
 
-
-
             _context.Disclosures.Add(disclosure);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Success");
+            return RedirectToAction("SubmitDisclosure", new { reportNumber = disclosure.DisclosureNumber });
         }
 
         ViewBag.DisclosureTypes = _context.DisclosureTypes.ToList();
@@ -140,5 +132,10 @@ public class DisclosureController(ApplicationDbContext context, IWebHostEnvironm
         return View(model);
     }
 
-
+    [HttpGet]
+    public IActionResult SubmitDisclosure(string reportNumber)
+    {
+        ViewData["ReportNumber"] = reportNumber;
+        return View();
+    }
 }

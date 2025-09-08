@@ -1,0 +1,45 @@
+@{
+    var reportNumber = ViewData["ReportNumber"];
+    ViewData["Title"] = "Thank You for Your Report";
+}
+
+<style>
+    body {
+        background-color: white; 
+        color: #333; 
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 40px;
+    }
+
+    h2 {
+        margin-bottom: 20px;
+    }
+
+    p {
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+
+    a {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #f26522; 
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+
+    a:hover {
+        background-color: #d9540a;
+    }
+</style>
+
+<h1>Thank you for submitting your report!</h1>
+<h2>Your report has been received and will be handled promptly and carefully.</h2>
+<p>Your report number is: <strong>@reportNumber</strong></p>
+
+<p>If you want to track your report, click the following link:</p>
+<a href="/SubmitDisclo/Track?reportNumber=@reportNumber">Track Your Report</a>

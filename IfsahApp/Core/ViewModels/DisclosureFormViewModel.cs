@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using IfsahApp.Core.Models;
+using Microsoft.AspNetCore.Http; // for IFormFile
 
 namespace IfsahApp.Core.ViewModels;
 
@@ -7,9 +8,9 @@ public class DisclosureFormViewModel
 {
     public DisclosureFormViewModel()
     {
-        Attachments = [];
-        SuspectedPersons = [];
-        RelatedPersons = [];
+        Attachments = new List<IFormFile>();
+        SuspectedPersons = new List<SuspectedPerson>();
+        RelatedPersons = new List<RelatedPerson>();
     }
 
     [Required]
@@ -17,14 +18,13 @@ public class DisclosureFormViewModel
 
     public int Id { get; set; }
 
-    [Required]
-    public string DisclosureNumber { get; set; } = string.Empty; // required, initialized
+    public string DisclosureNumber { get; set; } = string.Empty;
 
     [Required, MaxLength(300)]
     public string Description { get; set; } = string.Empty;
 
     [MaxLength(100)]
-    public string? Location { get; set; } // optional
+    public string? Location { get; set; }
 
     [Required]
     public int DisclosureTypeId { get; set; }
@@ -45,6 +45,4 @@ public class DisclosureFormViewModel
     public List<SuspectedPerson> SuspectedPersons { get; set; }
 
     public List<RelatedPerson> RelatedPersons { get; set; }
-
-    public Disclosure? Disclosure { get; internal set; } // can be null
 }

@@ -6,111 +6,121 @@
 }
 
 
-    <div class="container mt-5" style="max-width: 600px;">
-        <h3 class="text-start">@Localizer["PageTitle"]</h3>
+<div class="container mt-5" style="max-width: 600px;">
+    <h3 class="text-start">@Localizer["PageTitle"]</h3>
 
-        <form asp-action="Create" method="post" enctype="multipart/form-data" novalidate>
-            <div class="mb-3">
-                <label asp-for="Disclosure.DisclosureTypeId" class="form-label">Type of Report</label>
-                <select asp-for="Disclosure.DisclosureTypeId" class="form-select"
-                        asp-items='@(new SelectList(ViewBag.DisclosureTypes, "Id", "Name"))'>
-                    <option value="">-- Select Report Type --</option>
-                </select>
-                <span asp-validation-for="Disclosure.DisclosureTypeId" class="text-danger"></span>
+    <form asp-action="Create" method="post" enctype="multipart/form-data" novalidate>
+        <div class="mb-3">
+            <label asp-for="DisclosureTypeId" class="form-label">Type of Report</label>
+            <select asp-for="DisclosureTypeId" class="form-select"
+                asp-items='@(new SelectList(ViewBag.DisclosureTypes, "Id", "Name"))'>
+                <option value="">-- Select Report Type --</option>
+            </select>
+            <span asp-validation-for="DisclosureTypeId" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label">Description</label>
+            <textarea asp-for="Description" rows="4" class="form-control"
+                placeholder="Write your description here..."></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Report Date Range</label>
+            <input id="dateRangePicker" type="text" class="form-control" autocomplete="off"
+                placeholder="Select date range" />
+
+            <input type="hidden" asp-for="IncidentStartDate" />
+            <input type="hidden" asp-for="IncidentEndDate" />
+
+            <span asp-validation-for="IncidentStartDate" class="text-danger"></span>
+            <span asp-validation-for="IncidentEndDate" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Location" class="form-label">Violation Location</label>
+            <input asp-for="Location" class="form-control" placeholder="Location of violation" />
+            <span asp-validation-for="Location" class="text-danger"></span>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Suspected People</label>
+                <div id="suspected-people-list"></div>
+                <button type="button" class="btn btn-outline-primary btn-sm mt-2" data-list="suspected-people-list"
+                    onclick="openPersonModal(this)">+ Add Suspected Person</button>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="Disclosure.Description" class="form-label">Description</label>
-                <textarea asp-for="Disclosure.Description" rows="4" class="form-control"
-                          placeholder="Write your description here..."></textarea>
-                <span asp-validation-for="Disclosure.Description" class="text-danger"></span>
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Related People</label>
+                <div id="related-people-list"></div>
+                <button type="button" class="btn btn-outline-primary btn-sm mt-2" data-list="related-people-list"
+                    onclick="openPersonModal(this)">+ Add Related Person</button>
             </div>
+        </div>
 
-            <div class="mb-3">
-                <label class="form-label">Report Date Range</label>
-                <input id="dateRangePicker" type="text" class="form-control" autocomplete="off"
-                       placeholder="Select date range" />
+        <div class="mb-3 mt-3">
+            <label class="form-label">Attachments</label>
+            <input id="fileInput" name="Attachments" type="file" multiple class="form-control"
+                accept=".jpg,.jpeg,.png,.gif,.bmp,.mp4,.mov,.avi,.wmv,.mkv,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" />
+            <small class="text-muted">Allowed types: images, videos, PDF, Word, Excel, PowerPoint (Max 10MB
+                each)</small>
+            <div id="previewList" class="mt-3"></div>
+        </div>
 
-                <input type="hidden" asp-for="Disclosure.IncidentStartDate" />
-                <input type="hidden" asp-for="Disclosure.IncidentEndDate" />
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+        <button type="submit" class="btn btn-success w-100">Submit Disclosure</button>
+        </form>
 
-                <span asp-validation-for="Disclosure.IncidentStartDate" class="text-danger"></span>
-                <span asp-validation-for="Disclosure.IncidentEndDate" class="text-danger"></span>
+    </form>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="personModal" tabindex="-1" aria-labelledby="personModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form id="personForm" class="modal-content" onsubmit="return savePerson(event)">
+            <div class="modal-header">
+                <h5 class="modal-title" id="personModalLabel">Add Person Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-
-            <div class="mb-3">
-                <label asp-for="Disclosure.Location" class="form-label">Violation Location</label>
-                <input asp-for="Disclosure.Location" class="form-control" placeholder="Location of violation" />
-                <span asp-validation-for="Disclosure.Location" class="text-danger"></span>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">Suspected People</label>
-                    <div id="suspected-people-list"></div>
-                    <button type="button" class="btn btn-outline-primary btn-sm mt-2" data-list="suspected-people-list"
-                            onclick="openPersonModal(this)">+ Add Suspected Person</button>
+            <div class="modal-body">
+                <input type="hidden" id="targetListId" />
+                <div class="mb-3">
+                    <label for="personName" class="form-label">Name *</label>
+                    <input type="text" class="form-control" id="personName" required />
                 </div>
-
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">Related People</label>
-                    <div id="related-people-list"></div>
-                    <button type="button" class="btn btn-outline-primary btn-sm mt-2" data-list="related-people-list"
-                            onclick="openPersonModal(this)">+ Add Related Person</button>
+                <div class="mb-3">
+                    <label for="personEmail" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="personEmail" />
+                </div>
+                <div class="mb-3">
+                    <label for="personPhone" class="form-label">Phone</label>
+                    <input type="text" class="form-control" id="personPhone" />
+                </div>
+                <div class="mb-3">
+                    <label for="personOrganization" class="form-label">Organization</label>
+                    <input type="text" class="form-control" id="personOrganization" />
                 </div>
             </div>
-
-            <div class="mb-3 mt-3">
-                <label class="form-label">Attachments</label>
-                <input id="fileInput" name="Attachments" type="file" multiple class="form-control"
-                       accept=".jpg,.jpeg,.png,.gif,.bmp,.mp4,.mov,.avi,.wmv,.mkv,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" />
-                <small class="text-muted">Allowed types: images, videos, PDF, Word, Excel, PowerPoint (Max 10MB each)</small>
-                <div id="previewList" class="mt-3"></div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Add Person</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
             </div>
-
-            <button type="submit" class="btn btn-success w-100">Submit Disclosure</button>
         </form>
     </div>
+</div>
 
-    <!-- Modal -->
-    <div class="modal fade" id="personModal" tabindex="-1" aria-labelledby="personModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <form id="personForm" class="modal-content" onsubmit="return savePerson(event)">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="personModalLabel">Add Person Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="targetListId" />
-                    <div class="mb-3">
-                        <label for="personName" class="form-label">Name *</label>
-                        <input type="text" class="form-control" id="personName" required />
-                    </div>
-                    <div class="mb-3">
-                        <label for="personEmail" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="personEmail" />
-                    </div>
-                    <div class="mb-3">
-                        <label for="personPhone" class="form-label">Phone</label>
-                        <input type="text" class="form-control" id="personPhone" />
-                    </div>
-                    <div class="mb-3">
-                        <label for="personOrganization" class="form-label">Organization</label>
-                        <input type="text" class="form-control" id="personOrganization" />
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Add Person</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
 
-    @section Scripts{
-         <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
 
     <script>
         $(function () {
@@ -124,14 +134,14 @@
 
             $('#dateRangePicker').on('apply.daterangepicker', function (ev, picker) {
                 $(this).val(picker.startDate.format('YYYY-MM-DD') + ' to ' + picker.endDate.format('YYYY-MM-DD'));
-                $('input[name="Disclosure.IncidentStartDate"]').val(picker.startDate.format('YYYY-MM-DD'));
-                $('input[name="Disclosure.IncidentEndDate"]').val(picker.endDate.format('YYYY-MM-DD'));
+                $('input[name="IncidentStartDate"]').val(picker.startDate.format('YYYY-MM-DD'));
+                $('input[name="IncidentEndDate"]').val(picker.endDate.format('YYYY-MM-DD'));
             });
 
             $('#dateRangePicker').on('cancel.daterangepicker', function () {
                 $(this).val('');
-                $('input[name="Disclosure.IncidentStartDate"]').val('');
-                $('input[name="Disclosure.IncidentEndDate"]').val('');
+                $('input[name="IncidentStartDate"]').val('');
+                $('input[name="IncidentEndDate"]').val('');
             });
         });
 
@@ -297,5 +307,4 @@
             }
         });
     </script>
-    }
-
+}

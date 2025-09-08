@@ -5,6 +5,7 @@ using IfsahApp.Infrastructure.Services.Email;
 using IfsahApp.Infrastructure.Services.AdUser;
 using Microsoft.EntityFrameworkCore;
 using IfsahApp.Web.Middleware.Auth;
+using IfsahApp.Core.Mapping;
 
 var options = new WebApplicationOptions
 {
@@ -19,6 +20,11 @@ var builder = WebApplication.CreateBuilder(options);
 // =============================
 builder.Services.AddDbContext<ApplicationDbContext>(dbOptions =>
     dbOptions.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// =============================
+// Register AutoMapper here
+// =============================
+builder.Services.AddAutoMapper(typeof(DisclosureMappingProfile));
 
 // =============================
 // 2. Localization + Views

@@ -1,0 +1,29 @@
+@model DisclosureType
+
+@{
+    ViewData["Title"] = "Delete Disclosure Type";
+}
+
+<div class="container mt-4">
+    <h2>@ViewData["Title"]</h2>
+
+    <h4>Are you sure you want to delete this?</h4>
+
+    <dl class="row">
+        <dt class="col-sm-3">Arabic Name</dt>
+        <dd class="col-sm-9">@Model.ArabicName</dd>
+
+        <dt class="col-sm-3">English Name</dt>
+        <dd class="col-sm-9">@Model.EnglishName</dd>
+
+        <dt class="col-sm-3">Active</dt>
+        <dd class="col-sm-9">@Model.IsActive ? "Yes" : "No"</dd>
+    </dl>
+
+    <form asp-action="DeleteConfirmed" method="post">
+        <input type="hidden" asp-for="Id" />
+
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+    </form>
+</div>

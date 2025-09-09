@@ -1,9 +1,11 @@
 using System.Diagnostics;
 using IfsahApp.Core.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IfsahApp.Web.Controllers;
 
+[Authorize]
 public class HomeController(ILogger<HomeController> logger) : Controller
 {
     private readonly ILogger<HomeController> _logger = logger;

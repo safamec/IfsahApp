@@ -50,15 +50,27 @@ public static class DbSeeder
             context.SaveChanges();
         }
 
-        // Seed Disclosure Types
-        if (!context.DisclosureTypes.Any())
-        {
-            context.DisclosureTypes.AddRange(
-                new DisclosureType { Id = 1, Name = "Safety" },
-                new DisclosureType { Id = 2, Name = "Compliance" }
-            );
-            context.SaveChanges();
-        }
+      // Seed Disclosure Types
+if (!context.DisclosureTypes.Any())
+{
+    context.DisclosureTypes.AddRange(
+        new DisclosureType { EnglishName = "Safety", ArabicName = "السلامة" },
+        new DisclosureType { EnglishName = "Compliance", ArabicName = "الامتثال" }
+    );
+    context.SaveChanges();
+}
+else
+{
+    var safety = context.DisclosureTypes.FirstOrDefault(x => x.EnglishName == "Safety");
+    if (safety != null && string.IsNullOrWhiteSpace(safety.ArabicName))
+        safety.ArabicName = "السلامة";
+
+    var compliance = context.DisclosureTypes.FirstOrDefault(x => x.EnglishName == "Compliance");
+    if (compliance != null && string.IsNullOrWhiteSpace(compliance.ArabicName))
+        compliance.ArabicName = "الامتثال";
+
+    context.SaveChanges();
+}
 
         // Seed Disclosures
         if (!context.Disclosures.Any())

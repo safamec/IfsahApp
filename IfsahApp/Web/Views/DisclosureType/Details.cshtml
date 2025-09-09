@@ -1,0 +1,38 @@
+@model DisclosureType
+
+@{
+    ViewData["Title"] = "Disclosure Type Details";
+}
+
+<div class="container mt-4">
+    <h2>@ViewData["Title"]</h2>
+
+    <dl class="row">
+        <dt class="col-sm-3">Id</dt>
+        <dd class="col-sm-9">@Model.Id</dd>
+
+        <dt class="col-sm-3">Arabic Name</dt>
+        <dd class="col-sm-9">@Model.ArabicName</dd>
+
+        <dt class="col-sm-3">English Name</dt>
+        <dd class="col-sm-9">@Model.EnglishName</dd>
+
+        <dt class="col-sm-3">Is Active</dt>
+        <dd class="col-sm-9">
+            @if (Model.IsActive)
+            {
+                <span class="badge bg-success">Active</span>
+            }
+            else
+            {
+                <span class="badge bg-secondary">Inactive</span>
+            }
+        </dd>
+
+        <dt class="col-sm-3">Created At</dt>
+        <dd class="col-sm-9">@Model.CreatedAt.ToLocalTime().ToString("g")</dd>
+    </dl>
+
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary ms-2">Back to List</a>
+</div>

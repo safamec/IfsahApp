@@ -41,7 +41,10 @@ public class ApplicationDbContext : DbContext
 
         // Unique indexes
         modelBuilder.Entity<DisclosureType>()
-            .HasIndex(t => t.Name)
+            .HasIndex(t => t.EnglishName)
+            .IsUnique();
+                  modelBuilder.Entity<DisclosureType>()
+            .HasIndex(t => t.ArabicName)
             .IsUnique();
 
         modelBuilder.Entity<User>()

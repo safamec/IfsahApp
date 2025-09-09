@@ -3,22 +3,23 @@ using Microsoft.EntityFrameworkCore;
 using IfsahApp.Infrastructure.Data;
 using IfsahApp.Core.Models;
 using IfsahApp.Infrastructure.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IfsahApp.Web.Controllers;
-
+ [Authorize(Policy = "AuditTeam")]
 public class ReviewController(ApplicationDbContext context, IEnumLocalizer enumLocalizer) : Controller
 {
     private readonly ApplicationDbContext _context = context;
     private readonly IEnumLocalizer _enumLocalizer = enumLocalizer;
 
-    public async Task<IActionResult> Index()
-    {
-        var cases = await _context.Disclosures
-            .Include(d => d.DisclosureType)
-            .OrderByDescending(d => d.SubmittedAt)
-            .Select(d => new CaseItem
+      public async Task<IActionResult> Index()
+{
+    var cases = await _context.Disclosures
+        .Include(d => d.DisclosureType)
+        .OrderByDescending(d => d.SubmittedAt)
+                .Select(d => new CaseItem
             {
-                Type = d.DisclosureType != null ? d.DisclosureType.Name : "N/A",
+                Type = d.DisclosureType != null ? d.DisclosureType.EnglishName : "N/A",
                 Reference = d.DisclosureNumber,
                 Date = d.SubmittedAt,
                 Location = d.Location ?? string.Empty,
@@ -26,9 +27,8 @@ public class ReviewController(ApplicationDbContext context, IEnumLocalizer enumL
                 Description = d.Description ?? string.Empty
             })
             .ToListAsync();
-
-        return View(cases);
-    }
+    return View(cases);
+}
 
     public IActionResult ReviewDisclosure()
     {

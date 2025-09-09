@@ -118,59 +118,99 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="PageTitle" xml:space="preserve">
-    <value>Report a Violation</value>
+    <value>Report Disclosure</value>
     <comment/>
   </data>
-  <data name="DisclosureType" xml:space="preserve">
-    <value>Disclosure Type</value>
+  <data name="ReportTypeLabel" xml:space="preserve">
+    <value>Type of Report</value>
     <comment/>
   </data>
-  <data name="SelectDisclosure" xml:space="preserve">
-    <value>Select Disclosure Type</value>
+  <data name="SelectReportTypeOption" xml:space="preserve">
+    <value>-- Select Report Type --</value>
     <comment/>
   </data>
-  <data name="Description" xml:space="preserve">
-    <value>Violation Description</value>
+  <data name="DescriptionLabel" xml:space="preserve">
+    <value>Description</value>
     <comment/>
   </data>
-  <data name="IncidentDate" xml:space="preserve">
-    <value>Incident Date</value>
+  <data name="DescriptionPlaceholder" xml:space="preserve">
+    <value>Write your description here...</value>
     <comment/>
   </data>
-  <data name="Location" xml:space="preserve">
+  <data name="ReportDateRangeLabel" xml:space="preserve">
+    <value>Report Date Range</value>
+    <comment/>
+  </data>
+  <data name="SelectDateRangePlaceholder" xml:space="preserve">
+    <value>Select date range</value>
+    <comment/>
+  </data>
+  <data name="ViolationLocationLabel" xml:space="preserve">
     <value>Violation Location</value>
     <comment/>
   </data>
-  <data name="SuspectedPeople" xml:space="preserve">
-    <value>Suspected Individuals</value>
+  <data name="ViolationLocationPlaceholder" xml:space="preserve">
+    <value>Location of violation</value>
     <comment/>
   </data>
-  <data name="RelatedPeople" xml:space="preserve">
-    <value>Related Individuals with Information</value>
+  <data name="SuspectedPeopleLabel" xml:space="preserve">
+    <value>Suspected People</value>
     <comment/>
   </data>
-  <data name="Attachments" xml:space="preserve">
+  <data name="AddSuspectedPersonButton" xml:space="preserve">
+    <value>+ Add Suspected Person</value>
+    <comment/>
+  </data>
+  <data name="RelatedPeopleLabel" xml:space="preserve">
+    <value>Related People</value>
+    <comment/>
+  </data>
+  <data name="AddRelatedPersonButton" xml:space="preserve">
+    <value>+ Add Related Person</value>
+    <comment/>
+  </data>
+  <data name="AttachmentsLabel" xml:space="preserve">
     <value>Attachments</value>
     <comment/>
   </data>
-  <data name="Submit" xml:space="preserve">
-    <value>Submit Report</value>
+  <data name="AllowedAttachmentTypesHint" xml:space="preserve">
+    <value>Allowed types: images, videos, PDF, Word, Excel, PowerPoint (Max 10MB each)</value>
     <comment/>
   </data>
-  <data name="Add" xml:space="preserve">
-    <value>Add</value>
+  <data name="SubmitDisclosureButton" xml:space="preserve">
+    <value>Submit Disclosure</value>
     <comment/>
   </data>
-  <data name="Remove" xml:space="preserve">
-    <value>Remove</value>
+  <data name="AddPersonTitle" xml:space="preserve">
+    <value>Add Person Details</value>
     <comment/>
   </data>
-  <data name="PersonName" xml:space="preserve">
-    <value>Person Name</value>
+  <data name="NameLabel" xml:space="preserve">
+    <value>Name</value>
     <comment/>
   </data>
-  <data name="MultiFilesHint" xml:space="preserve">
-    <value>You can upload multiple files</value>
+  <data name="EmailLabel" xml:space="preserve">
+    <value>Email</value>
+    <comment/>
+  </data>
+  <data name="PhoneLabel" xml:space="preserve">
+    <value>Phone</value>
+    <comment/>
+  </data>
+  <data name="OrganizationLabel" xml:space="preserve">
+    <value>Organization</value>
+    <comment/>
+  </data>
+  <data name="AddPersonButton" xml:space="preserve">
+    <value>Add Person</value>
+    <comment/>
+  </data>
+  <data name="CancelButton" xml:space="preserve">
+    <value>Cancel</value>
+    <comment/>
+  </data>
+  <data name="NameRequiredAlert" xml:space="preserve">
+    <value>Name is required</value>
     <comment/>
   </data>
 </root>

@@ -121,56 +121,96 @@
     <value>الإبلاغ عن مخالفة</value>
     <comment/>
   </data>
-  <data name="DisclosureType" xml:space="preserve">
+  <data name="ReportTypeLabel" xml:space="preserve">
     <value>نوع البلاغ</value>
     <comment/>
   </data>
-  <data name="SelectDisclosure" xml:space="preserve">
-    <value>اختر نوع البلاغ</value>
+  <data name="SelectReportTypeOption" xml:space="preserve">
+    <value>-- اختر نوع البلاغ --</value>
     <comment/>
   </data>
-  <data name="Description" xml:space="preserve">
-    <value>وصف المخالفة</value>
+  <data name="DescriptionLabel" xml:space="preserve">
+    <value>الوصف</value>
     <comment/>
   </data>
-  <data name="IncidentDate" xml:space="preserve">
-    <value>تاريخ البلاغ</value>
+  <data name="DescriptionPlaceholder" xml:space="preserve">
+    <value>اكتب وصف البلاغ هنا...</value>
     <comment/>
   </data>
-  <data name="Location" xml:space="preserve">
-    <value>مكان وقوع المخالفة</value>
+  <data name="ReportDateRangeLabel" xml:space="preserve">
+    <value>نطاق تاريخ البلاغ</value>
     <comment/>
   </data>
-  <data name="SuspectedPeople" xml:space="preserve">
+  <data name="SelectDateRangePlaceholder" xml:space="preserve">
+    <value>اختر نطاق التاريخ</value>
+    <comment/>
+  </data>
+  <data name="ViolationLocationLabel" xml:space="preserve">
+    <value>موقع المخالفة</value>
+    <comment/>
+  </data>
+  <data name="ViolationLocationPlaceholder" xml:space="preserve">
+    <value>أدخل موقع المخالفة</value>
+    <comment/>
+  </data>
+  <data name="SuspectedPeopleLabel" xml:space="preserve">
     <value>الأشخاص المشتبه بهم</value>
     <comment/>
   </data>
-  <data name="RelatedPeople" xml:space="preserve">
-    <value>الأشخاص الذين لديهم معلومات ذات صلة</value>
+  <data name="AddSuspectedPersonButton" xml:space="preserve">
+    <value>+ إضافة مشتبه به</value>
     <comment/>
   </data>
-  <data name="Attachments" xml:space="preserve">
+  <data name="RelatedPeopleLabel" xml:space="preserve">
+    <value>الأشخاص المرتبطين</value>
+    <comment/>
+  </data>
+  <data name="AddRelatedPersonButton" xml:space="preserve">
+    <value>+ إضافة شخص مرتبط</value>
+    <comment/>
+  </data>
+  <data name="AttachmentsLabel" xml:space="preserve">
     <value>المرفقات</value>
     <comment/>
   </data>
-  <data name="Submit" xml:space="preserve">
+  <data name="AllowedAttachmentTypesHint" xml:space="preserve">
+    <value>الأنواع المسموح بها: صور، فيديو، PDF، Word، Excel، PowerPoint (بحد أقصى 10MB لكل ملف)</value>
+    <comment/>
+  </data>
+  <data name="SubmitDisclosureButton" xml:space="preserve">
     <value>إرسال البلاغ</value>
     <comment/>
   </data>
-  <data name="Add" xml:space="preserve">
-    <value>إضافة</value>
+  <data name="AddPersonTitle" xml:space="preserve">
+    <value>إضافة تفاصيل الشخص</value>
     <comment/>
   </data>
-  <data name="Remove" xml:space="preserve">
-    <value>حذف</value>
+  <data name="NameLabel" xml:space="preserve">
+    <value>الاسم</value>
     <comment/>
   </data>
-  <data name="PersonName" xml:space="preserve">
-    <value>اسم الشخص</value>
+  <data name="EmailLabel" xml:space="preserve">
+    <value>البريد الإلكتروني</value>
     <comment/>
   </data>
-  <data name="MultiFilesHint" xml:space="preserve">
-    <value>يمكن رفع عدة ملفات</value>
+  <data name="PhoneLabel" xml:space="preserve">
+    <value>رقم الجوال</value>
+    <comment/>
+  </data>
+  <data name="OrganizationLabel" xml:space="preserve">
+    <value>الجهة</value>
+    <comment/>
+  </data>
+  <data name="AddPersonButton" xml:space="preserve">
+    <value>إضافة الشخص</value>
+    <comment/>
+  </data>
+  <data name="CancelButton" xml:space="preserve">
+    <value>إلغاء</value>
+    <comment/>
+  </data>
+  <data name="NameRequiredAlert" xml:space="preserve">
+    <value>الاسم مطلوب</value>
     <comment/>
   </data>
 </root>

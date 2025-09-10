@@ -10,11 +10,13 @@
 
     <form asp-action="Create" method="post" enctype="multipart/form-data" novalidate>
         <div class="mb-3">
-            <label asp-for="DisclosureTypeId" class="form-label">@Localizer["ReportTypeLabel"]</label>
-            <select asp-for="DisclosureTypeId" class="form-select"
-                    asp-items='@(new SelectList(ViewBag.DisclosureTypes, "Id", "DisplayName"))'>
-                <option value="">@Localizer["SelectReportTypeOption"]</option>
-            </select>
+            <label asp-for="DisclosureTypeId" class="form-label">@Localizer["Report Type"]</label>
+            <select asp-for="DisclosureTypeId"
+        asp-items="ViewBag.DisclosureTypes"
+        class="form-select">
+    <option value="">@Localizer["SelectReportTypeOption"]</option>
+</select>
+
 
             <span asp-validation-for="DisclosureTypeId" class="text-danger"></span>
         </div>

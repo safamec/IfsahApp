@@ -9,6 +9,10 @@
     {
       "library": "jquery@3.7.1",
       "destination": "wwwroot/lib/jquery"
+    },
+    {
+      "library": "animate.css@4.1.1",
+      "destination": "wwwroot/lib/animate.css"
     }
   ]
 }

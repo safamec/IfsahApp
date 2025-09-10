@@ -106,5 +106,7 @@ docker-compose.override.yml
 
 # Others
 _ReSharper.Caches/
-#uploads
+
+#Folders
 IfsahApp/Web/wwwroot/uploads/
+IfsahApp/Web/wwwroot/lib/

@@ -18,6 +18,11 @@ namespace IfsahApp.Web.Controllers
         {
             _context = context;
         }
+        // GET: /Admin
+        public IActionResult Index()
+        {
+            return View();
+        }
 
         // GET: Admin/Assign/5
         public IActionResult Assign(int id)
@@ -113,5 +118,60 @@ namespace IfsahApp.Web.Controllers
         }
 
 
+
+
+
+        // GET: /Admin/SearchUsers?query=...
+        [HttpGet]
+        public async Task<IActionResult> SearchUsers(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+                return Json(new List<object>());
+
+            var users = await _context.Users
+                .Where(u => u.FullName.Contains(query) || u.ADUserName.Contains(query))
+                .Select(u => new
+                {
+                    u.Id,
+                    u.FullName,
+                    u.ADUserName,
+                    u.Email,
+                    u.Department,
+                    u.Role,
+                    AdminUntil = u.AdminUntil.HasValue
+                        ? u.AdminUntil.Value.ToString("yyyy-MM-dd")
+                        : ""
+                })
+                .ToListAsync();
+
+            return Json(users);
+        }
+
+        // POST: /Admin/SendRoleEmail
+        [HttpPost]
+        public IActionResult SendRoleEmail(int userId, string role, string adminUntil)
+        {
+            var user = _context.Users.Find(userId);
+            if (user == null)
+                return NotFound(new { message = "User not found." });
+
+            // Optional: parse adminUntil date
+            DateTime? expiration = null;
+            if (!string.IsNullOrWhiteSpace(adminUntil))
+            {
+                if (DateTime.TryParse(adminUntil, out var parsedDate))
+                    expiration = parsedDate;
+            }
+
+            // TODO: Send email logic here
+            // Example: EmailService.SendRoleConfirmation(user.Email, role, expiration);
+
+            return Json(new
+            {
+                message = $"Email sent to {user.FullName} to confirm role {role}."
+            });
+        }
     }
 }
+    
+

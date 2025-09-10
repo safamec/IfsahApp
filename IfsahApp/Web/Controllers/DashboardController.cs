@@ -16,10 +16,17 @@ public class DashboardController(ApplicationDbContext context) : Controller
     private readonly ApplicationDbContext _context = context;
 
         // GET: Dashboard
-        public async Task<IActionResult> Index(string status = "All")
+        public async Task<IActionResult> Index(
+            string status = "All",
+            string user = "",
+            string reference = "",
+            int page = 1,
+            int pageSize = 5)
         {
             var query = _context.Disclosures
                 .Include(d => d.DisclosureType)
+                .Include(d => d.AssignedToUser)
+                .Include(d => d.SubmittedBy)
                 .AsQueryable();
 
         if (!string.Equals(status, "All", StringComparison.OrdinalIgnoreCase) &&

@@ -31,63 +31,40 @@ public class ReviewController(ApplicationDbContext context, IEnumLocalizer enumL
     return View(cases);
 }
 
-    public IActionResult ReviewDisclosure()
+    // ============================
+    // REVIEW DISCLOSURE ACTION
+    // ============================
+    public IActionResult ReviewDisclosure(string reference)
     {
         var disclosureCases = new List<CaseItem>
-            {
-                new CaseItem
-                {
-                    Type = "Ethics Violation",
-                    Reference = "VR-1704578901-xyz987abc",
-                    Date = new DateTime(2025, 01, 10),
-                    Location = "HR Department",
-                    Status = "Pending",
-                    Description = "Reported ethics violation in employee conduct"
-                },
-                new CaseItem
-                {
-                    Type = "Security Breach",
-                    Reference = "VR-1704578910-qwe123asd",
-                    Date = new DateTime(2025, 02, 05),
-                    Location = "IT Department",
-                    Status = "Investigating",
-                    Description = "Suspicious access detected in secure servers"
-                }
-            };
+        {
+            new CaseItem { Type = "Ethics Violation", Reference = "VR-1704578901-xyz987abc", Date = new DateTime(2025,01,10), Location = "HR Department", Status = "Pending", Description = "Reported ethics violation" },
+            new CaseItem { Type = "Security Breach", Reference = "VR-1704578910-qwe123asd", Date = new DateTime(2025,02,05), Location = "IT Department", Status = "Investigating", Description = "Suspicious access detected" }
+        };
 
-        // Pass the first item only (a single CaseItem)
-        return View(disclosureCases.FirstOrDefault());
+        return View(disclosureCases.FirstOrDefault(c => c.Reference == reference));
     }
+
+    // ============================
+    // SUBMIT REVIEW ACTION
+    // ============================
     [HttpPost]
     public async Task<IActionResult> SubmitReview(string reviewerNotes, IFormFile attachment)
     {
-        // Optional: Save file if uploaded
         if (attachment != null && attachment.Length > 0)
         {
             var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-
-            if (!Directory.Exists(uploadsFolder))
-            {
-                Directory.CreateDirectory(uploadsFolder);
-            }
+            if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
 
             var filePath = Path.Combine(uploadsFolder, Path.GetFileName(attachment.FileName));
-
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await attachment.CopyToAsync(stream);
             }
-
-            // You can store this path if needed
         }
 
-        // Optional: Log or store reviewer notes
         Console.WriteLine("Reviewer Notes: " + reviewerNotes);
 
-        // Redirect or return a view
         return RedirectToAction("Index");
     }
-
 }
-
-

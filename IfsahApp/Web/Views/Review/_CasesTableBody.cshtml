@@ -1,0 +1,43 @@
+@model List<CaseItem>
+
+@foreach (var caseItem in Model)
+{
+    <tr>
+        <td>
+            <a href="@Url.Action("ReviewDisclosure", "Review", new { reference = caseItem.Reference })" class="btn btn-success btn-sm">
+                Review
+            </a>
+        </td>
+        <td>@caseItem.Status</td>
+        <td>@caseItem.Location</td>
+        <td>@caseItem.Date.ToString("yyyy-MM-dd")</td>
+        <td>@caseItem.Type</td>
+        <td><code>@caseItem.Reference</code></td>
+    </tr>
+}
+
+@if (ViewBag.TotalPages > 1)
+{
+    <tr>
+        <td colspan="6" class="text-center">
+            <nav>
+                <ul class="pagination justify-content-center">
+                    <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                        <a class="page-link" href="#" onclick="loadCases(@(ViewBag.CurrentPage - 1))">Previous</a>
+                    </li>
+
+                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                            <a class="page-link" href="#" onclick="loadCases(@i)">@i</a>
+                        </li>
+                    }
+
+                    <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                        <a class="page-link" href="#" onclick="loadCases(@(ViewBag.CurrentPage + 1))">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </td>
+    </tr>
+}

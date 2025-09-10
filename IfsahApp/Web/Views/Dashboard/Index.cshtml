@@ -41,7 +41,7 @@
     </div>
 
     <!-- Filter Dropdown -->
-    <select class="form-select w-auto mb-3" id="statusSelect" onchange="applyFilters()">
+     <select class="form-select w-auto mb-3" id="statusSelect" onchange="applyFilters()">
         @foreach (var item in (IEnumerable<SelectListItem>)ViewBag.StatusList)
         {
             <option value="@item.Value" selected="@(item.Selected ? "selected" : null)">
@@ -50,16 +50,24 @@
         }
     </select>
 
-    <!-- Disclosures Table -->
+        
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Filter</button>
+            <a href="@Url.Action("Index", "Dashboard")" class="btn btn-secondary">Clear</a>
+        </div>
+    
+
+    <!-- Table -->
     <table class="table table-bordered table-hover text-center align-middle">
         <thead class="table-secondary">
             <tr>
-                <th>@Localizer["HeaderActions"]</th>
-                <th>@Localizer["HeaderStatus"]</th>
-                <th>@Localizer["HeaderLocation"]</th>
-                <th>@Localizer["HeaderDate"]</th>
-                <th>@Localizer["HeaderType"]</th>
-                <th>@Localizer["HeaderReference"]</th>
+                <th>Actions</th>
+                <th>Status</th>
+                <th>Location</th>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Reference</th>
+                <th>User</th>
             </tr>
         </thead>
         <tbody>

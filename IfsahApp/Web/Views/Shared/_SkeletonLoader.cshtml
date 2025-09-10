@@ -1,0 +1,31 @@
+@model int?
+
+@* optional: pass PageSize *@
+
+@{
+    var rows = Model ?? 5; // Default 5 rows if not specified
+}
+
+@for (int i = 0; i < rows; i++)
+{
+    <tr>
+        <td>
+            <div class="bg-secondary" style="height: 30px; width: 60px; border-radius:4px;"></div>
+        </td>
+        <td>
+            <div class="bg-secondary" style="height: 30px; width: 80px; border-radius:4px;"></div>
+        </td>
+        <td>
+            <div class="bg-secondary" style="height: 30px; width: 100px; border-radius:4px;"></div>
+        </td>
+        <td>
+            <div class="bg-secondary" style="height: 30px; width: 80px; border-radius:4px;"></div>
+        </td>
+        <td>
+            <div class="bg-secondary" style="height: 30px; width: 80px; border-radius:4px;"></div>
+        </td>
+        <td>
+            <div class="bg-secondary" style="height: 30px; width: 100px; border-radius:4px;"></div>
+        </td>
+    </tr>
+}

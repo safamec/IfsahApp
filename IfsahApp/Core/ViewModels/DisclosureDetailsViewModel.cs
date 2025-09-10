@@ -13,6 +13,9 @@ public class DisclosureDetailsViewModel
     public DisclosureStatus Status { get; set; }
     public string Description { get; set; } = string.Empty;
 
+    // Assigned user display name
+    public string AssignedToUserName { get; set; } = string.Empty;
+
     // Comments
     public List<CommentViewModel> Comments { get; set; } = new();
 

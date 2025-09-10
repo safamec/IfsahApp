@@ -1,0 +1,61 @@
+@model IfsahApp.Core.ViewModels.DisclosureDetailsViewModel
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+
+                    <h2 class="card-title mb-4 text-center">@Model.Reference - @Model.Type</h2>
+
+                    <p><strong>Description:</strong> @Model.Description</p>
+                    <p><strong>Location:</strong> @Model.Location</p>
+                    <p><strong>Status:</strong> @Model.Status</p>
+                    <p><strong>Submitted At:</strong> @Model.Date.ToString("yyyy-MM-dd")</p>
+                    <p><strong>Assigned To:</strong> @Model.AssignedToUserName</p>
+
+                    <hr />
+
+                    <h4>Admin Comments</h4>
+                    @if (Model.Comments.Any())
+                    {
+                        <ul>
+                            @foreach (var c in Model.Comments.OrderByDescending(x => x.CreatedAt))
+                            {
+                                <li><strong>@c.Author</strong> (@c.CreatedAt.ToString("g")): @c.Text</li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>No comments yet.</p>
+                    }
+
+                    <hr />
+
+                    <h4>Add Comment & Assign</h4>
+                    <form asp-action="AddComment" method="post">
+                        <input type="hidden" name="disclosureId" value="@Model.Id" />
+                        <div class="mb-3">
+                            <label for="commentText" class="form-label">Comment</label>
+                            <textarea name="commentText" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="assignToUserId" class="form-label">Assign To</label>
+                            <select name="assignToUserId" class="form-select">
+                                <option value="">-- Select User --</option>
+                                @foreach (var u in Model.AvailableUsers)
+                                {
+                                    <option value="@u.Value">@u.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <a asp-action="Index" class="btn btn-secondary">Back</a>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

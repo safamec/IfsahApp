@@ -1,6 +1,8 @@
 @model CaseItem
 
 <form asp-action="SubmitReview" asp-controller="Review" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="reference" value="@Model.Reference" />
+
     <div class="container py-5 d-flex justify-content-center">
         <div class="card shadow-sm" style="max-width: 600px; width: 100%;">
             <div class="card-header bg-white border-0">

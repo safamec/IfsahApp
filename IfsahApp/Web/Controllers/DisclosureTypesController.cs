@@ -4,10 +4,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace IfsahApp.Core.Models
+namespace IfsahApp.Web.Controllers
 {
-
     [Authorize]
+    [Route("DisclosureTypes")]   // allow plural base URL
+    [Route("DisclosureType")]    // (optional) also allow singular
     public class DisclosureTypeController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -17,110 +18,91 @@ namespace IfsahApp.Core.Models
             _context = context;
         }
 
-        // GET: DisclosureType
+        // GET: /DisclosureTypes
+        [HttpGet("")]
         public async Task<IActionResult> Index()
         {
             var items = await _context.DisclosureTypes.ToListAsync();
             return View(items);
         }
 
-        // GET: DisclosureType/Details/5
+        // GET: /DisclosureTypes/Details/5
+        [HttpGet("Details/{id:int}")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
-
-            var disclosureType = await _context.DisclosureTypes
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var disclosureType = await _context.DisclosureTypes.FirstOrDefaultAsync(m => m.Id == id);
             if (disclosureType == null) return NotFound();
-
             return View(disclosureType);
         }
 
-        // GET: DisclosureType/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
+        // GET: /DisclosureTypes/Create
+        [HttpGet("Create")]
+        public IActionResult Create() => View();
 
-        // POST: DisclosureType/Create
-        [HttpPost]
+        // POST: /DisclosureTypes/Create
+        [HttpPost("Create")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(DisclosureType disclosureType)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(disclosureType);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(disclosureType);
+            if (!ModelState.IsValid) return View(disclosureType);
+            _context.Add(disclosureType);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: DisclosureType/Edit/5
+        // GET: /DisclosureTypes/Edit/5
+        [HttpGet("Edit/{id:int}")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
-
             var disclosureType = await _context.DisclosureTypes.FindAsync(id);
             if (disclosureType == null) return NotFound();
-
             return View(disclosureType);
         }
 
-        // POST: DisclosureType/Edit/5
-        [HttpPost]
+        // POST: /DisclosureTypes/Edit/5
+        [HttpPost("Edit/{id:int}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, DisclosureType disclosureType)
         {
             if (id != disclosureType.Id) return NotFound();
+            if (!ModelState.IsValid) return View(disclosureType);
 
-            if (ModelState.IsValid)
+            try
             {
-                try
-                {
-                    _context.Update(disclosureType);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!DisclosureTypeExists(disclosureType.Id)) return NotFound();
-                    else throw;
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(disclosureType);
-        }
-
-        // GET: DisclosureType/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var disclosureType = await _context.DisclosureTypes
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (disclosureType == null) return NotFound();
-
-            return View(disclosureType);
-        }
-
-        // POST: DisclosureType/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var disclosureType = await _context.DisclosureTypes.FindAsync(id);
-            if (disclosureType != null)
-            {
-                _context.DisclosureTypes.Remove(disclosureType);
+                _context.Update(disclosureType);
                 await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.DisclosureTypes.Any(e => e.Id == disclosureType.Id)) return NotFound();
+                throw;
             }
             return RedirectToAction(nameof(Index));
         }
-
-        private bool DisclosureTypeExists(int id)
+        // POST: /DisclosureTypes/ToggleActive/5 (AJAX)
+        [HttpPost("ToggleActive/{id:int}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleActive(int id)
         {
-            return _context.DisclosureTypes.Any(e => e.Id == id);
+            var type = await _context.DisclosureTypes.FindAsync(id);
+            if (type == null) return NotFound();
+
+            type.IsActive = !type.IsActive;
+            await _context.SaveChangesAsync();
+
+            return Json(new
+            {
+                ok = true,
+                id,
+                isActive = type.IsActive,
+                text = type.IsActive ? "✓ Active" : "✗ Inactive",
+                btnClass = type.IsActive ? "btn-outline-success" : "btn-outline-secondary"
+            });
         }
+
+
+        
     }
 }
-

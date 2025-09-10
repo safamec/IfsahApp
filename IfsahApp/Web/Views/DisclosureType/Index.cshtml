@@ -1,4 +1,4 @@
-@model List<DisclosureType>
+@model IEnumerable<IfsahApp.Core.Models.DisclosureType>
 
 @{
     ViewData["Title"] = "Disclosure Types";
@@ -13,7 +13,7 @@
         <tr>
             <th>Arabic Name</th>
             <th>English Name</th>
-            <th>Active</th>
+            <th class="text-center">Active</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -23,7 +23,13 @@
         <tr>
             <td>@item.ArabicName</td>
             <td>@item.EnglishName</td>
-            <td>@(item.IsActive ? "Yes" : "No")</td>
+            <td class="text-center">
+                <form asp-action="ToggleActive" asp-route-id="@item.Id" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-sm @(item.IsActive ? "btn-success" : "btn-secondary") px-2 py-0">
+                        @(item.IsActive ? "✓ Active" : "✗ Inactive")
+                    </button>
+                </form>
+            </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
                 <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>

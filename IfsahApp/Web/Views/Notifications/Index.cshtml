@@ -1,7 +1,12 @@
 @model IEnumerable<IfsahApp.Core.Models.Notification>
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @{
     ViewData["Title"] = "Notifications";
+    var csrf = Antiforgery.GetAndStoreTokens(Context).RequestToken;
 }
+<script>
+  window.NOTIF_OPTS = { csrfHeaderName: 'RequestVerificationToken', csrfToken: '@csrf' };
+</script>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h3 class="mb-0">Notifications</h3>
@@ -10,13 +15,7 @@
 
 <table class="table table-hover align-middle">
     <thead>
-        <tr>
-            <th>Type</th>
-            <th>Message</th>
-            <th>Created</th>
-            <th>Status</th>
-            <th></th>
-        </tr>
+        <tr><th>Type</th><th>Message</th><th>Created</th><th>Status</th><th></th></tr>
     </thead>
     <tbody>
     @foreach (var n in Model)
@@ -25,21 +24,10 @@
             <td>@n.EventType</td>
             <td>@n.Message</td>
             <td>@n.CreatedAt.ToString("u")</td>
-            <td>
-                @if (n.IsRead)
-                {
-                    <span class="badge bg-success">Read</span>
-                }
-                else
-                {
-                    <span class="badge bg-danger">Unread</span>
-                }
-            </td>
+            <td>@(n.IsRead ? "Read" : "Unread")</td>
             <td>
                 @if (!n.IsRead)
-                {
-                    <button class="btn btn-sm btn-outline-success mark-read">Mark as read</button>
-                }
+                { <button class="btn btn-sm btn-outline-success mark-read">Mark as read</button> }
             </td>
         </tr>
     }
@@ -48,31 +36,19 @@
 
 @section Scripts {
 <script>
-  function csrfHeaders(){
-    const h = {};
-    if (window.NOTIF_OPTS?.csrfHeaderName && window.NOTIF_OPTS?.csrfToken) {
-      h[window.NOTIF_OPTS.csrfHeaderName] = window.NOTIF_OPTS.csrfToken;
-    }
-    return h;
-  }
+  function csrfHeaders(){ const h={}; if(window.NOTIF_OPTS?.csrfHeaderName&&window.NOTIF_OPTS?.csrfToken){ h[window.NOTIF_OPTS.csrfHeaderName]=window.NOTIF_OPTS.csrfToken; } return h; }
 
   document.addEventListener('click', async (e) => {
     if (e.target.matches('.mark-read')) {
       const tr = e.target.closest('tr');
       const id = tr.getAttribute('data-id');
-      const res = await fetch('/Notifications/MarkAsRead?id=' + id, {
-        method: 'POST',
-        headers: csrfHeaders()
-      });
+      const res = await fetch('/Notifications/MarkRead?id=' + id, { method: 'POST', headers: csrfHeaders() });
       if (res.ok) location.reload();
     }
   });
 
   document.getElementById('markAllBtn')?.addEventListener('click', async () => {
-    const res = await fetch('/Notifications/MarkAllAsRead', {
-      method: 'POST',
-      headers: csrfHeaders()
-    });
+    const res = await fetch('/Notifications/MarkAllAsRead', { method: 'POST', headers: csrfHeaders() });
     if (res.ok) location.reload();
   });
 </script>

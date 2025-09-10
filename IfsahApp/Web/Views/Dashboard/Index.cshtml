@@ -1,10 +1,44 @@
 @model IEnumerable<DisclosureDashboardViewModel>
-
+@using IfsahApp.Core.Enums
 @inject IfsahApp.Infrastructure.Services.IEnumLocalizer EnumLocalizer
 @inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+
+@{
+    var csrf = Antiforgery.GetAndStoreTokens(Context).RequestToken;
+}
 
 <div class="dashboard-container container-fluid pt-4">
     <h2 class="text-center mb-4">@Localizer["DashboardTitle"]</h2>
+
+    <!-- Notifications Bell -->
+    <div class="d-flex justify-content-end mb-3 position-relative align-items-center gap-2">
+        <!-- (optional) connection status dot -->
+        <span id="notifStatus" class="d-inline-block rounded-circle bg-secondary"
+              title="Offline" style="width:10px;height:10px"></span>
+
+        <button id="notifBtn" type="button" class="btn btn-light position-relative">
+            <span>🔔</span>
+            <span id="notifBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
+        </button>
+
+        <div id="notifPanel" class="card shadow position-absolute"
+             style="right:0; top:48px; width:340px; display:none; z-index:1080;">
+            <div class="card-header d-flex justify-content-between align-items-center py-2">
+                <strong>@Localizer["Notifications"]</strong>
+                <div class="d-flex gap-2">
+                    <form method="post" action="/Notifications/MarkAllAsRead" class="m-0 p-0">
+                        <input type="hidden" name="__RequestVerificationToken" value="@csrf" />
+                        <button type="submit" class="btn btn-sm btn-outline-secondary">@Localizer["MarkAll"]</button>
+                    </form>
+                    <a href="/Notifications" class="btn btn-sm btn-outline-primary">@Localizer["ViewAll"]</a>
+                </div>
+            </div>
+            <ul id="notifList" class="list-group list-group-flush" style="max-height:320px; overflow:auto;">
+                <li class="list-group-item text-muted small">@Localizer["NoNotifications"]</li>
+            </ul>
+        </div>
+    </div>
 
     <!-- Filter Dropdown -->
     <select class="form-select w-auto mb-3" id="statusSelect" onchange="applyFilters()">
@@ -29,51 +63,59 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model)
+        @foreach (var item in Model)
+        {
+            var badgeClass = item.Status switch
             {
-                var badgeClass = item.Status switch
-                {
-                    DisclosureStatus.New => "bg-warning text-dark",
-                    DisclosureStatus.Assigned => "bg-info text-dark",
-                    DisclosureStatus.InReview => "bg-primary text-white",
-                    DisclosureStatus.Completed => "bg-success",
-                    _ => "bg-secondary"
-                };
-                <tr>
-                    <td>
-                        <a asp-action="Details"
-                           asp-controller="Dashboard"
-                           asp-route-id="@item.Id"
-                           class="btn btn-sm btn-primary">
-                            @Localizer["ActionView"]
-                        </a>
-                    </td>
-                    <td>
-                        <span class="badge @badgeClass">
-                            @EnumLocalizer.LocalizeEnum(item.Status)
-                        </span>
-                    </td>
-                    <td>@item.Location</td>
-                    <td>@item.Date.ToString("yyyy-MM-dd")</td>
-                    <td>@item.Type</td>
-                    <td>@item.Reference</td>
-                </tr>
-            }
+                DisclosureStatus.New => "bg-warning text-dark",
+                DisclosureStatus.Assigned => "bg-info text-dark",
+                DisclosureStatus.InReview => "bg-primary text-white",
+                DisclosureStatus.Completed => "bg-success",
+                _ => "bg-secondary"
+            };
+
+            <tr>
+                <td>
+                    <a asp-action="Details" asp-controller="Dashboard" asp-route-id="@item.Id" class="btn btn-sm btn-primary">
+                        @Localizer["ActionView"]
+                    </a>
+                </td>
+                <td><span class="badge @badgeClass">@EnumLocalizer.LocalizeEnum(item.Status)</span></td>
+                <td>@item.Location</td>
+                <td>@item.Date.ToString("yyyy-MM-dd")</td>
+                <td>@item.Type</td>
+                <td>@item.Reference</td>
+            </tr>
+        }
         </tbody>
     </table>
 
-    <!-- Chart.js Pie Chart -->
     <div class="mb-4">
         <canvas id="statusPieChart" style="max-width: 400px; margin: auto;"></canvas>
     </div>
-
-    <!-- ApexCharts Bar Chart -->
     <div class="mb-4" id="locationBarChart" style="max-width: 600px; margin: auto;"></div>
 </div>
+
+<!-- Toast container -->
+<div id="toastBox" class="position-fixed top-0 end-0 p-3" style="z-index:1080"></div>
+
+<!-- CSRF for JS -->
+<script>
+  window.NOTIF_OPTS = {
+    csrfHeaderName: 'RequestVerificationToken',
+    csrfToken: '@csrf'
+  };
+</script>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+    <!-- Use ONE SignalR client include -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.12/signalr.min.js"></script>
+
+    <!-- REMOVE the incompatible site-wide script on this page -->
+    <!-- <script src="~/js/notifications.js"></script> -->
 
     <script>
         function applyFilters() {
@@ -83,72 +125,97 @@
             window.location.href = url;
         }
 
-        // إعداد بيانات للـ Chart.js (حالة التوزيع)
-        const statusCounts = {
-            New: 0,
-            Assigned: 0,
-            InReview: 0,
-            Completed: 0,
-            Other: 0
-        };
+        // ---- Notifications (inline) ----
+        (function () {
+            const toastBox = document.getElementById('toastBox');
+            const notifBtn = document.getElementById('notifBtn');
+            const notifPanel = document.getElementById('notifPanel');
+            const notifBadge = document.getElementById('notifBadge');
+            const notifList = document.getElementById('notifList');
+            const statusDot = document.getElementById('notifStatus');
 
-        // عد الحالات بناءً على الـ Model (تمرير البيانات من السيرفر للـ JS)
-        @foreach (var item in Model)
-        {
-            <text>
-                switch("@item.Status") {
-                    case "New": statusCounts.New++; break;
-                    case "Assigned": statusCounts.Assigned++; break;
-                    case "InReview": statusCounts.InReview++; break;
-                    case "Completed": statusCounts.Completed++; break;
-                    default: statusCounts.Other++; break;
-                }
-            </text>
-        }
-
-        // رسم Pie Chart
-        const ctx = document.getElementById('statusPieChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: ['New', 'Assigned', 'In Review', 'Completed', 'Other'],
-                datasets: [{
-                    data: [statusCounts.New, statusCounts.Assigned, statusCounts.InReview, statusCounts.Completed, statusCounts.Other],
-                    backgroundColor: ['#facc15', '#60a5fa', '#3b82f6', '#22c55e', '#6b7280']
-                }]
+            function setStatus(connected){
+                if(!statusDot) return;
+                statusDot.classList.toggle('bg-success', connected);
+                statusDot.classList.toggle('bg-secondary', !connected);
+                statusDot.title = connected ? 'Connected' : 'Offline';
             }
-        });
 
-        // إعداد بيانات لمخطط الأعمدة ApexCharts حسب الموقع
-        var locationCounts = {};
+            function showPanel(show) { notifPanel.style.display = show ? 'block' : 'none'; }
+            notifBtn?.addEventListener('click', () => showPanel(notifPanel.style.display !== 'block'));
+            document.addEventListener('click', (e) => {
+                if (!notifPanel.contains(e.target) && !notifBtn.contains(e.target)) showPanel(false);
+            });
 
-        // عد التكرار للمواقع
-        @foreach (var item in Model)
-        {
-            <text>
-                locationCounts["@item.Location"] = (locationCounts["@item.Location"] || 0) + 1;
-            </text>
-        }
-
-        // حول الكائن إلى مصفوفات للاستخدام في ApexCharts
-        var locations = Object.keys(locationCounts);
-        var counts = locations.map(loc => locationCounts[loc]);
-
-        var options = {
-            chart: {
-                type: 'bar',
-                height: 350
-            },
-            series: [{
-                name: 'عدد الحوادث',
-                data: counts
-            }],
-            xaxis: {
-                categories: locations
+            function setBadge(n) {
+                if (n > 0) { notifBadge.textContent = n; notifBadge.classList.remove('d-none'); }
+                else { notifBadge.textContent = '0'; notifBadge.classList.add('d-none'); }
             }
-        };
 
-        var chart = new ApexCharts(document.querySelector("#locationBarChart"), options);
-        chart.render();
+            function prependItem(p) {
+                if (notifList.firstElementChild?.classList.contains('text-muted')) notifList.innerHTML = '';
+                const li = document.createElement('li');
+                li.className = 'list-group-item small';
+                li.innerHTML = `<div class="fw-bold">${(p.eventType||'Notification')}</div>
+                                <div>${(p.message||'')}</div>
+                                ${p.createdAt?`<div class="text-muted">${p.createdAt}</div>`:''}
+                                ${p.url?`<div><a href="${p.url}">Open</a></div>`:''}`;
+                notifList.prepend(li);
+            }
+
+            async function refreshUnread() {
+                try {
+                    const res = await fetch('/Notifications/Unread', { headers: { 'Accept': 'application/json' }});
+                    if (!res.ok) return;
+                    const arr = await res.json();
+                    setBadge(arr.length);
+                    notifList.innerHTML = '';
+                    if (arr.length === 0) {
+                        notifList.innerHTML = '<li class="list-group-item text-muted small">NoNotifications</li>';
+                    } else {
+                        arr.forEach(prependItem);
+                    }
+                } catch {}
+            }
+
+            function showToast(title, message, url) {
+                const el = document.createElement('div');
+                el.className = 'toast show';
+                el.innerHTML = `<div class="toast-header">
+                                  <strong class="me-auto">${title||'Notification'}</strong>
+                                  <small>now</small>
+                                  <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                                </div>
+                                <div class="toast-body">${message||''} ${url?`<a href="${url}">Open</a>`:''}</div>`;
+                toastBox.appendChild(el);
+                setTimeout(()=>el.remove(), 6000);
+            }
+
+            // SignalR
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/hubs/notifications")
+                .withAutomaticReconnect()
+                .build();
+
+            connection.onreconnected(()=>setStatus(true));
+            connection.onreconnecting(()=>setStatus(false));
+            connection.onclose(()=>setStatus(false));
+
+            connection.on("Notify", payload => {
+                showToast(payload.eventType, payload.message, payload.url);
+                prependItem(payload);
+                const cur = parseInt(notifBadge.textContent||'0',10)||0;
+                setBadge(cur + 1);
+            });
+
+            connection.start().then(()=>setStatus(true)).catch(err=>{
+                console.error('SignalR start failed:', err);
+                setStatus(false);
+            });
+
+            // initial load
+            refreshUnread();
+            setInterval(refreshUnread, 20000);
+        })();
     </script>
 }

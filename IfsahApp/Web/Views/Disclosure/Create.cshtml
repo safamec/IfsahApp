@@ -10,9 +10,10 @@
 
     <form asp-action="Create" method="post" enctype="multipart/form-data" novalidate>
         <div class="mb-3">
-            <label asp-for="DisclosureTypeId" class="form-label">@Localizer["DisclosureTypeLabel"]</label>
-            <select asp-for="DisclosureTypeId" class="form-select" asp-items="ViewBag.DisclosureTypes">
-                <option value="">@Localizer["DisclosureTypeOption"]</option>
+            <label asp-for="DisclosureTypeId" class="form-label">@Localizer["ReportTypeLabel"]</label>
+            <select asp-for="DisclosureTypeId" class="form-select"
+                    asp-items='@(new SelectList(ViewBag.DisclosureTypes, "Id", "DisplayName"))'>
+                <option value="">@Localizer["SelectReportTypeOption"]</option>
             </select>
 
             <span asp-validation-for="DisclosureTypeId" class="text-danger"></span>
@@ -21,14 +22,14 @@
         <div class="mb-3">
             <label asp-for="Description" class="form-label">@Localizer["DescriptionLabel"]</label>
             <textarea asp-for="Description" rows="4" class="form-control"
-                placeholder="@Localizer["DescriptionPlaceholder"]"></textarea>
+                      placeholder='@Localizer["DescriptionPlaceholder"]'></textarea>
             <span asp-validation-for="Description" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
             <label class="form-label">@Localizer["ReportDateRangeLabel"]</label>
             <input id="dateRangePicker" type="text" class="form-control" autocomplete="off"
-                placeholder="@Localizer["SelectDateRangePlaceholder"]" />
+                   placeholder='@Localizer["SelectDateRangePlaceholder"]' />
 
             <input type="hidden" asp-for="IncidentStartDate" />
             <input type="hidden" asp-for="IncidentEndDate" />
@@ -39,7 +40,8 @@
 
         <div class="mb-3">
             <label asp-for="Location" class="form-label">@Localizer["ViolationLocationLabel"]</label>
-            <input asp-for="Location" class="form-control" placeholder="@Localizer["ViolationLocationPlaceholder"]" />
+            <input asp-for="Location" class="form-control"
+                   placeholder='@Localizer["ViolationLocationPlaceholder"]' />
             <span asp-validation-for="Location" class="text-danger"></span>
         </div>
 
@@ -47,32 +49,31 @@
             <div class="col-md-6">
                 <label class="form-label fw-bold">@Localizer["SuspectedPeopleLabel"]</label>
                 <div id="suspected-people-list"></div>
-                <button type="button" class="btn btn-outline-primary btn-sm mt-2" data-list="suspected-people-list"
-                    onclick="openPersonModal(this)">@Localizer["AddSuspectedPersonButton"]</button>
+                <button type="button" class="btn btn-outline-primary btn-sm mt-2"
+                        data-list="suspected-people-list"
+                        onclick="openPersonModal(this)">@Localizer["AddSuspectedPersonButton"]</button>
             </div>
 
             <div class="col-md-6">
                 <label class="form-label fw-bold">@Localizer["RelatedPeopleLabel"]</label>
                 <div id="related-people-list"></div>
-                <button type="button" class="btn btn-outline-primary btn-sm mt-2" data-list="related-people-list"
-                    onclick="openPersonModal(this)">@Localizer["AddRelatedPersonButton"]</button>
+                <button type="button" class="btn btn-outline-primary btn-sm mt-2"
+                        data-list="related-people-list"
+                        onclick="openPersonModal(this)">@Localizer["AddRelatedPersonButton"]</button>
             </div>
         </div>
-
 
         <div class="mb-3 mt-3">
             <label class="form-label">@Localizer["AttachmentsLabel"]</label>
             <input id="fileInput" name="Attachments" type="file" multiple class="form-control"
-                accept=".jpg,.jpeg,.png,.gif,.bmp,.mp4,.mov,.avi,.wmv,.mkv,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" />
+                   accept=".jpg,.jpeg,.png,.gif,.bmp,.mp4,.mov,.avi,.wmv,.mkv,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" />
             <small class="text-muted">@Localizer["AllowedAttachmentTypesHint"]</small>
             <div id="previewList" class="mt-3"></div>
         </div>
 
-        <!-- Submit button here only -->
         <button type="submit" class="btn btn-success w-100">Submit Disclosure</button>
     </form>
 </div>
-
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
@@ -101,13 +102,9 @@
             });
         });
 
-
-
         let modal;
         function openPersonModal(button) {
-            modal = new bootstrap.Modal(document.getElementById('personModal'), {
-                backdrop: true
-            });
+            modal = new bootstrap.Modal(document.getElementById('personModal'), { backdrop: true });
             document.getElementById('personForm').reset();
             document.getElementById('targetListId').value = button.getAttribute('data-list');
             modal.show();
@@ -128,7 +125,6 @@
             }
 
             const container = document.getElementById(listId);
-
             const div = document.createElement('div');
             div.classList.add('input-group', 'mb-2');
 
@@ -176,7 +172,7 @@
             return false;
         }
 
-        // File Preview and Icons logic with delete functionality
+        // File Preview + delete
         const fileInput = document.getElementById('fileInput');
         const previewList = document.getElementById('previewList');
 
@@ -192,7 +188,6 @@
             function getFileExtension(filename) {
                 return filename.split('.').pop().toLowerCase();
             }
-
             function getIconClass(extension) {
                 if (allowedTypes.images.includes(extension)) return 'bi-file-image text-primary';
                 if (allowedTypes.videos.includes(extension)) return 'bi-file-play text-warning';
@@ -200,12 +195,10 @@
                 if (['doc', 'docx'].includes(extension)) return 'bi-file-earmark-word text-primary';
                 if (['xls', 'xlsx'].includes(extension)) return 'bi-file-earmark-excel text-success';
                 if (['ppt', 'pptx'].includes(extension)) return 'bi-file-earmark-powerpoint text-danger';
-                return 'bi-file-earmark-text'; // generic file icon
+                return 'bi-file-earmark-text';
             }
 
             let totalSize = 0;
-
-            // Convert FileList to array to allow modifications
             let filesArray = Array.from(fileInput.files);
 
             filesArray.forEach((file, index) => {
@@ -229,7 +222,6 @@
                 sizeSpan.style.fontSize = '0.85rem';
                 sizeSpan.textContent = `(${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
 
-                // Delete button
                 const btnDelete = document.createElement('button');
                 btnDelete.type = 'button';
                 btnDelete.className = 'btn btn-outline-danger btn-sm ms-auto';
@@ -237,13 +229,9 @@
 
                 btnDelete.onclick = function () {
                     filesArray.splice(index, 1);
-
-                    // Reset the files property of input
                     const dataTransfer = new DataTransfer();
                     filesArray.forEach(f => dataTransfer.items.add(f));
                     fileInput.files = dataTransfer.files;
-
-                    // Re-trigger change event to refresh preview
                     fileInput.dispatchEvent(new Event('change'));
                 };
 
@@ -251,7 +239,6 @@
                 div.appendChild(nameSpan);
                 div.appendChild(sizeSpan);
                 div.appendChild(btnDelete);
-
                 previewList.appendChild(div);
             });
 

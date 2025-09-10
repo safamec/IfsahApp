@@ -6,7 +6,7 @@ using IfsahApp.Infrastructure.Services.AdUser;
 using Microsoft.EntityFrameworkCore;
 using IfsahApp.Web.Middleware.Auth;
 using IfsahApp.Core.Mapping;
-
+using IfsahApp.Hubs; 
 var options = new WebApplicationOptions
 {
     ContentRootPath = Directory.GetCurrentDirectory(),
@@ -14,6 +14,7 @@ var options = new WebApplicationOptions
 };
 
 var builder = WebApplication.CreateBuilder(options);
+
 
 // =============================
 // 1. Database
@@ -71,6 +72,7 @@ builder.Services.AddAuthorization(options =>
         .RequireAuthenticatedUser()
         .Build();
 });
+builder.Services.AddSignalR();  // <-- ensure this line exists
 
 // =============================
 // 6. Build app
@@ -125,6 +127,8 @@ else
         pattern: "{controller=Account}/{action=Login}/{id?}"
     );
 }
+// builder.Services.AddSignalR();     // ensure this is present
+app.MapHub<NotificationHub>("/hubs/notifications"); // <-- add this
 
 // =============================
 // 11. Run

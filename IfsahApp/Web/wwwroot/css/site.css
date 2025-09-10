@@ -50,6 +50,9 @@ body {
     fill: white; /* Use fill for SVGs */
 }
 
+
+
+
 /* Footer */
 .footer {
     background: linear-gradient(135deg, #2c3e50, #1a2530);
@@ -141,4 +144,8 @@ body {
 
 [data-theme="dark"] .image-caption {
     color: #aaa;
+}
+
+.modal {
+    z-index: 1055 !important; /* ensure it's higher than backdrop */
 }

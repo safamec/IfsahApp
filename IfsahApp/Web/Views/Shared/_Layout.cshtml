@@ -6,8 +6,10 @@
     <meta name="description" content="نظام تلقي الإفصاحات - وزارة الطاقة والمعادن - حماية المبلغين وتعزيز الشفافية" />
     <title>نظام تلقي الإفصاحات</title>
     <!-- Bootstrap RTL CSS -->
-    <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="~/lib/bootstrap-icons/bootstrap-icons.min.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" />
 
 </head>
@@ -243,9 +245,50 @@
         </div>
     </footer>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+   <!-- Modal OUTSIDE the form -->
+<div class="modal fade" id="personModal" tabindex="-1" aria-labelledby="personModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <!-- Remove form tag here -->
+        <div class="modal-content">
+            <form id="personForm" onsubmit="return savePerson(event)">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="personModalLabel">Add Person Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="targetListId" />
+                    <div class="mb-3">
+                        <label for="personName" class="form-label">Name *</label>
+                        <input type="text" class="form-control" id="personName" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="personEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="personEmail" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="personPhone" class="form-label">Phone</label>
+                        <input type="text" class="form-control" id="personPhone" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="personOrganization" class="form-label">Organization</label>
+                        <input type="text" class="form-control" id="personOrganization" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Add Person</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
     <!-- Bootstrap JS -->
-    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
 
     <script>
         // بيانات الترجمة

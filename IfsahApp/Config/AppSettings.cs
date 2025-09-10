@@ -26,4 +26,10 @@ public static class AppSettings
             return path;
         }
     }
+      public static List<string> AllowedExtensions =>
+        _configuration.GetSection("FileUploadSettings:AllowedExtensions").Get<List<string>>() 
+        ?? new List<string>();
+
+    public static long MaxFileSize =>
+        _configuration.GetValue<long>("FileUploadSettings:MaxFileSize");
 }

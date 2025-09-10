@@ -28,4 +28,5 @@ public class DisclosureAttachment
     // Not stored in DB — dynamically built using appsettings.json
     [NotMapped]
     public string FullPath => FilePathHelper.GetAttachmentPath(FileName, FileType ?? "");
+    
 }

@@ -4,11 +4,14 @@ namespace IfsahApp.Core.ViewModels;
 
 public class DisclosureDashboardViewModel
 {
-    public int Id { get; set; }
-    public string Reference { get; set; } = string.Empty;
-    public string Type { get; set; } = string.Empty;
+    public int Id { get; set; }                     // ✅ Needed by DashboardController
+    public string Reference { get; set; } = "";     // DisclosureNumber
+    public string Type { get; set; } = "";          // DisclosureType.EnglishName or ArabicName
     public DateTime Date { get; set; }
-    public string Location { get; set; } = string.Empty;
-    public DisclosureStatus Status { get; set; } // Keep as enum
-    public string Description { get; set; } = string.Empty;
+    public string Location { get; set; } = "";
+    public DisclosureStatus Status { get; set; }       // Localized enum string
+    public string Description { get; set; } = "";   // ✅ Needed by DashboardController
+    public string ActionUrl { get; set; } = "";
+    public string EditUrl { get; set; } = "";
 }
+

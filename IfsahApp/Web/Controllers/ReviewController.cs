@@ -4,7 +4,6 @@ using IfsahApp.Infrastructure.Data;
 using IfsahApp.Core.Models;
 using IfsahApp.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authorization;
 
 namespace IfsahApp.Web.Controllers;
 

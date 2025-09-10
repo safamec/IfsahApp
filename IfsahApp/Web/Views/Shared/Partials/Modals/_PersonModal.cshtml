@@ -1,0 +1,35 @@
+<div class="modal fade" id="personModal" tabindex="-1" aria-labelledby="personModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="personForm" onsubmit="return savePerson(event)">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="personModalLabel">Add Person Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="targetListId" />
+                    <div class="mb-3">
+                        <label for="personName" class="form-label">Name *</label>
+                        <input type="text" class="form-control" id="personName" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="personEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="personEmail" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="personPhone" class="form-label">Phone</label>
+                        <input type="text" class="form-control" id="personPhone" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="personOrganization" class="form-label">Organization</label>
+                        <input type="text" class="form-control" id="personOrganization" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Add Person</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

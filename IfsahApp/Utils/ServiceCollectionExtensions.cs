@@ -48,7 +48,12 @@ public static class ServiceCollectionExtensions
         if (isDev)
         {
             services
-                .AddAuthentication("Fake")
+                .AddAuthentication(options =>
+                {
+                    options.DefaultScheme = "Cookies";           // cookies for persistence
+                    options.DefaultChallengeScheme = "Fake";     // challenge with Fake handler
+                })
+                .AddCookie("Cookies") // supports SignInAsync/SignOutAsync
                 .AddScheme<AuthenticationSchemeOptions, FakeAuthHandler>("Fake", options =>
                 {
                     options.TimeProvider = TimeProvider.System;

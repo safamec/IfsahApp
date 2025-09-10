@@ -107,4 +107,4 @@ docker-compose.override.yml
 # Others
 _ReSharper.Caches/
 #uploads
-uploads/
+IfsahApp/Web/wwwroot/uploads/

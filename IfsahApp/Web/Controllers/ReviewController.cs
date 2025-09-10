@@ -4,9 +4,11 @@ using IfsahApp.Infrastructure.Data;
 using IfsahApp.Core.Models;
 using IfsahApp.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IfsahApp.Web.Controllers;
- [Authorize(Policy = "AuditTeam")]
+
+[Authorize(Roles = "Examiner")]
 public class ReviewController(ApplicationDbContext context, IEnumLocalizer enumLocalizer) : Controller
 {
     private readonly ApplicationDbContext _context = context;

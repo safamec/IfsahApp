@@ -10,11 +10,11 @@
 
     <form asp-action="Create" method="post" enctype="multipart/form-data" novalidate>
         <div class="mb-3">
-            <label asp-for="DisclosureTypeId" class="form-label">@Localizer["ReportTypeLabel"]</label>
-            <select asp-for="DisclosureTypeId" class="form-select"
-                asp-items='@(new SelectList(ViewBag.DisclosureTypes, "Id", "Name"))'>
-                <option value="">@Localizer["SelectReportTypeOption"]</option>
+            <label asp-for="DisclosureTypeId" class="form-label">@Localizer["DisclosureTypeLabel"]</label>
+            <select asp-for="DisclosureTypeId" class="form-select" asp-items="ViewBag.DisclosureTypes">
+                <option value="">@Localizer["DisclosureTypeOption"]</option>
             </select>
+
             <span asp-validation-for="DisclosureTypeId" class="text-danger"></span>
         </div>
 
@@ -103,10 +103,10 @@
 
 
 
-    let modal;
+        let modal;
         function openPersonModal(button) {
-             modal = new bootstrap.Modal(document.getElementById('personModal'), {
-             backdrop: true
+            modal = new bootstrap.Modal(document.getElementById('personModal'), {
+                backdrop: true
             });
             document.getElementById('personForm').reset();
             document.getElementById('targetListId').value = button.getAttribute('data-list');

@@ -121,12 +121,12 @@
     <value>Report Disclosure</value>
     <comment/>
   </data>
-  <data name="ReportTypeLabel" xml:space="preserve">
-    <value>Type of Report</value>
+  <data name="DisclosureTypeLabel" xml:space="preserve">
+    <value>Type of Disclosure</value>
     <comment/>
   </data>
-  <data name="SelectReportTypeOption" xml:space="preserve">
-    <value>-- Select Report Type --</value>
+  <data name="DisclosureTypeOption" xml:space="preserve">
+    <value>-- Select Disclosure Type --</value>
     <comment/>
   </data>
   <data name="DescriptionLabel" xml:space="preserve">

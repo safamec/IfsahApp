@@ -121,11 +121,11 @@
     <value>الإبلاغ عن مخالفة</value>
     <comment/>
   </data>
-  <data name="ReportTypeLabel" xml:space="preserve">
+  <data name="DisclosureTypeLabel" xml:space="preserve">
     <value>نوع البلاغ</value>
     <comment/>
   </data>
-  <data name="SelectReportTypeOption" xml:space="preserve">
+  <data name="DisclosureTypeOption" xml:space="preserve">
     <value>-- اختر نوع البلاغ --</value>
     <comment/>
   </data>

@@ -7,7 +7,7 @@
     <h2 class="text-center mb-4">@Localizer["DashboardTitle"]</h2>
 
     <!-- Filter Dropdown -->
-    <select class="form-select w-auto" id="statusSelect" onchange="applyFilters()">
+    <select class="form-select w-auto mb-3" id="statusSelect" onchange="applyFilters()">
         @foreach (var item in (IEnumerable<SelectListItem>)ViewBag.StatusList)
         {
             <option value="@item.Value" selected="@(item.Selected ? "selected" : null)">
@@ -42,7 +42,6 @@
 
                 <tr>
                     <td>
-                        <!-- Fixed: use Details action instead of View -->
                         <a asp-action="Details"
                            asp-controller="Dashboard"
                            asp-route-id="@item.Id"
@@ -63,9 +62,20 @@
             }
         </tbody>
     </table>
+
+    <!-- Chart.js Pie Chart -->
+    <div class="mb-4">
+        <canvas id="statusPieChart" style="max-width: 400px; margin: auto;"></canvas>
+    </div>
+
+    <!-- ApexCharts Bar Chart -->
+    <div class="mb-4" id="locationBarChart" style="max-width: 600px; margin: auto;"></div>
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
     <script>
         function applyFilters() {
             const status = document.getElementById('statusSelect').value;
@@ -73,5 +83,73 @@
             url.searchParams.set("status", status);
             window.location.href = url;
         }
+
+        // إعداد بيانات للـ Chart.js (حالة التوزيع)
+        const statusCounts = {
+            New: 0,
+            Assigned: 0,
+            InReview: 0,
+            Completed: 0,
+            Other: 0
+        };
+
+        // عد الحالات بناءً على الـ Model (تمرير البيانات من السيرفر للـ JS)
+        @foreach (var item in Model)
+        {
+            <text>
+                switch("@item.Status") {
+                    case "New": statusCounts.New++; break;
+                    case "Assigned": statusCounts.Assigned++; break;
+                    case "InReview": statusCounts.InReview++; break;
+                    case "Completed": statusCounts.Completed++; break;
+                    default: statusCounts.Other++; break;
+                }
+            </text>
+        }
+
+        // رسم Pie Chart
+        const ctx = document.getElementById('statusPieChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['New', 'Assigned', 'In Review', 'Completed', 'Other'],
+                datasets: [{
+                    data: [statusCounts.New, statusCounts.Assigned, statusCounts.InReview, statusCounts.Completed, statusCounts.Other],
+                    backgroundColor: ['#facc15', '#60a5fa', '#3b82f6', '#22c55e', '#6b7280']
+                }]
+            }
+        });
+
+        // إعداد بيانات لمخطط الأعمدة ApexCharts حسب الموقع
+        var locationCounts = {};
+
+        // عد التكرار للمواقع
+        @foreach (var item in Model)
+        {
+            <text>
+                locationCounts["@item.Location"] = (locationCounts["@item.Location"] || 0) + 1;
+            </text>
+        }
+
+        // حول الكائن إلى مصفوفات للاستخدام في ApexCharts
+        var locations = Object.keys(locationCounts);
+        var counts = locations.map(loc => locationCounts[loc]);
+
+        var options = {
+            chart: {
+                type: 'bar',
+                height: 350
+            },
+            series: [{
+                name: 'عدد الحوادث',
+                data: counts
+            }],
+            xaxis: {
+                categories: locations
+            }
+        };
+
+        var chart = new ApexCharts(document.querySelector("#locationBarChart"), options);
+        chart.render();
     </script>
 }

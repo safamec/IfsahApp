@@ -1,12 +1,12 @@
+@inject IViewLocalizer Localizer
+
 <div class="card shadow-sm">
     <div class="card-body">
-        <h2 data-translate="welcome_title">مرحباً بك في نظام تلقي الإفصاحات</h2>
-        <p data-translate="welcome_message">
-            نظام آمن وسري للإفصاح عن المخالفات في وزارة الطاقة والمعادن. نحن نضمن حماية المبلغين وتقديم الدعم اللازم.
-        </p>
+        <h2>@Localizer["welcome_title"]</h2>
+        <p>@Localizer["welcome_message"]</p>
         <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-            <button class="btn btn-primary me-md-2" data-translate="learn_more">تعرف أكثر</button>
-            <button class="btn btn-outline-secondary" data-translate="contact">اتصل بنا</button>
+            <button class="btn btn-primary me-md-2">@Localizer["learn_more"]</button>
+            <button class="btn btn-outline-secondary">@Localizer["contact"]</button>
         </div>
     </div>
 </div>

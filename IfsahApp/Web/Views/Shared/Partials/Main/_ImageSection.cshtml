@@ -1,11 +1,13 @@
+@inject IViewLocalizer Localizer
+
 <div class="image-section fade-in">
     <div class="card shadow-sm">
         <div class="card-body">
-            <h3 class="mb-3">شعار وزارة الطاقة والمعادن</h3>
+            <h3 class="mb-3">@Localizer["Image_Title"]</h3>
             <div class="image-container">
-                <img src="logo.png" alt="شعار وزارة الطاقة والمعادن">
+                <img src="logo.png" alt="@Localizer["Image_Alt"]">
             </div>
-            <p class="image-caption mt-3">شعار وزارة الطاقة والمعادن الرسمي</p>
+            <p class="image-caption mt-3">@Localizer["Image_Caption"]</p>
         </div>
     </div>
 </div>

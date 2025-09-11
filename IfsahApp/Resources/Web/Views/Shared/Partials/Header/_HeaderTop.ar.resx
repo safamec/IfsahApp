@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Language_Arabic" xml:space="preserve">
+    <value>العربية</value>
+  </data>
+  <data name="Language_English" xml:space="preserve">
+    <value>الإنجليزية</value>
+  </data>
+  <data name="ThemeToggle_Title" xml:space="preserve">
+    <value>تبديل الوضع الداكن</value>
+  </data>
+  <data name="ThemeToggle_Label" xml:space="preserve">
+    <value>تبديل النمط</value>
+  </data>
+</root>

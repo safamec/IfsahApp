@@ -1,13 +1,14 @@
+@inject IViewLocalizer Localizer
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
         <a class="navbar-brand" href="/">
             <svg class="logo-om">
                 <use xlink:href="images/sprite.svg#logo-om"></use>
             </svg>
-            <span data-translate="system_short_name">نظام الإفصاحات</span>
+            <span>@Localizer["system_short_name"]</span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="تبديل التنقل">
+                aria-controls="navbarNav" aria-expanded="false" aria-label=@Localizer["toggle_navigation"]>
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
@@ -15,51 +16,51 @@
                 <li class="nav-item">
                     <a class="nav-link active" href="#" aria-current="page">
                         <i class="bi bi-house me-1"></i>
-                        <span data-translate="home">الرئيسية</span>
+                        <span>@Localizer["home"]</span>
                     </a>
                 </li>
                 <li class="nav-item" id="new-disclosure-nav">
                     <a class="nav-link" href="#">
                         <i class="bi bi-plus-circle me-1"></i>
-                        <span data-translate="new_disclosure">إفصاح جديد</span>
+                        <span>@Localizer["new_disclosure"]</span>
                     </a>
                 </li>
                 <li class="nav-item" id="dashboard-nav">
                     <a class="nav-link" href="#">
                         <i class="bi bi-speedometer2 me-1"></i>
-                        <span data-translate="dashboard">لوحة التحكم</span>
+                        <span>@Localizer["dashboard"]</span>
                     </a>
                 </li>
                 <li class="nav-item" id="reports-nav">
                     <a class="nav-link" href="#">
                         <i class="bi bi-file-bar-graph me-1"></i>
-                        <span data-translate="reports">التقارير</span>
+                        <span>@Localizer["reports"]</span>
                     </a>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                        data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-three-dots me-1"></i>
-                        <span data-translate="more">المزيد</span>
+                        <span>@Localizer["more"]</span>
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <li>
                             <a class="dropdown-item" href="#">
                                 <i class="bi bi-question-circle me-2"></i>
-                                <span data-translate="faq">الأسئلة الشائعة</span>
+                                <span>@Localizer["faq"]</span>
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item" href="#">
                                 <i class="bi bi-book me-2"></i>
-                                <span data-translate="user_guide">دليل الاستخدام</span>
+                                <span>@Localizer["user_guide"]</span>
                             </a>
                         </li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
                             <a class="dropdown-item" href="#">
                                 <i class="bi bi-envelope me-2"></i>
-                                <span data-translate="contact_us">اتصل بنا</span>
+                                <span>@Localizer["contact_us"]</span>
                             </a>
                         </li>
                     </ul>
@@ -69,26 +70,26 @@
                 <li class="nav-item" id="login-nav">
                     <a class="nav-link" href="#" onclick="simulateLogin()">
                         <i class="bi bi-box-arrow-in-right me-1"></i>
-                        <span data-translate="login">تسجيل الدخول</span>
+                        <span>@Localizer["login"]</span>
                     </a>
                 </li>
                 <li class="nav-item dropdown" id="user-nav" style="display: none;">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-person-circle me-1"></i>
-                        <span data-translate="user">المستخدم</span>
+                        <span>@Localizer["user"]</span>
                     </a>
                     <ul class="dropdown-menu">
                         <li>
                             <a class="dropdown-item" href="#">
                                 <i class="bi bi-person me-2"></i>
-                                <span data-translate="profile">الملف الشخصي</span>
+                                <span>@Localizer["profile"]</span>
                             </a>
                         </li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
                             <a class="dropdown-item" href="#" onclick="logout()">
                                 <i class="bi bi-box-arrow-right me-2"></i>
-                                <span data-translate="logout">تسجيل الخروج</span>
+                                <span>@Localizer["logout"]</span>
                             </a>
                         </li>
                     </ul>
@@ -96,7 +97,7 @@
                 <li class="nav-item">
                     <a class="nav-link" href="#" onclick="showHelp()">
                         <i class="bi bi-question-circle me-1"></i>
-                        <span data-translate="help">المساعدة</span>
+                        <span>@Localizer["help"]</span>
                     </a>
                 </li>
             </ul>

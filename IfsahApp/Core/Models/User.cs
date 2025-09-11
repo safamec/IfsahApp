@@ -25,8 +25,6 @@ namespace IfsahApp.Core.Models
 
         public bool IsActive { get; set; } = true;
 
-        public DateTime? AdminUntil { get; set; } // Expiration date for admin role
-
         // Disclosures submitted by this user
         public ICollection<Disclosure> SubmittedDisclosures { get; set; } = new List<Disclosure>();
 

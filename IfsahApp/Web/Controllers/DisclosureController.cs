@@ -1,10 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering; // ✅ Needed for SelectList
@@ -21,27 +14,18 @@ using IfsahApp.Utils;
 
 namespace IfsahApp.Web.Controllers
 {
-    public class DisclosureController : Controller
+    public class DisclosureController(
+        ApplicationDbContext context,
+        IWebHostEnvironment env,
+        IEnumLocalizer enumLocalizer,
+        IMapper mapper,
+        IHubContext<NotificationHub> hub) : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly IWebHostEnvironment _env;
-        private readonly IEnumLocalizer _enumLocalizer;
-        private readonly IMapper _mapper;
-        private readonly IHubContext<NotificationHub> _hub; // notifications hub
-
-        public DisclosureController(
-            ApplicationDbContext context,
-            IWebHostEnvironment env,
-            IEnumLocalizer enumLocalizer,
-            IMapper mapper,
-            IHubContext<NotificationHub> hub)
-        {
-            _context = context;
-            _env = env;
-            _enumLocalizer = enumLocalizer;
-            _mapper = mapper;
-            _hub = hub;
-        }
+        private readonly ApplicationDbContext _context = context;
+        private readonly IWebHostEnvironment _env = env;
+        private readonly IEnumLocalizer _enumLocalizer = enumLocalizer;
+        private readonly IMapper _mapper = mapper;
+        private readonly IHubContext<NotificationHub> _hub = hub; // notifications hub
 
         [HttpGet]
         public IActionResult Create()

@@ -137,10 +137,7 @@ namespace IfsahApp.Web.Controllers
                     u.ADUserName,
                     u.Email,
                     u.Department,
-                    u.Role,
-                    AdminUntil = u.AdminUntil.HasValue
-                        ? u.AdminUntil.Value.ToString("yyyy-MM-dd")
-                        : ""
+                    u.Role
                 })
                 .ToListAsync();
 
@@ -149,19 +146,13 @@ namespace IfsahApp.Web.Controllers
 
         // POST: /Admin/SendRoleEmail
         [HttpPost]
-        public IActionResult SendRoleEmail(int userId, string role, string adminUntil)
+        public IActionResult SendRoleEmail(int userId, string role)
         {
             var user = _context.Users.Find(userId);
             if (user == null)
                 return NotFound(new { message = "User not found." });
 
-            // Optional: parse adminUntil date
-            DateTime? expiration = null;
-            if (!string.IsNullOrWhiteSpace(adminUntil))
-            {
-                if (DateTime.TryParse(adminUntil, out var parsedDate))
-                    expiration = parsedDate;
-            }
+
 
             // TODO: Send email logic here
             // Example: EmailService.SendRoleConfirmation(user.Email, role, expiration);
@@ -173,5 +164,5 @@ namespace IfsahApp.Web.Controllers
         }
     }
 }
-    
+
 

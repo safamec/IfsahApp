@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="system_name" xml:space="preserve">
+    <value>Violations Reporting System</value>
+  </data>
+  <data name="organization_name" xml:space="preserve">
+    <value>Internal Audit Office</value>
+  </data>
+  <data name="welcome_message" xml:space="preserve">
+    <value>Welcome to the system</value>
+  </data>
+</root>

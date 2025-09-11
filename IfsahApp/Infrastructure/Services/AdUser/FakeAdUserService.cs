@@ -15,21 +15,28 @@ public class FakeAdUserService(IOptions<DevUserOptions> devUserOptions) : IAdUse
             SamAccountName = "ahmed.wahaibi",
             DisplayName = "Ahmed Al Wahaibi",
             Email = "ahmed@example.com",
-            Department = "Audit"
+            Department = "Admin"
         },
         new AdUser
         {
             SamAccountName = "fatima.harthy",
             DisplayName = "Fatima Al Harthy",
             Email = "fatima@example.com",
-            Department = "Audit"
+            Department = "Examiner"
         },
         new AdUser
         {
             SamAccountName = "mohammed.said",
             DisplayName = "Mohammed Al Said",
             Email = "mohammed@example.com",
-            Department = "Audit"
+            Department = "Employee"
+        },
+           new AdUser
+        {
+            SamAccountName = "adam.ahmed",
+            DisplayName = "Adam Al Wahaibi",
+            Email = "adam@example.com",
+            Department = "Guest"
         }
     ];
 

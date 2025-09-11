@@ -1,24 +1,85 @@
+/* ===============================
+   Root variables
+================================ */
 :root {
+    /* ===============================
+       Colors
+    =============================== */
     --primary-color: #0d6efd;
     --secondary-color: #6c757d;
-    --bg-color-light: #fff;
-    --bg-color-dark: #1a1a1a;
-    --text-color-light: #000;
-    --text-color-dark: #f8f9fa;
-    --card-bg-light: #fff;
-    --card-bg-dark: #2d2d2d;
+
+    /* Background colors */
+    --bg-color-light: #ffffff;
+    --bg-color-dark:  #0B192C;   /* deep blue-dark background */
+    --bg-color:       var(--bg-color-light); /* default light theme */
+
+    /* Text colors */
+    --text-color-light: #212529; /* dark text for light theme */
+    --text-color-dark:  #e9f2ff; /* softer light blue for dark theme */
+    --text-color:       var(--text-color-light);
+
+    /* Card / container backgrounds */
+    --card-bg-light: #ffffff;
+    --card-bg-dark:  #102841; /* slightly lighter blue than body bg */
+    --card-bg:       var(--card-bg-light);
+
+    /* Header gradients */
+    --header-gradient-light: linear-gradient(135deg, var(--primary-color), #0043a4);
+    --header-gradient-dark:  linear-gradient(135deg, #0B192C, #193659); /* blue-dark gradient */
+
+    /* ===============================
+       Typography
+    =============================== */
+    --bs-body-font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --bs-body-font-size:   1rem;
+    --bs-body-font-weight: 400;
+    --bs-body-line-height: 1.5;
 }
 
+/* ===============================
+   Dark theme overrides
+================================ */
+[data-theme="dark"] {
+    --bg-color:   var(--bg-color-dark);
+    --text-color: var(--text-color-dark);
+    --card-bg:    var(--card-bg-dark);
+}
+
+/* ===============================
+   Global styles
+================================ */
 body {
-    background-color: var(--bg-color-light);
-    color: var(--text-color-light);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    font-family: var(--bs-body-font-family);
+    font-size: var(--bs-body-font-size);
+    font-weight: var(--bs-body-font-weight);
+    line-height: var(--bs-body-line-height);
+}
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--text-color);
+}
+
+/* Cards */
+.card {
+    background-color: var(--card-bg);
+    color: var(--text-color);
 }
 
 /* RTL / LTR text alignment */
 [dir="rtl"] { text-align: right; }
 [dir="ltr"] { text-align: left; }
 
-/* Header */
+/* ===============================
+   Header styles
+================================ */
 .header-top {
     background-color: #f8f9fa;
     padding: 8px 0;
@@ -26,14 +87,58 @@ body {
 }
 
 .main-header {
-    background: linear-gradient(135deg, var(--primary-color), #0043a4);
+    background: var(--header-gradient-light);
     color: white;
     padding: 15px 0;
 }
 
-.ministry-logo i {
-    font-size: 2.5rem;
-    color: #ffc107;
+[data-theme="dark"] .main-header {
+    background: var(--header-gradient-dark);
+    color: white; /* keep text white in dark mode */
+}
+
+/* ===============================
+   Navbar styles
+================================ */
+.main-navbar {
+    background-color: var(--primary-color);
+    --bs-navbar-color: #fff;
+    --bs-navbar-hover-color: #f8f9fa; /* lighter white on hover */
+    --bs-navbar-active-color: #fff;
+    --bs-navbar-brand-color: #fff;
+    --bs-navbar-brand-hover-color: #f8f9fa;
+}
+
+[data-theme="dark"] .main-navbar {
+    background-color: #0d1e35; /* blue-dark navbar */
+    color:  white;
+}
+
+[data-theme="dark"] .main-navbar .nav-link {
+    color: var(--text-color-dark);
+}
+
+[data-theme="dark"] .main-navbar .nav-link.active {
+    color: #4da6ff; /* highlight active link in lighter blue */
+}
+
+[data-theme="dark"] .navbar-toggler-icon {
+    filter: invert(1);
+}
+
+/* Ensure headings inside main-header are white */
+.main-header h1,
+.main-header h2,
+.main-header h3,
+.main-header h4,
+.main-header h5,
+.main-header h6 {
+    color: white;
+}
+
+.logo-om {
+    height: 40px;
+    width: 40px;
 }
 
 /* Language Switcher */
@@ -43,35 +148,18 @@ body {
     border-color: var(--primary-color);
 }
 
-/* Navbar Logo */
-.logo-om {
-    height: 40px;
-    width: 40px;
-    fill: white; /* Use fill for SVGs */
-}
-
-
-
-
-/* Footer */
+/* ===============================
+   Footer
+================================ */
 .footer {
     background: linear-gradient(135deg, #2c3e50, #1a2530);
     color: white;
 }
 
-/* Fade-in animations */
-.fade-in {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.5s ease, transform 0.5s ease;
-}
+/* ===============================
+   Accessibility & Animations
+================================ */
 
-.fade-in.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* Skip link for accessibility */
 .skip-link {
     position: absolute;
     top: -40px;
@@ -82,70 +170,77 @@ body {
     z-index: 100;
     transition: top 0.3s;
 }
-
 .skip-link:focus { top: 0; }
 
-/* Image section */
-.image-section {
-    margin: 30px 0;
-    text-align: center;
-}
-
-.image-container {
-    max-width: 600px;
-    margin: 0 auto;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.image-container img {
-    width: 100%;
-    height: auto;
-    display: block;
-}
-
-.image-caption {
-    margin-top: 15px;
-    font-style: italic;
-    color: #666;
-}
-
-/* Dark theme */
-[data-theme="dark"] {
-    --bg-color: var(--bg-color-dark);
-    --text-color: var(--text-color-dark);
-    --card-bg: var(--card-bg-dark);
-}
-
-[data-theme="dark"] body {
-    background-color: var(--bg-color);
-    color: var(--text-color);
-}
-
+/* ===============================
+   Theme-aware tweaks
+================================ */
 [data-theme="dark"] .header-top {
     background-color: var(--bg-color-dark);
     border-bottom: 1px solid #444;
-}
-
-[data-theme="dark"] .card {
-    background-color: var(--card-bg);
-    border-color: #444;
 }
 
 [data-theme="dark"] .navbar-dark {
     background-color: var(--bg-color-dark) !important;
 }
 
-[data-theme="dark"] .image-container {
-    border-color: #444;
+/* Toggle Switch Styles */
+/* From Uiverse.io by satyamchaudharydev */ 
+/* The switch - the box around the slider */
+.switch {
+  display: block;
+  --width-of-switch: 3.5em;
+  --height-of-switch: 2em;
+  /* size of sliding icon -- sun and moon */
+  --size-of-icon: 1.4em;
+  /* it is like a inline-padding of switch */
+  --slider-offset: 0.3em;
+  position: relative;
+  width: var(--width-of-switch);
+  height: var(--height-of-switch);
 }
 
-[data-theme="dark"] .image-caption {
-    color: #aaa;
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
 }
 
-.modal {
-    z-index: 1055 !important; /* ensure it's higher than backdrop */
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #f4f4f5;
+  transition: .4s;
+  border-radius: 30px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: var(--size-of-icon,1.4em);
+  width: var(--size-of-icon,1.4em);
+  border-radius: 20px;
+  left: var(--slider-offset,0.3em);
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(40deg,#ff0080,#ff8c00 70%);
+  ;
+ transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #303136;
+}
+
+input:checked + .slider:before {
+  left: calc(100% - (var(--size-of-icon,1.4em) + var(--slider-offset,0.3em)));
+  background: #303136;
+  /* change the value of second inset in box-shadow to change the angle and direction of the moon  */
+  box-shadow: inset -3px -2px 5px -2px #8983f7, inset -10px -4px 0 0 #a3dafb;
 }

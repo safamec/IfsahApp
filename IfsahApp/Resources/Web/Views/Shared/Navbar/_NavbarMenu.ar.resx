@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+<data name="home" xml:space="preserve">
+    <value>الرئيسية</value>
+  </data>
+  <data name="new_disclosure" xml:space="preserve">
+    <value>إفصاح جديد</value>
+  </data>
+  <data name="dashboard" xml:space="preserve">
+    <value>لوحة التحكم</value>
+  </data>
+  <data name="reports" xml:space="preserve">
+    <value>التقارير</value>
+  </data>
+  <data name="more" xml:space="preserve">
+    <value>المزيد</value>
+  </data>
+  <data name="faq" xml:space="preserve">
+    <value>الأسئلة الشائعة</value>
+  </data>
+  <data name="user_guide" xml:space="preserve">
+    <value>دليل المستخدم</value>
+  </data>
+  <data name="contact_us" xml:space="preserve">
+    <value>تواصل معنا</value>
+  </data>
+</root>

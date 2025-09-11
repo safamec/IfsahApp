@@ -1,0 +1,27 @@
+<script src="~/lib/jquery/jquery.min.js"></script>
+<script src="~/lib/bootstrap@5.3.0/js/bootstrap.bundle.min.js"></script>
+@await Html.PartialAsync("_ValidationScriptsPartial")
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const checkbox = document.getElementById("theme-checkbox");
+        const html = document.documentElement;
+
+        // Load saved theme or default to system preference
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme) {
+            html.setAttribute("data-theme", savedTheme);
+            checkbox.checked = savedTheme === "dark";
+        } else {
+            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            html.setAttribute("data-theme", prefersDark ? "dark" : "light");
+            checkbox.checked = prefersDark;
+        }
+
+        // Toggle theme
+        checkbox.addEventListener("change", () => {
+            const newTheme = checkbox.checked ? "dark" : "light";
+            html.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+        });
+    });
+</script>

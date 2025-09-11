@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="system_name" xml:space="preserve">
+    <value>نظام الإبلاغ عن المخالفات</value>
+  </data>
+  <data name="organization_name" xml:space="preserve">
+    <value>مكتب التدقيق الداخلي</value>
+  </data>
+  <data name="welcome_message" xml:space="preserve">
+    <value>مرحبًا بك في النظام</value>
+  </data>
+</root>

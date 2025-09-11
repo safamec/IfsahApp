@@ -1,0 +1,15 @@
+﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
+<nav class="navbar navbar-expand-lg main-navbar">
+    <div class="container">
+        @await Html.PartialAsync("Navbar/_NavbarBrand")
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label=@Localizer["toggle_navigation"]>
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            @await Html.PartialAsync("Navbar/_NavbarMenu")
+            @await Html.PartialAsync("Navbar/_NavbarUser")
+        </div>
+    </div>
+</nav>

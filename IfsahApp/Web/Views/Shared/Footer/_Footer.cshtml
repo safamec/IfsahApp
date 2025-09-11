@@ -1,0 +1,42 @@
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+<footer class="footer py-4 mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h5 class="text-white">
+                    <i class="bi bi-shield-shaded me-2"></i>
+                    @Localizer["ministry_name"]
+                </h5>
+                <p class="mb-2">@Localizer["footer_mission"]</p>
+                ...
+            </div>
+            <div class="col-md-4">
+                <h5 class="text-white">@Localizer["contact_info"]</h5>
+                <p><i class="bi bi-geo-alt me-2"></i> @Localizer["location"]</p>
+                ...
+            </div>
+            <div class="col-md-4">
+                <h5 class="text-white">@Localizer["security_privacy"]</h5>
+                <p><i class="bi bi-shield-check me-2"></i> @Localizer["ssl_encryption"]</p>
+                ...
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-6 text-center text-md-start">
+                <p class="mb-1">@Localizer["copyright"]</p>
+                <div class="footer-links">
+                    <a href="#">@Localizer["privacy_policy"]</a>
+                    <a href="#">@Localizer["terms_conditions"]</a>
+                    <a href="#">@Localizer["sitemap"]</a>
+                </div>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <p>
+                    <i class="bi bi-shield-lock-fill me-2"></i>
+                    @Localizer["info_confidentiality"]
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>

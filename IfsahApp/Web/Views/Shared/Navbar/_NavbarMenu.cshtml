@@ -1,0 +1,58 @@
+﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
+<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+    <li class="nav-item">
+        <a class="nav-link active" href="#" aria-current="page">
+            <i class="bi bi-house me-1"></i>
+            <span>@Localizer["home"]</span>
+        </a>
+    </li>
+    <li class="nav-item" id="new-disclosure-nav">
+        <a class="nav-link" href="#">
+            <i class="bi bi-plus-circle me-1"></i>
+            <span>@Localizer["new_disclosure"]</span>
+        </a>
+    </li>
+    <li class="nav-item" id="dashboard-nav">
+        <a class="nav-link" href="#">
+            <i class="bi bi-speedometer2 me-1"></i>
+            <span>@Localizer["dashboard"]</span>
+        </a>
+    </li>
+    <li class="nav-item" id="reports-nav">
+        <a class="nav-link" href="#">
+            <i class="bi bi-file-bar-graph me-1"></i>
+            <span>@Localizer["reports"]</span>
+        </a>
+    </li>
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            <i class="bi bi-three-dots me-1"></i>
+            <span>@Localizer["more"]</span>
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li>
+                <a class="dropdown-item" href="#">
+                    <i class="bi bi-question-circle me-2"></i>
+                    <span>@Localizer["faq"]</span>
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item" href="#">
+                    <i class="bi bi-book me-2"></i>
+                    <span>@Localizer["user_guide"]</span>
+                </a>
+            </li>
+            <li>
+                <hr class="dropdown-divider">
+            </li>
+            <li>
+                <a class="dropdown-item" href="#">
+                    <i class="bi bi-envelope me-2"></i>
+                    <span>@Localizer["contact_us"]</span>
+                </a>
+            </li>
+        </ul>
+    </li>
+</ul>

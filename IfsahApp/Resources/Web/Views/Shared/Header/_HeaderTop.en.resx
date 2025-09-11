@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+   <data name="SkipToMainContent" xml:space="preserve">
+    <value>Skip to main content</value>
+  </data>
+  <data name="Arabic" xml:space="preserve">
+    <value>Arabic</value>
+  </data>
+  <data name="English" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="ToggleTheme" xml:space="preserve">
+    <value>Toggle dark mode</value>
+  </data>
+  <data name="ToggleThemeLabel" xml:space="preserve">
+    <value>Toggle theme</value>
+  </data>
+</root>

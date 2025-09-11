@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+<data name="ministry_name" xml:space="preserve">
+    <value>Ministry of Information</value>
+  </data>
+  <data name="footer_mission" xml:space="preserve">
+    <value>Our mission is to provide secure and reliable services.</value>
+  </data>
+  <data name="contact_info" xml:space="preserve">
+    <value>Contact Information</value>
+  </data>
+  <data name="location" xml:space="preserve">
+    <value>123 Main Street, Capital City</value>
+  </data>
+  <data name="security_privacy" xml:space="preserve">
+    <value>Security &amp; Privacy</value>
+  </data>
+  <data name="ssl_encryption" xml:space="preserve">
+    <value>All data is SSL encrypted for your safety.</value>
+  </data>
+  <data name="copyright" xml:space="preserve">
+    <value>© 2025 Ministry of Information. All rights reserved.</value>
+  </data>
+  <data name="privacy_policy" xml:space="preserve">
+    <value>Privacy Policy</value>
+  </data>
+  <data name="terms_conditions" xml:space="preserve">
+    <value>Terms &amp; Conditions</value>
+  </data>
+  <data name="sitemap" xml:space="preserve">
+    <value>Sitemap</value>
+  </data>
+  <data name="info_confidentiality" xml:space="preserve">
+    <value>All information is confidential and protected.</value>
+  </data>
+</root>

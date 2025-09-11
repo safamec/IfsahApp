@@ -1,31 +1,68 @@
-@*
-  Layout يجمع كل الـ Partials كما هي بدون أي تغيير وظيفي
-*@
 <!DOCTYPE html>
-<html lang="ar" data-theme="light" dir="rtl">
+<html lang="ar" dir="rtl">
+
 <head>
-    @await Html.PartialAsync("Partials/Head/_Meta")
-    @await Html.PartialAsync("Partials/Head/_Styles")
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="نظام تلقي الإفصاحات - وزارة الطاقة والمعادن - حماية المبلغين وتعزيز الشفافية" />
+    <title>نظام تلقي الإفصاحات</title>
+
+    @await Html.PartialAsync("_ThemeStyles")
+
     @RenderSection("Styles", required: false)
 </head>
-<body data-theme="light">
-    @await Html.PartialAsync("Partials/_SkipLink")
-    @await Html.PartialAsync("Partials/Header/_HeaderTop")
-    @await Html.PartialAsync("Partials/Header/_MainHeader")
-    @await Html.PartialAsync("Partials/Nav/_TopNavbar")
 
-    @await Html.PartialAsync("Partials/Messages/_MessagesContainer")
+<body>
 
-    <main role="main" class="container my-4 fade-in" id="main-content">
-        @await Html.PartialAsync("Partials/Main/_IntroCard")
+    @await Html.PartialAsync("Header/_HeaderTop")
+    @await Html.PartialAsync("Header/_MainHeader")
+    @await Html.PartialAsync("Navbar/_Navbar")
+
+    <main role="main" class="container my-4" id="main-content">
         @RenderBody()
-        @await Html.PartialAsync("Partials/Main/_ImageSection")
     </main>
 
-    @await Html.PartialAsync("Partials/Footer/_Footer")
-    @await Html.PartialAsync("Partials/Modals/_PersonModal")
+    @await Html.PartialAsync("Footer/_Footer")
 
-    @await Html.PartialAsync("Partials/Scripts/_Scripts")
+    <div class="modal fade" id="personModal" tabindex="-1" aria-labelledby="personModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="personForm" onsubmit="return savePerson(event)">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="personModalLabel">Add Person Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="targetListId" />
+                        <div class="mb-3">
+                            <label for="personName" class="form-label">Name *</label>
+                            <input type="text" class="form-control" id="personName" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="personEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="personEmail" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="personPhone" class="form-label">Phone</label>
+                            <input type="text" class="form-control" id="personPhone" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="personOrganization" class="form-label">Organization</label>
+                            <input type="text" class="form-control" id="personOrganization" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Add Person</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    @await Html.PartialAsync("_ThemeScripts")
+
     @RenderSection("Scripts", required: false)
 </body>
+
 </html>

@@ -6,12 +6,12 @@
         string textClass = (i % 4 == 2 || i % 4 == 3) ? "text-dark" : "text-white";
         var bgColor = bgColors[i % 4];
 
-        <div class="col-md-4">
+        <div class="col-md-3 col-sm-6">
             <form method="post" asp-action="Index">
                 <input type="hidden" name="selectedSamAccountName" value="@user.SamAccountName" />
 
                 <button type="submit" class="card p-3 animate__animated animate__bounce border-1"
-                    style="--animate-duration:1s; animation-delay:@(i * 0.15)s; border-radius:15px; overflow:hidden;">
+                    style="--animate-duration:1s; animation-delay:@(i * 0.15)s; border-radius:15px; overflow:hidden; width:100%;">
 
                     <!-- Top colored header -->
                     <div style="background-color:@bgColor; height:100px; position:relative;"></div>
@@ -20,7 +20,7 @@
                     <div class="text-center" style="margin-top:-40px;">
                         <div class="rounded-circle border border-white"
                             style="width:80px; height:80px; background-color:rgba(255,255,255,0.3); display:inline-block;">
-                            @* You can replace this with <img src='...' class='rounded-circle' /> *@
+                            @* Replace with <img src="..." class="rounded-circle" /> if needed *@
                         </div>
                     </div>
 

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="toggle_navigation" xml:space="preserve">
+    <value>تبديل القائمة</value>
+  </data>
+  <data name="home" xml:space="preserve">
+    <value>الرئيسية</value>
+  </data>
+  <data name="about" xml:space="preserve">
+    <value>حول</value>
+  </data>
+  <data name="contact" xml:space="preserve">
+    <value>اتصل بنا</value>
+  </data>
+  <data name="profile" xml:space="preserve">
+    <value>الملف الشخصي</value>
+  </data>
+  <data name="logout" xml:space="preserve">
+    <value>تسجيل الخروج</value>
+  </data>
+  <data name="login" xml:space="preserve">
+    <value>تسجيل الدخول</value>
+  </data>
+</root>

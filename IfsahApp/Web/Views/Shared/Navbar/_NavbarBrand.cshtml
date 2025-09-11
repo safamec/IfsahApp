@@ -1,0 +1,8 @@
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
+<a class="navbar-brand" href="/">
+    <svg class="logo-om">
+        <use xlink:href="images/sprite.svg#logo-om"></use>
+    </svg>
+    <span>@Localizer["system_short_name"]</span>
+</a>

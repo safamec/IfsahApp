@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <data name="ministry_name" xml:space="preserve">
+    <value>وزارة الإعلام</value>
+  </data>
+  <data name="footer_mission" xml:space="preserve">
+    <value>مهمتنا هي تقديم خدمات آمنة وموثوقة.</value>
+  </data>
+  <data name="contact_info" xml:space="preserve">
+    <value>معلومات الاتصال</value>
+  </data>
+  <data name="location" xml:space="preserve">
+    <value>١٢٣ شارع الرئيسي، العاصمة</value>
+  </data>
+  <data name="security_privacy" xml:space="preserve">
+    <value>الأمان والخصوصية</value>
+  </data>
+  <data name="ssl_encryption" xml:space="preserve">
+    <value>جميع البيانات مشفرة باستخدام SSL لضمان سلامتك.</value>
+  </data>
+  <data name="copyright" xml:space="preserve">
+    <value>© 2025 وزارة الإعلام. جميع الحقوق محفوظة.</value>
+  </data>
+  <data name="privacy_policy" xml:space="preserve">
+    <value>سياسة الخصوصية</value>
+  </data>
+  <data name="terms_conditions" xml:space="preserve">
+    <value>الأحكام والشروط</value>
+  </data>
+  <data name="sitemap" xml:space="preserve">
+    <value>خريطة الموقع</value>
+  </data>
+  <data name="info_confidentiality" xml:space="preserve">
+    <value>جميع المعلومات سرية ومحفوظة.</value>
+  </data>
+</root>

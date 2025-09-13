@@ -1,0 +1,17 @@
+.header-top {
+    background-color: var(--header-gradient);
+    padding: 8px 0;
+    border-bottom: 1px solid #e9ecef;
+    color: var(--header-text);
+}
+
+.main-header {
+    background: var(--header-gradient);
+    color: var(--header-text);
+    padding: 15px 0;
+}
+
+.logo-om {
+    height: 40px;
+    width: 40px;
+}

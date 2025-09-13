@@ -1,0 +1,24 @@
+/* ===============================
+   Toggle Button (Independent)
+   =============================== */
+.toggle-lang {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;          /* total toggle width */
+    height: 24px;         /* fixed height */
+    padding: 0;           /* no Bootstrap padding */
+    border: 1px solid var(--btn-toggle-lang-border, #999);
+    background-color: var(--btn-toggle-lang-bg, #eee);
+    color: var(--btn-toggle-lang-text, #333);
+    font-size: 0.7rem;    /* tiny label if you want text inside */
+    font-weight: 600;
+    overflow: hidden;
+    cursor: pointer;
+    line-height: 1;       /* prevents 39px height */
+}
+
+.toggle-lang.active::after {
+    transform: translateX(26px); /* knob shift inside 50px width */
+}

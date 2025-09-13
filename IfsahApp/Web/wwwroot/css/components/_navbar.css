@@ -1,0 +1,9 @@
+.main-navbar {
+    background-color:  var(--navbar-bg);
+    color: var(--header-text);
+    --bs-navbar-color: #fff;
+    --bs-navbar-hover-color: #f8f9fa; /* lighter white on hover */
+    --bs-navbar-active-color: #fff;
+    --bs-navbar-brand-color: #fff;
+    --bs-navbar-brand-hover-color: #f8f9fa;
+}

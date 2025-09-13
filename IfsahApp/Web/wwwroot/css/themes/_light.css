@@ -1,0 +1,41 @@
+/* Light Theme Overrides */
+
+[data-theme="light"] {
+    /* Body / Background */
+    --bg-color: var(--bg-color-light);
+    --text-color: var(--text-color-light);
+
+    /* Cards */
+    --card-bg: var(--card-bg-light);
+
+    /* Header */
+    --header-gradient: var(--header-gradient-light);
+
+    /* Footer */
+    --footer-bg: #f3f2f1;
+    --footer-text: #323130;
+    --footer-link: #0078d4;
+    --footer-link-hover: #005a9e;
+    --footer-border: #e1dfdd;
+
+    /* Navbar */
+    --navbar-bg: var(--primary-color);
+    --navbar-text: #ffffff;
+
+    /* Button */
+    --btn-bg-primary: #f8f9fa;
+    --btn-text-primary: #212529;
+    --btn-border-primary: #ced4da;
+    --btn-bg-primary-hover: #e2e6ea;
+    --btn-border-primary-hover: #adb5bd;
+
+    --btn-border-outline: #6c757d;
+    --btn-text-outline: #6c757d;
+    --btn-bg-outline-hover: #f8f9fa;
+    --btn-text-outline-hover: #212529;
+
+    --btn-toggle-bg: #f1f3f5;
+    --btn-toggle-text: #212529;
+    --btn-toggle-border: #ced4da;
+    --btn-toggle-knob: #ffffff;
+}

@@ -36,4 +36,45 @@
             <span>@Localizer["help"]</span>
         </a>
     </li>
+
+    <!-- Notification Button -->
+    <li class="nav-item p-2">
+        <button id="notifBtn" type="button" class="btn notif-btn position-relative">
+            <span>🔔</span>
+            <span id="notifBadge"
+                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
+        </button>
+    </li>
+
+    <!-- Theme toggle-theme -->
+    <li class="nav-item p-2">
+        <label class="toggle-theme">
+            <input type="checkbox" id="theme-checkbox">
+            <span class="slider"></span>
+        </label>
+    </li>
+
+    <!-- Language Toggle -->
+    <li class="nav-item p-2">
+        <div class="language-toggle">
+            @{
+                var currentUrl = Context.Request.Path + Context.Request.QueryString;
+            }
+
+            @if (System.Threading.Thread.CurrentThread.CurrentCulture.Name.StartsWith("ar"))
+            {
+                <a asp-controller="Culture" asp-action="SetLanguage" asp-route-culture="en"
+                    asp-route-returnUrl="@currentUrl" class="btn toggle-lang active">
+                    عربي
+                </a>
+            }
+            else
+            {
+                <a asp-controller="Culture" asp-action="SetLanguage" asp-route-culture="ar"
+                    asp-route-returnUrl="@currentUrl" class="btn toggle-lang active">
+                    English
+                </a>
+            }
+        </div>
+    </li>
 </ul>

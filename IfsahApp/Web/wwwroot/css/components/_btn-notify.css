@@ -1,0 +1,16 @@
+/* Remove border and match size with toggles */
+.notif-btn {
+    background-color: transparent; /* or white if your navbar is dark */
+    border: none;                  /* remove border */
+    width: 50px;                   /* same as theme/language toggle */
+    height: 28px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.notif-btn:focus {
+    box-shadow: none; /* remove focus outline */
+}

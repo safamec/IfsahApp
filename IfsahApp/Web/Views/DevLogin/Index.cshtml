@@ -10,21 +10,18 @@
             <form method="post" asp-action="Index">
                 <input type="hidden" name="selectedSamAccountName" value="@user.SamAccountName" />
 
-                <button type="submit" class="card p-3 animate__animated animate__bounce border-1"
-                    style="--animate-duration:1s; animation-delay:@(i * 0.15)s; border-radius:15px; overflow:hidden; width:100%;">
+                <button type="submit" class="card user-card animate__animated animate__bounce border-1"
+                    style="--animate-duration:1s; animation-delay:@(i * 0.15)s;">
 
-                    <!-- Top colored header -->
-                    <div style="background-color:@bgColor; height:100px; position:relative;"></div>
-
-                    <!-- Avatar overlapping header -->
-                    <div class="text-center" style="margin-top:-40px;">
-                        <div class="rounded-circle border border-white"
-                            style="width:80px; height:80px; background-color:rgba(255,255,255,0.3); display:inline-block;">
-                            @* Replace with <img src="..." class="rounded-circle" /> if needed *@
+                    <!-- Header + Avatar -->
+                    <div class="card-top">
+                        <div class="card-header-bg" style="background-color:@bgColor;"></div>
+                        <div class="avatar-wrapper">
+                            <div class="avatar"></div>
                         </div>
                     </div>
 
-                    <!-- Card body -->
+                    <!-- Body -->
                     <div class="card-body text-center">
                         <h5 class="card-title mb-1">@user.DisplayName</h5>
                         <p class="card-text text-muted mb-3">@user.Department</p>
@@ -36,9 +33,58 @@
 </div>
 
 <style>
-    .card:hover {
+    .user-card {
+        border-radius: 15px;
+        overflow: hidden;
+        width: 100%;
+        padding: 0;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .user-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card-top {
+        position: relative;
+        height: 120px;
+        /* header + half avatar */
+    }
+
+    .card-header-bg {
+        height: 100px;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .avatar-wrapper {
+        position: absolute;
+        top: 60px;
+        /* sits evenly between header and body */
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+    }
+
+    .avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border: 3px solid #fff;
+        background-color: rgba(255, 255, 255, 0.3);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-body {
+        margin-top: 40px;
+        /* push name down to clear avatar */
+    }
+
+    .card-title {
+        font-weight: bold;
+    }
+
+    .card-text {
+        color: #6c757d;
     }
 </style>

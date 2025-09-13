@@ -1,0 +1,34 @@
+.footer {
+    background: var(--footer-bg);
+    color: var(--footer-text);
+    border-top: 1px solid var(--footer-border);
+    padding: 20px 0;
+}
+
+.footer h5 {
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: var(--footer-text);
+}
+
+.footer a {
+    color: var(--footer-link);
+    text-decoration: none;
+    margin-right: 1rem;
+}
+
+.footer a:hover {
+    color: var(--footer-link-hover);
+    text-decoration: underline;
+}
+
+.footer hr {
+    border-color: var(--footer-border);
+}
+
+.footer .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}

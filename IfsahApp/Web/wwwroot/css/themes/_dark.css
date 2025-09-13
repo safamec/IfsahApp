@@ -1,0 +1,41 @@
+/* Dark Theme Overrides */
+
+[data-theme="dark"] {
+    /* Body / Background */
+    --bg-color: var(--bg-color-dark);
+    --text-color: var(--text-color-dark);
+
+    /* Cards */
+    --card-bg: var(--card-bg-dark);
+
+    /* Header */
+    --header-gradient: var(--header-gradient-dark);
+
+    /* Footer */
+    --footer-bg: #1e1e1e;
+    --footer-text: #f3f2f1;
+    --footer-link: #4aa8ff;
+    --footer-link-hover: #1890f1;
+    --footer-border: #333333;
+
+    /* Navbar */
+    --navbar-bg: var(--navbar-bg-dark);
+    --navbar-text: #ffffff;
+
+    /* Button */
+    --btn-bg-primary: #343a40;
+    --btn-text-primary: #f8f9fa;
+    --btn-border-primary: #495057;
+    --btn-bg-primary-hover: #495057;
+    --btn-border-primary-hover: #6c757d;
+
+    --btn-border-outline: #adb5bd;
+    --btn-text-outline: #f8f9fa;
+    --btn-bg-outline-hover: #495057;
+    --btn-text-outline-hover: #f8f9fa;
+
+    --btn-toggle-bg: #343a40;
+    --btn-toggle-text: #f8f9fa;
+    --btn-toggle-border: #495057;
+    --btn-toggle-knob: #dee2e6;
+}

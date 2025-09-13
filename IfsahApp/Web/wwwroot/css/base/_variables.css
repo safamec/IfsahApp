@@ -1,0 +1,48 @@
+/* Root variables */
+:root {
+    --primary-color: #0f6cbd;
+    --secondary-color: #6c757d;
+
+    --bg-color-light: #f5f5f5;
+    --bg-color-dark:  #141414;
+    --bg-color: var(--bg-color-light);
+
+    --text-color-light: #000000;
+    --text-color-dark:  #ffffff;
+    --text-color: var(--text-color-light);
+
+    /* Cards */
+    --card-bg-light: #ffffff;
+    --card-bg-dark:  #292929;
+    --card-bg: var(--card-bg-light);
+
+    /* Header gradients */
+    --header-gradient-light: linear-gradient(135deg, var(--primary-color), #004578);
+    --header-gradient-dark: linear-gradient(135deg,  #2d2d2d, #1e1e1e);
+    --header-gradient:var( --header-gradient-light);
+    --header-text: #fff;
+
+    /* Navbar */
+    --navbar-bg-light: var(--primary-color);
+    --navbar-bg-dark: #2d2d2d;
+    --navbar-bg: var(--navbar-bg-light);
+
+    /* Footer */
+    --footer-bg: #f3f2f1;
+    --footer-text: #323130;
+    --footer-link: #0078d4;
+    --footer-link-hover: #005a9e;
+    --footer-border: #e1dfdd;
+
+    /* Typography */
+    --bs-body-font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --bs-body-font-size: 1rem;
+    --bs-body-font-weight: 400;
+    --bs-body-line-height: 1.5;
+
+    /* Button */
+    --btn-toggle-lang-bg: #f1f3f5;
+    --btn-toggle-lang-text: #212529;
+    --btn-toggle-lang-border: #ced4da;
+    --btn-toggle-lang-knob: #ffffff;
+}

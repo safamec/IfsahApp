@@ -1,12 +1,16 @@
+using System.IO;
+using System.Reflection;
+using IfsahApp.Core.Mapping;
+using IfsahApp.Hubs;
 using IfsahApp.Infrastructure.Data;
 using IfsahApp.Infrastructure.Services;
-using IfsahApp.Utils;
-using IfsahApp.Infrastructure.Services.Email;
 using IfsahApp.Infrastructure.Services.AdUser;
-using Microsoft.EntityFrameworkCore;
+using IfsahApp.Infrastructure.Services.Email;
+using IfsahApp.Utils;
 using IfsahApp.Web.Middleware.Auth;
-using IfsahApp.Core.Mapping;
-using IfsahApp.Hubs; 
+using Microsoft.AspNetCore.Localization;
+using Microsoft.EntityFrameworkCore;
+
 var options = new WebApplicationOptions
 {
     ContentRootPath = Directory.GetCurrentDirectory(),
@@ -15,21 +19,24 @@ var options = new WebApplicationOptions
 
 var builder = WebApplication.CreateBuilder(options);
 
+// Load user-secrets in Development (Smtp:UserName / Smtp:Password)
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), optional: true);
+}
 
-// =============================
-// 1. Database
-// =============================
+// 1) Database
 builder.Services.AddDbContext<ApplicationDbContext>(dbOptions =>
     dbOptions.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// =============================
-// Register AutoMapper here
-// =============================
+// 2) AutoMapper
 builder.Services.AddAutoMapper(typeof(DisclosureMappingProfile));
 
-// =============================
-// 2. Localization + Views
-// =============================
+// 3) Email settings + service
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
+builder.Services.AddTransient<IEmailService, GmailEmailService>();
+
+// 4) Localization + Views
 builder.Services.AddLocalization(opts => opts.ResourcesPath = "Resources");
 builder.Services.AddControllersWithViews()
     .AddViewLocalization()
@@ -41,56 +48,41 @@ builder.Services.AddControllersWithViews()
         opts.ViewLocationFormats.Add("/Web/Views/Shared/{0}.cshtml");
     });
 
-// =============================
-// 3. Custom Services
-// =============================
+// 5) Custom Services (AD user)
 if (builder.Environment.IsDevelopment())
 {
     builder.Services.AddSingleton<IAdUserService, FakeAdUserService>();
-    builder.Services.AddTransient<IEmailService, FakeEmailService>();
 }
 else
 {
     builder.Services.AddSingleton<IAdUserService, LdapAdUserService>();
-    builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
-    builder.Services.AddTransient<IEmailService, SmtpEmailService>();
 }
 
 builder.Services.AddScoped<IEnumLocalizer, EnumLocalizer>();
 
-// =============================
-// 4. Authentication & AD Service
-// =============================
+// 6) Authentication & Authorization
 builder.Services.AddAppAuthentication(builder.Environment);
 
-// =============================
-// 5. Authorization
-// =============================
 builder.Services.AddAuthorization(options =>
 {
     options.FallbackPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
         .Build();
 });
-builder.Services.AddSignalR();  // <-- ensure this line exists
 
-// =============================
-// 6. Build app
-// =============================
+builder.Services.AddSignalR();
+
+// 7) Build app
 var app = builder.Build();
 
-// =============================
-// 7. DB Seeding
-// =============================
+// 8) DB Seeding
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     DbSeeder.Seed(db);
 }
 
-// =============================
-// 8. Localization options
-// =============================
+// 9) Localization middleware
 var supportedCultures = new[] { "en", "ar" };
 var locOptions = new RequestLocalizationOptions()
     .SetDefaultCulture("ar")
@@ -99,21 +91,16 @@ var locOptions = new RequestLocalizationOptions()
 
 app.UseRequestLocalization(locOptions);
 
-// =============================
-// 9. Middleware pipeline
-// =============================
+// 10) Middleware pipeline
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseAdUser();
 
-// =============================
-// 10. Routing
-// =============================
+// 11) Routing
 if (app.Environment.IsDevelopment())
 {
-    // In development, default route goes to DevLogin/Index
     app.MapControllerRoute(
         name: "default",
         pattern: "{controller=DevLogin}/{action=Index}/{id?}"
@@ -121,16 +108,12 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-    // In staging/production, default route goes to Account/Login
     app.MapControllerRoute(
         name: "default",
         pattern: "{controller=Account}/{action=Login}/{id?}"
     );
 }
-// builder.Services.AddSignalR();     // ensure this is present
-app.MapHub<NotificationHub>("/hubs/notifications"); // <-- add this
 
-// =============================
-// 11. Run
-// =============================
+app.MapHub<NotificationHub>("/hubs/notifications");
+
 app.Run();

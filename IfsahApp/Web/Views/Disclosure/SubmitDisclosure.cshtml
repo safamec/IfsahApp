@@ -1,47 +1,36 @@
 @{
-    var reportNumber = ViewData["ReportNumber"];
+    var reportNumber = (string?)ViewData["ReportNumber"] ?? "";
     ViewData["Title"] = "Thank You for Your Report";
 }
 
-<style>
-    body {
-        background-color: white;
-        color: #333;
-        font-family: Arial, sans-serif;
-        text-align: center;
-        padding: 40px;
-    }
+<link rel="stylesheet" href="~/css/thankyou.css" />
 
-    h2 {
-        margin-bottom: 20px;
-    }
+<div class="ty-container" dir="rtl">
+    <h1 class="ty-title">!شكراً لتقديم البلاغ</h1>
+    <h2 class="ty-subtitle">تم استلام بلاغك وسيُتعامل معه بسرعة وبعناية</h2>
 
-    p {
-        font-size: 16px;
-        margin-bottom: 10px;
-    }
+    <p class="ty-report">رقم البلاغ: <strong>@reportNumber</strong></p>
 
-    a {
-        display: inline-block;
-        margin-top: 20px;
-        padding: 10px 20px;
-        background-color: #f26522;
-        color: white;
-        text-decoration: none;
-        border-radius: 5px;
-        font-weight: bold;
-    }
 
-    a:hover {
-        background-color: #d9540a;
-    }
-</style>
+    <hr class="ty-sep" />
 
-<h1>Thank you for submitting your report!</h1>
-<h2>Your report has been received and will be handled promptly and carefully.</h2>
+    <div class="ty-subscribe">
+        <h3 class="ty-section-title">استلام إشعار بالبريد الإلكتروني عن حالة البلاغ</h3>
 
-<p>Your report number is: <strong>@reportNumber</strong></p>
+        <div class="ty-form">
+            <input id="notifyEmail" type="email" placeholder="أدخلي البريد الإلكتروني" inputmode="email" autocomplete="email" />
+            <button id="verifyBtn" class="ty-btn ty-btn-accent">تحقيق</button>
 
-<p>If you want to track your report, click the following link:</p>
-<!-- If your tracking action is Disclosure/Track, use this: -->
-<a href="/Disclosure/Track?reportNumber=@reportNumber">Track Your Report</a>
+            <div id="loader" class="ty-loader" aria-hidden="true"></div>
+        </div>
+
+        <div id="toast" class="ty-toast" role="status" aria-live="polite"></div>
+
+        <p class="ty-hint">سنرسل تحديثات عن حالة البلاغ على البريد عند توفر جديد.</p>
+    </div>
+</div>
+
+<script>
+    window.REPORT_NO = "@reportNumber";
+</script>
+<script src="~/js/report-subscribe.js"></script>

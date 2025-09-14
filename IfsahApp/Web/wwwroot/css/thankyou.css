@@ -1,0 +1,47 @@
+:root{
+  --ty-bg:#fff; --ty-text:#333; --ty-brand:#0d6efd; --ty-accent:#f26522;
+  --ty-muted:#6c757d; --ty-green:#28a745; --ty-red:#dc3545; --ty-border:#e9ecef;
+}
+
+.ty-container{ max-width:900px; margin:40px auto; padding:24px; background:var(--ty-bg); color:var(--ty-text); font-family:system-ui, Arial, sans-serif; text-align:center; }
+.ty-title{ font-size:2.2rem; margin:0 0 10px; }
+.ty-subtitle{ font-size:1.2rem; margin:0 0 20px; color:var(--ty-muted); }
+.ty-report{ font-size:1rem; margin:8px 0 20px; }
+
+.ty-btn{ display:inline-block; padding:.75rem 1.25rem; border-radius:10px; border:none; font-weight:700; cursor:pointer; text-decoration:none; }
+.ty-btn-primary{ background:var(--ty-accent); color:#fff; }
+.ty-btn-primary:hover{ filter:brightness(.95); }
+
+.ty-sep{ border:0; border-top:1px solid var(--ty-border); margin:28px 0; }
+
+.ty-subscribe{ text-align:center; }
+.ty-section-title{ font-size:1.1rem; margin-bottom:14px; }
+
+.ty-form{ display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap; }
+#notifyEmail{ min-width:280px; max-width:360px; width:100%; padding:.65rem .8rem; border:1px solid var(--ty-border); border-radius:10px; font-size:1rem; }
+.ty-btn-accent{ background:var(--ty-brand); color:#fff; }
+.ty-btn-accent:hover{ filter:brightness(.95); }
+
+/* Loader circle */
+.ty-loader{
+  width:26px; height:26px; border:3px solid var(--ty-border); border-top-color:var(--ty-brand);
+  border-radius:50%; animation:ty-spin .9s linear infinite; display:none;
+}
+.ty-loader.show{ display:inline-block; }
+
+@keyframes ty-spin{ to { transform: rotate(360deg); } }
+
+/* Toast */
+.ty-toast{
+  position:fixed; inset-inline-start:50%; transform:translateX(-50%);
+  bottom:24px; min-width:260px; max-width:90vw; padding:.85rem 1rem; border-radius:12px;
+  background:#000; color:#fff; box-shadow:0 10px 20px rgba(0,0,0,.15); display:none; font-weight:600;
+}
+.ty-toast.show{ display:block; }
+.ty-toast.ok{ background:var(--ty-green); }
+.ty-toast.err{ background:var(--ty-red); }
+
+.ty-hint{ color:var(--ty-muted); font-size:.9rem; margin-top:10px; }
+
+/* RTL fine-tune */
+[dir="rtl"] .ty-form{ flex-direction:row-reverse; }

@@ -3,14 +3,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering; // ✅ Needed for SelectList
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-
-using IfsahApp.Core.Enums;
 using IfsahApp.Core.Models;
 using IfsahApp.Core.ViewModels;
 using IfsahApp.Hubs;
 using IfsahApp.Infrastructure.Data;
 using IfsahApp.Infrastructure.Services;
 using IfsahApp.Utils;
+using IfsahApp.Utils.Helpers; // ✅ Added to access NotificationHelper
+
 
 namespace IfsahApp.Web.Controllers
 {
@@ -94,66 +94,11 @@ namespace IfsahApp.Web.Controllers
                 _context.Disclosures.Add(disclosure);
                 await _context.SaveChangesAsync();
 
-                // -------------------------------
+
                 // Notifications
                 // -------------------------------
-                var recipients = await _context.Users
-                    .Where(u => u.IsActive && u.Role == Role.Admin)
-                    .Select(u => new { u.Id, u.Email, u.ADUserName })
-                    .ToListAsync();
+                await NotificationHelper.NotifyAdminsAsync(_context, _hub, disclosure, Url);
 
-                var notes = recipients.Select(r => new Notification
-                {
-                    RecipientId = r.Id,
-                    EventType   = "Disclosure",
-                    Message     = $"New disclosure {disclosure.DisclosureNumber} created",
-                    EmailAddress = r.Email,
-                    IsRead      = false,
-                    CreatedAt   = DateTime.UtcNow
-                }).ToList();
-
-                _context.Notifications.AddRange(notes);
-                await _context.SaveChangesAsync();
-
-                // push to id group
-                await Task.WhenAll(notes.Select(n =>
-                    _hub.Clients.Group($"user-{n.RecipientId}")
-                        .SendAsync("Notify", new
-                        {
-                            id = n.Id,
-                            eventType = n.EventType,
-                            message = n.Message,
-                            createdAt = n.CreatedAt.ToString("u"),
-                            url = Url.Action("Details", "Dashboard", new { id = disclosure.Id })
-                        })
-                ));
-
-                // also push to email and ADUserName groups
-                await Task.WhenAll(notes.Select(n =>
-                {
-                    var r = recipients.FirstOrDefault(x => x.Id == n.RecipientId);
-                    if (r == null) return Task.CompletedTask;
-
-                    var payload = new
-                    {
-                        id = n.Id,
-                        eventType = n.EventType,
-                        message = n.Message,
-                        createdAt = n.CreatedAt.ToString("u"),
-                        url = Url.Action("Details", "Dashboard", new { id = disclosure.Id })
-                    };
-
-                    var tasks = new List<Task>
-                    {
-                        _hub.Clients.Group($"user-{r.Id}").SendAsync("Notify", payload)
-                    };
-                    if (!string.IsNullOrWhiteSpace(r.Email))
-                        tasks.Add(_hub.Clients.Group($"user-{r.Email}").SendAsync("Notify", payload));
-                    if (!string.IsNullOrWhiteSpace(r.ADUserName))
-                        tasks.Add(_hub.Clients.Group($"user-{r.ADUserName}").SendAsync("Notify", payload));
-
-                    return Task.WhenAll(tasks);
-                }));
 
                 return RedirectToAction("SubmitDisclosure", new { reportNumber = disclosure.DisclosureNumber });
             }
@@ -166,7 +111,7 @@ namespace IfsahApp.Web.Controllers
                     .Select(dt => new
                     {
                         dt.Id,
-                        ArabicName  = dt.ArabicName  ?? dt.EnglishName, // safe fallback
+                        ArabicName = dt.ArabicName ?? dt.EnglishName, // safe fallback
                         EnglishName = dt.EnglishName ?? dt.ArabicName
                     })
                     .ToListAsync();

@@ -1,0 +1,79 @@
+@model IfsahApp.Core.ViewModels.Emails.DisclosureConfirmEmailViewModel
+@{
+    Layout = null;
+    var brandDark = "#0d3b66";
+    var brandBlue = "#0d6efd";
+    var brandAccent = "#f26522";
+    var muted = "#6c757d";
+}
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <title>تأكيد استلام البلاغ - @Model.ReportNumber</title>
+  <style>
+    @@media (max-width:600px){
+        .container{width:100%!important;}
+        .px{padding-right:16px!important;padding-left:16px!important;}
+    }
+  </style>
+</head>
+<body style="margin:0;background:#f4f6f8;font-family:Tahoma, Arial, sans-serif;">
+  <center style="width:100%;background:#f4f6f8;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td align="center" style="padding:32px 12px;">
+
+          <!-- البطاقة الرئيسية -->
+          <table role="presentation" class="container" width="640" cellpadding="0" cellspacing="0" border="0"
+                 style="width:640px;max-width:100%;background:#fff;border:1px solid #e9ecef;border-radius:14px;overflow:hidden;">
+
+            <!-- الهيدر -->
+            <tr>
+              <td style="background:@brandDark;padding:18px 28px;color:#fff;font-weight:700;font-size:18px;text-align:center;">
+                نظام إفصاح
+              </td>
+            </tr>
+
+            <!-- المحتوى -->
+            <tr>
+              <td class="px" style="padding:28px;color:#333;text-align:center;">
+                <h2 style="margin:0 0 12px;font-size:22px;">تم تفعيل الإشعارات لبلاغك</h2>
+                <p style="margin:0;font-size:15px;color:@muted;line-height:1.6;">
+                  شكرًا لتواصلك معنا. تم استلام طلب التفعيل بنجاح، وستخطَر بأي تحديثات تخص بلاغك.
+                </p>
+              </td>
+            </tr>
+
+            <!-- بطاقة بيانات البلاغ -->
+            <tr>
+              <td class="px" style="padding:0 28px 28px;">
+                <table role="presentation" width="100%" style="background:#f9fbfd;border:1px solid #e9ecef;border-radius:12px;">
+                  <tr>
+                    <td style="padding:18px;color:#333;font-size:15px;">
+                      <p style="margin:6px 0;color:@muted;">رقم البلاغ:</p>
+                      <p style="margin:0;font-weight:700;font-size:18px;color:@brandBlue;" dir="ltr">
+                        @Model.ReportNumber
+                      </p>
+                      <p style="margin:12px 0 4px;color:@muted;">تاريخ الاستلام:</p>
+                      <p style="margin:0;font-size:14px;">@Model.ReceivedDate</p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- الفوتر -->
+            <tr>
+              <td style="padding:20px 28px;color:@muted;font-size:12px;text-align:center;background:#fafbfc;border-top:1px solid #eef1f4;">
+                هذه رسالة آلية من نظام إفصاح. إذا لم تكن المعني بالبلاغ، يُرجى تجاهل الرسالة.
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </center>
+</body>
+</html>

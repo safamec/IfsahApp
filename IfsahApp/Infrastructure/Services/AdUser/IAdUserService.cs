@@ -11,5 +11,8 @@ public class AdUser
 public interface IAdUserService
 {
     Task<AdUser?> FindByWindowsIdentityAsync(string windowsIdentityName, CancellationToken ct = default);
+    
+    // NEW: مطلوب للـ AJAX search
+    Task<IReadOnlyList<AdUser>> SearchAsync(string query, int take = 8, CancellationToken ct = default);
 }
 

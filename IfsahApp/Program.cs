@@ -69,7 +69,9 @@ builder.Services.AddAuthorization(options =>
         .RequireAuthenticatedUser()
         .Build();
 });
-
+builder.Services.AddControllersWithViews();
+builder.Services.AddAntiforgery(o => o.HeaderName = "RequestVerificationToken"); // مهم
+builder.Services.AddScoped<ViewRenderService>();
 builder.Services.AddSignalR();
 
 // 7) Build app

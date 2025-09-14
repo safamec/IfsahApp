@@ -65,4 +65,9 @@ public sealed class LdapAdUserService : IAdUserService
             return null;
         }, ct);
     }
+
+    public Task<IReadOnlyList<AdUser>> SearchAsync(string query, int take = 8, CancellationToken ct = default)
+    {
+        throw new NotImplementedException();
+    }
 }

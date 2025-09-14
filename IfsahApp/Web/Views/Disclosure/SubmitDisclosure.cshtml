@@ -1,16 +1,26 @@
+@using Microsoft.AspNetCore.Antiforgery
+@inject IAntiforgery Antiforgery
 @{
     var reportNumber = (string?)ViewData["ReportNumber"] ?? "";
     ViewData["Title"] = "Thank You for Your Report";
+    var tokens = Antiforgery.GetAndStoreTokens(Context);
 }
 
 <link rel="stylesheet" href="~/css/thankyou.css" />
 
+<!-- CSRF token for JS -->
+<meta name="csrf-token" content="@tokens.RequestToken" />
+
+<style>
+  /* تأكد أن التوست يظهر بالأعلى */
+  .ty-toast{ top:24px; bottom:auto; }
+</style>
+
 <div class="ty-container" dir="rtl">
-    <h1 class="ty-title">!شكراً لتقديم البلاغ</h1>
+    <h1 class="ty-title">شكراً لتقديم البلاغ!</h1>
     <h2 class="ty-subtitle">تم استلام بلاغك وسيُتعامل معه بسرعة وبعناية</h2>
 
     <p class="ty-report">رقم البلاغ: <strong>@reportNumber</strong></p>
-
 
     <hr class="ty-sep" />
 
@@ -18,9 +28,9 @@
         <h3 class="ty-section-title">استلام إشعار بالبريد الإلكتروني عن حالة البلاغ</h3>
 
         <div class="ty-form">
-            <input id="notifyEmail" type="email" placeholder="أدخلي البريد الإلكتروني" inputmode="email" autocomplete="email" />
-            <button id="verifyBtn" class="ty-btn ty-btn-accent">تحقيق</button>
-
+            <input id="notifyEmail" type="email" placeholder="أدخلي البريد الإلكتروني"
+                   inputmode="email" autocomplete="email" />
+            <button id="verifyBtn" class="ty-btn ty-btn-accent" type="button">تحقيق</button>
             <div id="loader" class="ty-loader" aria-hidden="true"></div>
         </div>
 
@@ -31,6 +41,8 @@
 </div>
 
 <script>
-    window.REPORT_NO = "@reportNumber";
+  // تمرير البيانات للـ JS
+  window.REPORT_NO = "@reportNumber";
+  window.SUBSCRIBE_URL = "@Url.Action("SubscribeEmail", "Disclosure")";
 </script>
 <script src="~/js/report-subscribe.js"></script>

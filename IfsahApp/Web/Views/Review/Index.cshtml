@@ -4,30 +4,19 @@
     ViewBag.Title = "Review Dashboard";
 }
 
-<div class="container mt-4">
-    <h2>Review Dashboard</h2>
+<div class="container-custom">
+    <h2>Discloser Review Dashboard</h2>
 
-    <!-- Filter and page size form -->
-    <form method="get" class="form-inline mb-3">
-        <div class="form-group mr-2">
-            <label for="status" class="mr-2">Status</label>
-            <select id="status" name="status" class="form-control">
-                <option value="" selected="@(string.IsNullOrEmpty(ViewBag.SelectedStatus) ? "selected" : null)">All</option>
-                <option value="New" selected="@(ViewBag.SelectedStatus == "New" ? "selected" : null)">New</option>
-                <option value="In Review" selected="@(ViewBag.SelectedStatus == "In Review" ? "selected" : null)">In Review</option>
-                <option value="Assigned" selected="@(ViewBag.SelectedStatus == "Assigned" ? "selected" : null)">Assigned</option>
-                <option value="Completed" selected="@(ViewBag.SelectedStatus == "Completed" ? "selected" : null)">Completed</option>
-            </select>
+    <!-- Filter Box -->
+    <form method="get" class="filter-box">
+        <div class="form-group">
+            <label for="reference">Reference</label>
+            <input type="text" name="reference" class="filter-input" value="@ViewBag.SelectedReference" placeholder="Enter reference"/>
         </div>
 
-        <div class="form-group mr-2">
-            <label for="reference" class="mr-2">Reference</label>
-            <input type="text" name="reference" class="form-control" value="@ViewBag.SelectedReference" placeholder="Enter reference"/>
-        </div>
-
-        <div class="form-group mr-2">
-            <label for="pageSize" class="mr-2">Show</label>
-            <select name="pageSize" class="form-control">
+        <div class="form-group">
+            <label for="pageSize">Show</label>
+            <select name="pageSize" class="filter-input">
                 <option value="5" selected="@(ViewBag.PageSize == 5 ? "selected" : null)">5</option>
                 <option value="10" selected="@(ViewBag.PageSize == 10 ? "selected" : null)">10</option>
                 <option value="20" selected="@(ViewBag.PageSize == 20 ? "selected" : null)">20</option>
@@ -35,66 +24,70 @@
             </select>
         </div>
 
-        <button type="submit" class="btn btn-primary mr-2">Filter</button>
-        <a href="@Url.Action("Index","Review")" class="btn btn-danger">Clear</a>
+        <div class="button-group">
+            <button type="submit" class="filter-btn">Filter</button>
+            <a href="@Url.Action("Index","Review")" class="clear-btn">Clear</a>
+        </div>
     </form>
 
     <!-- Table -->
-    <table class="table table-dark table-hover">
-        <thead>
-            <tr>
-                <th>Action</th>
-                <th>Status</th>
-                <th>Location</th>
-                <th>Date</th>
-                <th>Type</th>
-                <th>Reference</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (Model == null || !Model.Any())
-            {
+    <div class="table-custom-responsive">
+        <table class="table-custom">
+            <thead>
                 <tr>
-                    <td colspan="6" class="text-center">No data available.</td>
+                    <th>Action</th>
+                    <th>Status</th>
+                    <th>Location</th>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Reference</th>
                 </tr>
-            }
-            else
-            {
-                foreach(var caseItem in Model)
+            </thead>
+            <tbody>
+                @if (Model == null || !Model.Any())
                 {
                     <tr>
-                        <td>
-                            <a href="@Url.Action("ReviewDisclosure","Review", new { reference = caseItem.Reference })" class="btn btn-success btn-sm">
-                                Review
-                            </a>
-                        </td>
-                        <td>@caseItem.Status</td>
-                        <td>@caseItem.Location</td>
-                        <td>@caseItem.Date.ToString("yyyy-MM-dd")</td>
-                        <td>@caseItem.Type</td>
-                        <td><code>@caseItem.Reference</code></td>
+                        <td colspan="6">No data available.</td>
                     </tr>
                 }
-            }
-        </tbody>
-    </table>
+                else
+                {
+                    foreach (var caseItem in Model)
+                    {
+                        <tr>
+                            <td>
+                                <a href="@Url.Action("ReviewDisclosure","Review", new { reference = caseItem.Reference })" class="table-btn table-btn-sm">
+                                    Review
+                                </a>
+                            </td>
+                            <td>@caseItem.Status</td>
+                            <td>@caseItem.Location</td>
+                            <td>@caseItem.Date.ToString("yyyy-MM-dd")</td>
+                            <td>@caseItem.Type</td>
+                            <td><code>@caseItem.Reference</code></td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
 
     <!-- Pagination -->
     <nav>
-        <ul class="pagination justify-content-center">
-            <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
-                <a class="page-link" href="@Url.Action("Index", new { status = ViewBag.SelectedStatus, reference = ViewBag.SelectedReference, page = ViewBag.CurrentPage - 1, pageSize = ViewBag.PageSize })">Previous</a>
+        <ul class="pagination-custom">
+            <li class="@(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                <a href="@Url.Action("Index", new { reference = ViewBag.SelectedReference, page = ViewBag.CurrentPage - 1, pageSize = ViewBag.PageSize })">Previous</a>
             </li>
 
-            @for(int i = 1; i <= ViewBag.TotalPages; i++)
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
             {
-                <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
-                    <a class="page-link" href="@Url.Action("Index", new { status = ViewBag.SelectedStatus, reference = ViewBag.SelectedReference, page = i, pageSize = ViewBag.PageSize })">@i</a>
+                <li class="@(ViewBag.CurrentPage == i ? "active" : "")">
+                    <a href="@Url.Action("Index", new { reference = ViewBag.SelectedReference, page = i, pageSize = ViewBag.PageSize })">@i</a>
                 </li>
             }
 
-            <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
-                <a class="page-link" href="@Url.Action("Index", new { status = ViewBag.SelectedStatus, reference = ViewBag.SelectedReference, page = ViewBag.CurrentPage + 1, pageSize = ViewBag.PageSize })">Next</a>
+            <li class="@(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                <a href="@Url.Action("Index", new { reference = ViewBag.SelectedReference, page = ViewBag.CurrentPage + 1, pageSize = ViewBag.PageSize })">Next</a>
             </li>
         </ul>
     </nav>

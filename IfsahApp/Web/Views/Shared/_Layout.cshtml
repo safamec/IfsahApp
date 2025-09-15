@@ -12,6 +12,11 @@
     <title>@SharedLocalizer["system_name"]</title>
 
     @await Html.PartialAsync("_ThemeStyles")
+     
+     <!--table style-->
+    <link rel="stylesheet" href="~/css/components/_tables.css" asp-append-version="true" />
+
+
 
     @RenderSection("Styles", required: false)
 </head>

@@ -15,29 +15,41 @@ public class DashboardController(ApplicationDbContext context) : Controller
 {
     private readonly ApplicationDbContext _context = context;
 
-        // GET: Dashboard
-        public async Task<IActionResult> Index(
-            string status = "All",
-            string user = "",
-            string reference = "",
-            int page = 1,
-            int pageSize = 5)
-        {
-            var query = _context.Disclosures
-                .Include(d => d.DisclosureType)
-                .Include(d => d.AssignedToUser)
-                .Include(d => d.SubmittedBy)
-                .AsQueryable();
+    // GET: Dashboard
+    public async Task<IActionResult> Index(
+        string status = "All",
+        string user = "",
+        string reference = "",
+        int page = 1,
+        int pageSize = 5)
+    {
+        // Set ViewBags for filter and pagination
+        ViewBag.PageSize = pageSize;
+        ViewBag.CurrentPage = page;
+        ViewBag.SelectedReference = reference;
+        ViewBag.SelectedStatus = status;
 
+        // Base query
+        var query = _context.Disclosures
+            .Include(d => d.DisclosureType)
+            .Include(d => d.AssignedToUser)
+            .Include(d => d.SubmittedBy)
+            .AsQueryable();
+
+        // Filter by status
         if (!string.Equals(status, "All", StringComparison.OrdinalIgnoreCase) &&
             Enum.TryParse<DisclosureStatus>(status, true, out var enumStatus))
         {
             query = query.Where(d => d.Status == enumStatus);
         }
 
+        // Filter by reference
+        if (!string.IsNullOrWhiteSpace(reference))
+        {
+            query = query.Where(d => d.DisclosureNumber.Contains(reference));
+        }
 
-
-        // Materialize first to avoid EF translating CultureInfo/DisplayName
+        // Materialize data
         var raw = await query
             .OrderByDescending(d => d.SubmittedAt)
             .Select(d => new
@@ -53,9 +65,8 @@ public class DashboardController(ApplicationDbContext context) : Controller
             })
             .AsNoTracking()
             .ToListAsync();
-        // Map to ViewModel (nullable-safe)
 
-
+        // Map to ViewModel
         var useArabic = CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "ar";
         var model = raw.Select(d => new DisclosureDashboardViewModel
         {
@@ -68,6 +79,13 @@ public class DashboardController(ApplicationDbContext context) : Controller
             Description = d.Description ?? string.Empty
         }).ToList();
 
+        // Calculate total pages for pagination
+        ViewBag.TotalPages = (int)Math.Ceiling((double)model.Count / pageSize);
+
+        // Apply pagination
+        model = model.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+        // Prepare status dropdown
         var statusList = Enum.GetValues<DisclosureStatus>()
             .Select(s => new SelectListItem
             {
@@ -76,8 +94,6 @@ public class DashboardController(ApplicationDbContext context) : Controller
                 Selected = s.ToString().Equals(status, StringComparison.OrdinalIgnoreCase)
             })
             .ToList();
-        // Build status filter dropdown
-
 
         statusList.Insert(0, new SelectListItem
         {
@@ -85,17 +101,11 @@ public class DashboardController(ApplicationDbContext context) : Controller
             Value = "All",
             Selected = status.Equals("All", StringComparison.OrdinalIgnoreCase)
         });
-        statusList.Insert(0, new SelectListItem
-        {
-            Text = "All",
-            Value = "All",
-            Selected = status == "All"
-        });
 
         ViewBag.StatusList = statusList;
+
         return View(model);
     }
-
 
     // GET: Dashboard/Details/5
     public async Task<IActionResult> Details(int id)
@@ -108,46 +118,35 @@ public class DashboardController(ApplicationDbContext context) : Controller
             .FirstOrDefaultAsync(d => d.Id == id);
 
         if (disclosure == null) return NotFound();
-        if (disclosure == null)
-            return NotFound();
 
         ViewBag.Disclosers = await _context.Users
             .Where(u => u.IsActive && u.Role == Role.Examiner)
             .AsNoTracking()
             .ToListAsync();
-        // List of active disclosers for assignment dropdown
-        ViewBag.Disclosers = await _context.Users
-            .Where(u => u.IsActive && u.Role == Role.Examiner)
-            .ToListAsync();
 
-            return View(disclosure);
-        }
+        return View(disclosure);
+    }
 
     // POST: Dashboard/AddComment
     [HttpPost]
     [ValidateAntiForgeryToken]
-
-
     public async Task<IActionResult> AddComment(int disclosureId, string commentText, int? assignToDiscloserId)
     {
         if (string.IsNullOrWhiteSpace(commentText))
             return RedirectToAction(nameof(Details), new { id = disclosureId });
 
-
-        // 1️⃣ Get the logged-in AD username
+        // Get logged-in AD username
         var adUserName = User.Identity?.Name?.Split('\\').Last();
+        if (string.IsNullOrEmpty(adUserName))
+            return RedirectToAction("AccessDenied", "Account");
 
-            if (string.IsNullOrEmpty(adUserName))
-                return RedirectToAction("AccessDenied", "Account"); // safety check
-
-
-        // 2️⃣ Look up the user in the DB
+        // Find user in DB
         var currentUser = await _context.Users
             .FirstOrDefaultAsync(u => u.ADUserName.ToLower() == adUserName.ToLower());
+        if (currentUser == null)
+            return RedirectToAction("AccessDenied", "Account");
 
-            if (currentUser == null)
-                return RedirectToAction("AccessDenied", "Account");
-
+        // Add comment
         _context.Comments.Add(new Comment
         {
             DisclosureId = disclosureId,
@@ -155,24 +154,8 @@ public class DashboardController(ApplicationDbContext context) : Controller
             AuthorId = currentUser.Id,
             CreatedAt = DateTime.UtcNow
         });
-        // 3️⃣ Create the comment
-        var comment = new Comment
-        {
-            DisclosureId = disclosureId,
-            Text = commentText,
-            AuthorId = currentUser.Id,
-            CreatedAt = DateTime.UtcNow
-        };
 
-            _context.Comments.Add(comment);
-
-        if (assignToDiscloserId.HasValue)
-        {
-            var disclosure = await _context.Disclosures.FindAsync(disclosureId);
-            if (disclosure != null)
-                disclosure.AssignedToUserId = assignToDiscloserId.Value;
-        }
-        // 4️⃣ Assign disclosure to discloser if selected
+        // Assign disclosure if needed
         if (assignToDiscloserId.HasValue)
         {
             var disclosure = await _context.Disclosures.FindAsync(disclosureId);
@@ -186,4 +169,3 @@ public class DashboardController(ApplicationDbContext context) : Controller
         return RedirectToAction(nameof(Details), new { id = disclosureId });
     }
 }
-

@@ -1,224 +1,132 @@
+@using IfsahApp.Core.ViewModels
 @model IEnumerable<DisclosureDashboardViewModel>
-@using IfsahApp.Core.Enums
+
 @inject IfsahApp.Infrastructure.Services.IEnumLocalizer EnumLocalizer
-@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
-@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 
 @{
-    var csrf = Antiforgery.GetAndStoreTokens(Context).RequestToken;
+    ViewBag.Title = "Review Dashboard";
+    var sizes = new int[] { 5, 10, 20, 50 };
 }
 
-<div class="dashboard-container container-fluid pt-4">
-    <h2 class="text-center mb-4">@Localizer["DashboardTitle"]</h2>
+<div class="container-custom">
+    <h2>Review Admin Dashboard</h2>
 
-    <!-- Notifications Bell -->
-    <div class="d-flex justify-content-end mb-3 position-relative align-items-center gap-2">
-        <!-- (optional) connection status dot -->
-        <span id="notifStatus" class="d-inline-block rounded-circle bg-secondary"
-              title="Offline" style="width:10px;height:10px"></span>
-
-        <div id="notifPanel" class="card shadow position-absolute"
-             style="right:0; top:48px; width:340px; display:none; z-index:1080;">
-            <div class="card-header d-flex justify-content-between align-items-center py-2">
-                <strong>@Localizer["Notifications"]</strong>
-                <div class="d-flex gap-2">
-                    <form method="post" action="/Notifications/MarkAllAsRead" class="m-0 p-0">
-                        <input type="hidden" name="__RequestVerificationToken" value="@csrf" />
-                        <button type="submit" class="btn btn-sm btn-outline-secondary">@Localizer["MarkAll"]</button>
-                    </form>
-                    <a href="/Notifications" class="btn btn-sm btn-outline-primary">@Localizer["ViewAll"]</a>
-                </div>
-            </div>
-            <ul id="notifList" class="list-group list-group-flush" style="max-height:320px; overflow:auto;">
-                <li class="list-group-item text-muted small">@Localizer["NoNotifications"]</li>
-            </ul>
-        </div>
-    </div>
-
-    <!-- Filter Dropdown -->
-     <select class="form-select w-auto mb-3" id="statusSelect" onchange="applyFilters()">
-        @foreach (var item in (IEnumerable<SelectListItem>)ViewBag.StatusList)
+    <!-- Filter Box -->
+    <form method="get" class="filter-box">
+        <!-- Status Filter -->
+        <div class="form-group">
+    <label for="status">Status</label>
+    <select name="status" id="status" class="filter-input">
+    @foreach (var item in ViewBag.StatusList as List<SelectListItem>)
+    {
+        if (item.Selected)
         {
-            <option value="@item.Value" selected="@(item.Selected ? "selected" : null)">
-                @item.Text
-            </option>
+            <option value="@item.Value" selected>@item.Text</option>
         }
-    </select>
-
-        
-        <div class="col-auto">
-            <button type="submit" class="btn btn-primary">Filter</button>
-            <a href="@Url.Action("Index", "Dashboard")" class="btn btn-secondary">Clear</a>
-        </div>
-    
-
-    <!-- Table -->
-    <table class="table table-bordered table-hover text-center align-middle">
-        <thead class="table-secondary">
-            <tr>
-                <th>Actions</th>
-                <th>Status</th>
-                <th>Location</th>
-                <th>Date</th>
-                <th>Type</th>
-                <th>Reference</th>
-                <th>User</th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach (var item in Model)
+        else
         {
-            var badgeClass = item.Status switch
-            {
-                DisclosureStatus.New => "bg-warning text-dark",
-                DisclosureStatus.Assigned => "bg-info text-dark",
-                DisclosureStatus.InReview => "bg-primary text-white",
-                DisclosureStatus.Completed => "bg-success",
-                _ => "bg-secondary"
-            };
-
-            <tr>
-                <td>
-                    <a asp-action="Details" asp-controller="Dashboard" asp-route-id="@item.Id" class="btn btn-sm btn-primary">
-                        @Localizer["ActionView"]
-                    </a>
-                </td>
-                <td><span class="badge @badgeClass">@EnumLocalizer.LocalizeEnum(item.Status)</span></td>
-                <td>@item.Location</td>
-                <td>@item.Date.ToString("yyyy-MM-dd")</td>
-                <td>@item.Type</td>
-                <td>@item.Reference</td>
-            </tr>
+            <option value="@item.Value">@item.Text</option>
         }
-        </tbody>
-    </table>
+    }
+</select>
 
-    <div class="mb-4">
-        <canvas id="statusPieChart" style="max-width: 400px; margin: auto;"></canvas>
-    </div>
-    <div class="mb-4" id="locationBarChart" style="max-width: 600px; margin: auto;"></div>
 </div>
 
-<!-- Toast container -->
-<div id="toastBox" class="position-fixed top-0 end-0 p-3" style="z-index:1080"></div>
 
-<!-- CSRF for JS -->
-<script>
-  window.NOTIF_OPTS = {
-    csrfHeaderName: 'RequestVerificationToken',
-    csrfToken: '@csrf'
-  };
-</script>
+        <!-- Reference Filter -->
+        <div class="form-group">
+            <label for="reference">Reference</label>
+            <input type="text" name="reference" id="reference" class="filter-input"
+                   value="@ViewBag.SelectedReference" placeholder="Enter reference">
+        </div>
 
-@section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-
-    <!-- Use ONE SignalR client include -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.12/signalr.min.js"></script>
-
-    <!-- REMOVE the incompatible site-wide script on this page -->
-    <!-- <script src="~/js/notifications.js"></script> -->
-
-    <script>
-        function applyFilters() {
-            const status = document.getElementById('statusSelect').value;
-            const url = new URL(window.location.href);
-            url.searchParams.set("status", status);
-            window.location.href = url;
+        <!-- Page Size Filter -->
+        <div class="form-group">
+    <label for="pageSize">Show</label>
+    <select name="pageSize" id="pageSize" class="filter-input">
+        @foreach (var size in new int[] { 5, 10, 20, 50 })
+        {
+            if (ViewBag.PageSize == size)
+            {
+                <option value="@size" selected>@size</option>
+            }
+            else
+            {
+                <option value="@size">@size</option>
+            }
         }
+    </select>
+</div>
 
-        // ---- Notifications (inline) ----
-        (function () {
-            const toastBox = document.getElementById('toastBox');
-            const notifBtn = document.getElementById('notifBtn');
-            const notifPanel = document.getElementById('notifPanel');
-            const notifBadge = document.getElementById('notifBadge');
-            const notifList = document.getElementById('notifList');
-            const statusDot = document.getElementById('notifStatus');
 
-            function setStatus(connected){
-                if(!statusDot) return;
-                statusDot.classList.toggle('bg-success', connected);
-                statusDot.classList.toggle('bg-secondary', !connected);
-                statusDot.title = connected ? 'Connected' : 'Offline';
-            }
+        <!-- Filter Buttons -->
+        <div class="button-group">
+            <button type="submit" class="filter-btn">Filter</button>
+            <a href="@Url.Action("Index", "Dashboard")" class="clear-btn">Clear</a>
+        </div>
+    </form>
 
-            function showPanel(show) { notifPanel.style.display = show ? 'block' : 'none'; }
-            notifBtn?.addEventListener('click', () => showPanel(notifPanel.style.display !== 'block'));
-            document.addEventListener('click', (e) => {
-                if (!notifPanel.contains(e.target) && !notifBtn.contains(e.target)) showPanel(false);
-            });
-
-            function setBadge(n) {
-                if (n > 0) { notifBadge.textContent = n; notifBadge.classList.remove('d-none'); }
-                else { notifBadge.textContent = '0'; notifBadge.classList.add('d-none'); }
-            }
-
-            function prependItem(p) {
-                if (notifList.firstElementChild?.classList.contains('text-muted')) notifList.innerHTML = '';
-                const li = document.createElement('li');
-                li.className = 'list-group-item small';
-                li.innerHTML = `<div class="fw-bold">${(p.eventType||'Notification')}</div>
-                                <div>${(p.message||'')}</div>
-                                ${p.createdAt?`<div class="text-muted">${p.createdAt}</div>`:''}
-                                ${p.url?`<div><a href="${p.url}">Open</a></div>`:''}`;
-                notifList.prepend(li);
-            }
-
-            async function refreshUnread() {
-                try {
-                    const res = await fetch('/Notifications/Unread', { headers: { 'Accept': 'application/json' }});
-                    if (!res.ok) return;
-                    const arr = await res.json();
-                    setBadge(arr.length);
-                    notifList.innerHTML = '';
-                    if (arr.length === 0) {
-                        notifList.innerHTML = '<li class="list-group-item text-muted small">NoNotifications</li>';
-                    } else {
-                        arr.forEach(prependItem);
+    <!-- Table -->
+    <div class="table-custom-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>Action</th>
+                    <th>Status</th>
+                    <th>Location</th>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Reference</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model == null || !Model.Any())
+                {
+                    <tr>
+                        <td colspan="6">No data available.</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach(var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <a href="@Url.Action("ReviewDisclosure","Review", new { reference = item.Reference })"
+                                   class="table-btn table-btn-sm">Review</a>
+                            </td>
+                            <td>@item.Status</td>
+                            <td>@item.Location</td>
+                            <td>@item.Date.ToString("yyyy-MM-dd")</td>
+                            <td>@item.Type</td>
+                            <td>@item.Reference</td>
+                        </tr>
                     }
-                } catch {}
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <nav>
+        <ul class="pagination-custom">
+            <!-- Previous button -->
+            <li class="@(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                <a href="@Url.Action("Index", new { status = (ViewBag.StatusList as List<SelectListItem>).FirstOrDefault(i => i.Selected)?.Value ?? "All", reference = ViewBag.SelectedReference, page = ViewBag.CurrentPage - 1, pageSize = ViewBag.PageSize })">Previous</a>
+            </li>
+
+            <!-- Page numbers -->
+            @for(int i = 1; i <= ViewBag.TotalPages; i++)
+            {
+                <li class="@(ViewBag.CurrentPage == i ? "active" : "")">
+                    <a href="@Url.Action("Index", new { status = (ViewBag.StatusList as List<SelectListItem>).FirstOrDefault(s => s.Selected)?.Value ?? "All", reference = ViewBag.SelectedReference, page = i, pageSize = ViewBag.PageSize })">@i</a>
+                </li>
             }
 
-            function showToast(title, message, url) {
-                const el = document.createElement('div');
-                el.className = 'toast show';
-                el.innerHTML = `<div class="toast-header">
-                                  <strong class="me-auto">${title||'Notification'}</strong>
-                                  <small>now</small>
-                                  <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
-                                </div>
-                                <div class="toast-body">${message||''} ${url?`<a href="${url}">Open</a>`:''}</div>`;
-                toastBox.appendChild(el);
-                setTimeout(()=>el.remove(), 6000);
-            }
-
-            // SignalR
-            const connection = new signalR.HubConnectionBuilder()
-                .withUrl("/hubs/notifications")
-                .withAutomaticReconnect()
-                .build();
-
-            connection.onreconnected(()=>setStatus(true));
-            connection.onreconnecting(()=>setStatus(false));
-            connection.onclose(()=>setStatus(false));
-
-            connection.on("Notify", payload => {
-                showToast(payload.eventType, payload.message, payload.url);
-                prependItem(payload);
-                const cur = parseInt(notifBadge.textContent||'0',10)||0;
-                setBadge(cur + 1);
-            });
-
-            connection.start().then(()=>setStatus(true)).catch(err=>{
-                console.error('SignalR start failed:', err);
-                setStatus(false);
-            });
-
-            // initial load
-            refreshUnread();
-            setInterval(refreshUnread, 20000);
-        })();
-    </script>
-}
+            <!-- Next button -->
+            <li class="@(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                <a href="@Url.Action("Index", new { status = (ViewBag.StatusList as List<SelectListItem>).FirstOrDefault(i => i.Selected)?.Value ?? "All", reference = ViewBag.SelectedReference, page = ViewBag.CurrentPage + 1, pageSize = ViewBag.PageSize })">Next</a>
+            </li>
+        </ul>
+    </nav>
+</div>

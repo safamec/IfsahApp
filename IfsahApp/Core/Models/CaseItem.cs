@@ -1,11 +1,15 @@
-namespace IfsahApp.Core.Models;
+using IfsahApp.Core.Enums;
 
-public class CaseItem
+namespace IfsahApp.Core.Models
 {
-    public string Type { get; set; } = string.Empty;
-    public string Reference { get; set; } = string.Empty;
+    public class CaseItem
+{
+    public string Type { get; set; } = "";
+    public string Reference { get; set; } = "";
     public DateTime Date { get; set; }
-    public string Location { get; set; } = string.Empty;
-    public string Status { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
+    public string Location { get; set; } = "";
+    public string Status { get; set; } = ""; // <- string, not enum
+    public string Description { get; set; } = "";
+}
+
 }

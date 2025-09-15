@@ -1,0 +1,207 @@
+/* ================================
+   BUTTONS & PAGINATION - FORCE STYLE
+   ================================ */
+
+/* Default buttons and pagination */
+.filter-btn,
+.clear-btn,
+.table-btn,
+.pagination-custom li a {
+    display: inline-block;
+    background-color: #0269d7ff;      /* blue */
+    color: #fff;                       /* white text */
+    border: 1px solid #0269d7ff;      /* blue border */
+    border-radius: 0px;                /* sharp corners */
+    padding: 0.45rem 0.9rem;
+    font-size: 0.95rem;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.filter-btn:hover,
+.clear-btn:hover,
+.table-btn:hover,
+.pagination-custom li a:hover {
+    background-color: #0150a4ff;      /* dark blue on hover */
+    border-color: #0150a4ff;
+}
+
+/* Small buttons inside table rows */
+.table-btn-sm {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.85rem;
+}
+
+/* Pagination container */
+.pagination-custom {
+    display: flex;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 1rem;
+    list-style: none;
+    padding: 0;
+}
+
+/* Pagination items */
+.pagination-custom li {
+    display: inline-block;
+}
+
+/* Active and Disabled states */
+.pagination-custom li.active a {
+    background-color: #0269d7ff;
+    color: #fff;
+    border-color: #0269d7ff;
+}
+
+.pagination-custom li.disabled a {
+    background-color: #ccc;
+    color: #666;
+    border-color: #ccc;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* ================================
+   TABLE STYLING
+   ================================ */
+.table-custom-responsive {
+    overflow-x: auto;
+}
+
+.table-custom {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1rem; /* slightly larger text */
+}
+
+.table-custom th,
+.table-custom td {
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #dee2e6;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Table header */
+.table-custom thead {
+    background-color: var(--card-bg, #f8f9fa);
+    color: var(--text-color, #212529);
+}
+
+/* Table rows hover */
+.table-custom tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+/* ================================
+   FILTER BOX
+   ================================ */
+.filter-box {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 0;
+    background-color: #fff;
+}
+
+.filter-box .form-group {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+
+.filter-box label {
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.filter-input {
+    padding: 0.45rem 0.6rem;
+    font-size: 0.95rem;
+    width: 180px;
+    border: 1px solid #ced4da;
+    border-radius: 0;
+}
+
+/* Buttons inside filter box */
+.button-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Adjust spacing between "Show" and Filter button */
+.filter-box .show-select {
+    margin-right: 1rem;
+}
+
+/* ================================
+   DARK MODE TABLES, FILTER, BUTTONS & PAGINATION
+   ================================ */
+
+/* Table dark mode */
+[data-theme="dark"] .table-custom thead {
+    background-color: #767e85ff;
+    color: #fff;
+}
+
+[data-theme="dark"] .table-custom tbody tr {
+    background-color: #4a5158ff;
+    color: #fff;
+}
+
+[data-theme="dark"] .table-custom tbody tr:hover {
+    background-color: #495057;
+}
+
+/* Filter box dark mode */
+[data-theme="dark"] .filter-box {
+    background-color: #798086ff;
+    border: 1px solid #fff;
+}
+
+[data-theme="dark"] .filter-input {
+    background-color: #495057;
+    color: #fff;
+    border: 1px solid #fff;
+}
+
+/* Buttons dark mode */
+[data-theme="dark"] .filter-btn,
+[data-theme="dark"] .clear-btn,
+[data-theme="dark"] .table-btn,
+[data-theme="dark"] .pagination-custom li a {
+    background-color: #1d2024ff;      /* keep blue even in dark mode */
+    color: #fff;
+    border: 1px solid #1d2024ff;
+}
+
+[data-theme="dark"] .filter-btn:hover,
+[data-theme="dark"] .clear-btn:hover,
+[data-theme="dark"] .table-btn:hover,
+[data-theme="dark"] .pagination-custom li a:hover {
+    background-color: #62666bff;      /* dark blue on hover */
+    border-color: #62666bff;
+}
+
+/* ================================
+   GENERAL LAYOUT
+   ================================ */
+.container-custom {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* Headings */
+.container-custom h2 {
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}

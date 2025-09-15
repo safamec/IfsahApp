@@ -35,7 +35,9 @@
     --footer-border: #e1dfdd;
 
     /* Typography */
-    --bs-body-font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --bs-body-font-family-ar:'HelveticaArabic', sans-serif;
+    --bs-body-font-family-en: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --bs-body-font-family:var(--bs-body-font-family-ar);
     --bs-body-font-size: 1rem;
     --bs-body-font-weight: 400;
     --bs-body-line-height: 1.5;

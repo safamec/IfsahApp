@@ -2,6 +2,7 @@
 @import "base/_variables.css";
 @import "base/_typography.css";
 @import "base/_globals.css";
+@import "fonts.css";
 
 @import "components/_cards.css";
 @import "components/_header.css";

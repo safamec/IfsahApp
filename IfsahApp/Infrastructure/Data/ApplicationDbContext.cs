@@ -31,6 +31,8 @@ public class ApplicationDbContext : DbContext
     // Notification System
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<UserNotificationPreference> UserNotificationPreferences { get; set; }
+// IfsahApp.Infrastructure/Data/ApplicationDbContext.cs
+public DbSet<EmailVerification> EmailVerifications { get; set; } = null!;
 
     // Logs
     public DbSet<AuditLog> AuditLogs { get; set; }

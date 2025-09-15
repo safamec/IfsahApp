@@ -21,7 +21,7 @@ public static class DbSeeder
                     Id = 1,
                     ADUserName = "ahmed.wahaibi",
                     FullName = "Ahmed Al Wahaibi",
-                    Email = "ahmed@example.com",
+                    Email = "Ahmed@example.com",
                     Department = "Development",
                     Role = Role.Admin,
                     IsActive = true

@@ -30,5 +30,8 @@ namespace IfsahApp.Core.Models
 
         // Disclosures assigned to this user
         public ICollection<Disclosure> AssignedDisclosures { get; set; } = new List<Disclosure>();
+        // ✅ New props
+    public bool IsEmailConfirmed { get; set; } = false;
+    public DateTime? EmailConfirmedAt { get; set; }
     }
 }

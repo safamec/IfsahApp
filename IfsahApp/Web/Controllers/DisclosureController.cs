@@ -7,18 +7,19 @@ using IfsahApp.Core.Models;
 using IfsahApp.Core.ViewModels;
 using IfsahApp.Hubs;
 using IfsahApp.Infrastructure.Data;
-using IfsahApp.Infrastructure.Services;            // ViewRenderService
-using IfsahApp.Infrastructure.Services.Email;      // IEmailService
+using IfsahApp.Infrastructure.Services;            
+using IfsahApp.Infrastructure.Services.Email;      
 using IfsahApp.Utils;
 using IfsahApp.Utils.Helpers;
 using IfsahApp.Core.Enums;
-using IfsahApp.Core.Dtos;                          // SubscribeEmailDto
-using IfsahApp.Core.ViewModels.Emails;             // DisclosureConfirmEmailViewModel
-using Microsoft.AspNetCore.Authorization;
+using IfsahApp.Core.Dtos;                          
+using IfsahApp.Core.ViewModels.Emails;             
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IfsahApp.Web.Controllers
 {
+    [AllowAnonymous] // ← This allows anonymous access to all actions
     public class DisclosureController : Controller
     {
         private readonly ApplicationDbContext _context;

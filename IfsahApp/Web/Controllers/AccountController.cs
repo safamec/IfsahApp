@@ -159,6 +159,10 @@ public class AccountController : Controller
             return View("EmailNotConfirmed", new { Email = user.Email, UserId = user.Id });
         }
 
+
+        
+        //TO DO LOGINNNNNNN
+
         // Claims + sign-in (explicit cookie scheme)
         var claims = new List<Claim>
         {

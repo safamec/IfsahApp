@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IfsahApp.Web.Controllers;
 
-[Authorize]
+[AllowAnonymous]  // <-- Added this
 public class HomeController(ILogger<HomeController> logger) : Controller
 {
     private readonly ILogger<HomeController> _logger = logger;

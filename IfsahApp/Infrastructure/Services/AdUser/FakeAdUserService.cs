@@ -17,9 +17,9 @@ namespace IfsahApp.Infrastructure.Services.AdUser
         [
             new AdUser
             {
-                SamAccountName = "ahmed.wahaibi",
+                SamAccountName = "Admin",
                 DisplayName = "Ahmed Al Wahaibi",
-                Email = "ahmed@example.com",
+                Email = "mgk390@gmail.com",
                 Department = "Admin"
             },
             new AdUser

@@ -18,20 +18,21 @@ public static class DbSeeder
             context.Users.AddRange(
                 new User
                 {
-                    Id = 1,
-                    ADUserName = "ahmed.wahaibi",
-                    FullName = "Ahmed Al Wahaibi",
-                    Email = "Ahmed@example.com",
-                    Department = "Development",
-                    Role = Role.Admin,
-                    IsActive = true
+                     Id = 1,
+            ADUserName = "Admin",                // SamAccountName أو أي اسم AD عندك
+            FullName = "Main Administrator",
+            Email = "mgk390@gmail.com",
+            Department = "Management",
+            Role = Role.Admin,
+            IsActive = true,
+            IsEmailConfirmed = false
                 },
                 new User
                 {
                     Id = 2,
                     ADUserName = "fatima.harthy",
                     FullName = "Fatima Al Harthy",
-                    Email = "fatima@example.com",
+                    Email = "safaa3568@gmail.com",
                     Department = "Audit",
                     Role = Role.Examiner,
                     IsActive = true
@@ -41,7 +42,7 @@ public static class DbSeeder
                     Id = 3,
                     ADUserName = "mohammed.said",
                     FullName = "Mohammed Al Said",
-                    Email = "mohammed@example.com",
+                    Email = "safaa3568@gmail.com",
                     Department = "Finance",
                     Role = Role.User,
                     IsActive = true

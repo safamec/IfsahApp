@@ -1,0 +1,31 @@
+@model dynamic
+@{
+    Layout = "_Layout"; // أو null لو تبغينها صفحة مستقلة
+}
+
+<div class="container mt-5" style="max-width:600px;">
+    <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+            <h4 class="text-danger mb-3">
+                <i class="bi bi-envelope-exclamation"></i> الحساب غير مفعل بالبريد الإلكتروني
+            </h4>
+
+            <p class="mb-2">
+                لقد أرسلنا رابط تأكيد إلى:
+                <strong class="text-primary">@Model.Email</strong>
+            </p>
+
+            <p class="text-muted mb-4">
+                إذا لم يصلك خلال دقائق، اضغط على الزر أدناه لإعادة الإرسال:
+            </p>
+
+            <form method="post" asp-action="ResendConfirmation" asp-controller="Account">
+                @Html.AntiForgeryToken()   <!-- مهم جداً -->
+                <input type="hidden" name="uid" value="@Model.UserId" />
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-arrow-repeat"></i> إعادة إرسال رابط التأكيد
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

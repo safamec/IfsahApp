@@ -1,0 +1,35 @@
+@model dynamic
+@{
+    Layout = "_Layout"; // أو null لو تبغينها صفحة مستقلة
+    bool already = Model.Already != null && Model.Already == true;
+}
+
+<div class="container mt-5" style="max-width:600px;">
+    <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+            @if (already)
+            {
+                <h4 class="text-info mb-3">
+                    <i class="bi bi-check-circle"></i> بريدك الإلكتروني مؤكد مسبقًا
+                </h4>
+                <p>يمكنك تسجيل الدخول مباشرة باستخدام حسابك.</p>
+                <a href="/Account/Login" class="btn btn-primary mt-3">
+                    الذهاب لتسجيل الدخول
+                </a>
+            }
+            else
+            {
+                <h4 class="text-success mb-3">
+                    <i class="bi bi-envelope-check"></i> تم إرسال رابط التأكيد
+                </h4>
+                <p>
+                    لقد أرسلنا رابط تأكيد جديد إلى بريدك:
+                    <strong class="text-primary">@Model.Email</strong>
+                </p>
+                <a href="/Account/Login" class="btn btn-primary mt-3">
+                    العودة لتسجيل الدخول
+                </a>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,29 @@
+@model IfsahApp.Core.ViewModels.Account.ConfirmEmailResultVm
+@{
+    Layout = "_Layout"; // أو null لو تبغيها صفحة مستقلة
+}
+
+<div class="container mt-5" style="max-width:600px;">
+    <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+            @if (Model.Success)
+            {
+                <h4 class="text-success mb-3">
+                    <i class="bi bi-check-circle-fill"></i> @Model.Title
+                </h4>
+            }
+            else
+            {
+                <h4 class="text-danger mb-3">
+                    <i class="bi bi-x-circle-fill"></i> @Model.Title
+                </h4>
+            }
+
+            <p class="mb-3">@Model.Message</p>
+
+            <a href="/Account/Login" class="btn btn-primary">
+                <i class="bi bi-box-arrow-in-right"></i> العودة لتسجيل الدخول
+            </a>
+        </div>
+    </div>
+</div>

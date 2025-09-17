@@ -1,0 +1,190 @@
+@model IfsahApp.Core.ViewModels.DisclosureFormViewModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["Related People"];
+    ViewData["Step"] = 3;
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Attachments" method="post" id="relatedForm">
+    <div class="mb-3">
+        <label class="form-label fw-bold">@Localizer["Related People"]</label>
+
+        <!-- Add button -->
+        <div>
+            <button type="button" class="btn btn-outline-primary btn-sm mt-2"
+                    data-list="related-people-list"
+                    onclick="openRelatedModal(this)">
+                @Localizer["Add Related Person"]
+            </button>
+        </div>
+
+        <!-- Table -->
+        <div class="mt-3">
+            <table class="table table-bordered" id="related-people-table">
+                <thead>
+                    <tr>
+                        <th>@Localizer["Name"]</th>
+                        <th>@Localizer["Email"]</th>
+                        <th>@Localizer["Phone"]</th>
+                        <th>@Localizer["Organization"]</th>
+                        <th style="width: 40px;"></th>
+                    </tr>
+                </thead>
+                <tbody id="related-people-list">
+                    @if (Model.RelatedPersons != null)
+                    {
+                        for (int i = 0; i < Model.RelatedPersons.Count; i++)
+                        {
+                            <tr>
+                                <td>
+                                    @Model.RelatedPersons[i].Name
+                                    <input type="hidden" name="RelatedPersons[@i].Name" value="@Model.RelatedPersons[i].Name" />
+                                </td>
+                                <td>
+                                    @Model.RelatedPersons[i].Email
+                                    <input type="hidden" name="RelatedPersons[@i].Email" value="@Model.RelatedPersons[i].Email" />
+                                </td>
+                                <td>
+                                    @Model.RelatedPersons[i].Phone
+                                    <input type="hidden" name="RelatedPersons[@i].Phone" value="@Model.RelatedPersons[i].Phone" />
+                                </td>
+                                <td>
+                                    @Model.RelatedPersons[i].Organization
+                                    <input type="hidden" name="RelatedPersons[@i].Organization" value="@Model.RelatedPersons[i].Organization" />
+                                </td>
+                                <td class="text-center">
+                                    <span style="cursor: pointer; color: red; font-weight: bold;" onclick="deleteRelatedRow(this)">&#10006;</span>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+<div class="d-flex justify-content-between mt-3">
+    <button type="button" class="btn btn-secondary" onclick="history.back()">
+        @Localizer["Back"]
+    </button>
+<a asp-action="ReviewForm" class="btn btn-primary mt-2">
+    @Localizer["Next"]
+</a></div>
+</form>
+
+<!-- Modal -->
+<div class="modal fade" id="relatedModal" tabindex="-1" aria-labelledby="relatedModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form id="relatedFormModal" onsubmit="saveRelatedPerson(event)">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Localizer["Add Related Person"]</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="targetRelatedListId" />
+                    <div class="mb-3">
+                        <label for="relatedName" class="form-label">@Localizer["Name"]</label>
+                        <input type="text" id="relatedName" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="relatedEmail" class="form-label">@Localizer["Email"]</label>
+                        <input type="email" id="relatedEmail" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="relatedPhone" class="form-label">@Localizer["Phone"]</label>
+                        <input type="text" id="relatedPhone" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="relatedOrganization" class="form-label">@Localizer["Organization"]</label>
+                        <input type="text" id="relatedOrganization" class="form-control" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">@Localizer["Save Button"]</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Cancel Button"]</button>
+                </div>
+            </div>
+        </form>
+        
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        let relatedModal;
+
+        function openRelatedModal(button) {
+            relatedModal = new bootstrap.Modal(document.getElementById('relatedModal'), { backdrop: true });
+            document.getElementById('relatedFormModal').reset();
+            document.getElementById('targetRelatedListId').value = button.getAttribute('data-list');
+            relatedModal.show();
+        }
+
+        function saveRelatedPerson(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('relatedName').value.trim();
+            const email = document.getElementById('relatedEmail').value.trim();
+            const phone = document.getElementById('relatedPhone').value.trim();
+            const org = document.getElementById('relatedOrganization').value.trim();
+            const listId = document.getElementById('targetRelatedListId').value;
+
+            if (!name) {
+                alert('@Localizer["NameRequiredAlert"]' || 'Name is required.');
+                return false;
+            }
+
+            const container = document.getElementById(listId);
+            const index = container.children.length;
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>
+                    ${name}
+                    <input type="hidden" name="RelatedPersons[${index}].Name" value="${name}" />
+                </td>
+                <td>
+                    ${email || '-'}
+                    <input type="hidden" name="RelatedPersons[${index}].Email" value="${email}" />
+                </td>
+                <td>
+                    ${phone || '-'}
+                    <input type="hidden" name="RelatedPersons[${index}].Phone" value="${phone}" />
+                </td>
+                <td>
+                    ${org || '-'}
+                    <input type="hidden" name="RelatedPersons[${index}].Organization" value="${org}" />
+                </td>
+                <td class="text-center">
+                    <span style="cursor: pointer; color: red; font-weight: bold;" onclick="deleteRelatedRow(this)">&#10006;</span>
+                </td>
+            `;
+
+            container.appendChild(row);
+            relatedModal.hide();
+
+            return false;
+        }
+
+        function deleteRelatedRow(element) {
+            const row = element.closest('tr');
+            row.remove();
+
+            const rows = document.querySelectorAll('#related-people-list tr');
+            rows.forEach((tr, idx) => {
+                const inputs = tr.querySelectorAll('input[type="hidden"]');
+                inputs.forEach(input => {
+                    if (input.name.includes(".Name")) input.name = `RelatedPersons[${idx}].Name`;
+                    if (input.name.includes(".Email")) input.name = `RelatedPersons[${idx}].Email`;
+                    if (input.name.includes(".Phone")) input.name = `RelatedPersons[${idx}].Phone`;
+                    if (input.name.includes(".Organization")) input.name = `RelatedPersons[${idx}].Organization`;
+                });
+            });
+        }
+    </script>
+}

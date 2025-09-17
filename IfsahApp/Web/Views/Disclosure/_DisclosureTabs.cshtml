@@ -1,0 +1,66 @@
+@{
+    var currentStep = ViewData["Step"] as int? ?? 1;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - Disclosure Wizard</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+        body {
+            background: #f5f7fb;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            list-style: none;
+            padding: 0;
+            margin: 30px 0;
+        }
+        .steps li {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            border-bottom: 3px solid #ddd;
+            color: #999;
+            font-weight: 500;
+        }
+        .steps li.active {
+            border-color: #6a11cb;
+            color: #6a11cb;
+        }
+        .card {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 700px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Progress Bar -->
+        <ul class="steps">
+            <li class="@(currentStep >= 1 ? "active" : "")">1. Basic Info</li>
+            <li class="@(currentStep >= 2 ? "active" : "")">2. Suspected People</li>
+            <li class="@(currentStep >= 3 ? "active" : "")">3. Related People</li>
+            <li class="@(currentStep >= 4 ? "active" : "")">4. Attachments</li>
+            <li class="@(currentStep >= 5 ? "active" : "")">5. Review</li>
+        </ul>
+
+        <!-- Page Content -->
+        <div class="card">
+            @RenderBody()
+        </div>
+    </div>
+
+
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

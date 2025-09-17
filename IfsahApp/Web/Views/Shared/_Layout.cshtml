@@ -21,6 +21,7 @@
         @*@await Html.PartialAsync("Header/_HeaderTop")*@
         @await Html.PartialAsync("Header/_MainHeader")
     @await Html.PartialAsync("Navbar/_Navbar")
+        @RenderSection("StepTabs", required: false)
 
         <main role="main" class="container my-4 flex-fill" id="main-content">
         @RenderBody()

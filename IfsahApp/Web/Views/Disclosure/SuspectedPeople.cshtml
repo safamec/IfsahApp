@@ -1,0 +1,165 @@
+@model IfsahApp.Core.ViewModels.DisclosureFormViewModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["Suspected People"];
+    ViewData["Step"] = 2;
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="RelatedPeople" method="post" id="suspectedForm">
+    <div class="mb-3">
+        <label class="form-label fw-bold">@Localizer["Suspected People"]</label>
+
+        <!-- Add button -->
+        <div>
+            <button type="button" class="btn btn-outline-primary btn-sm mt-2"
+                    data-list="suspected-people-list"
+                    onclick="openPersonModal(this)">
+                @Localizer["AddSuspectedPersonButton"]
+            </button>
+        </div>
+
+        <!-- Table below the Add button -->
+        <div class="mt-3">
+            <table class="table table-bordered" id="suspected-people-table">
+                <thead>
+                    <tr>
+                        <th>@Localizer["Name"]</th>
+                        <th>@Localizer["Email"]</th>
+                        <th>@Localizer["Phone"]</th>
+                        <th>@Localizer["Organization"]</th>
+                        <th style="width: 40px;"></th>
+                    </tr>
+                </thead>
+                <tbody id="suspected-people-list">
+                    <!-- Dynamically added rows will go here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<div class="d-flex justify-content-between mt-3">
+    <button type="button" class="btn btn-secondary" onclick="history.back()">
+        @Localizer["Back"]
+    </button>
+<a asp-action="RelatedPeople" class="btn btn-primary mt-2">
+    @Localizer["Next"]
+</a>
+</div>
+</form>
+
+<!-- Modal -->
+<div class="modal fade" id="personModal" tabindex="-1" aria-labelledby="personModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form id="personForm" onsubmit="savePerson(event)">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Localizer["Add Suspected Person"]</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="targetListId" />
+
+                    <div class="mb-3">
+                        <label for="personName" class="form-label">@Localizer["Name"]</label>
+                        <input type="text" id="personName" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="personEmail" class="form-label">@Localizer["Email"]</label>
+                        <input type="email" id="personEmail" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="personPhone" class="form-label">@Localizer["Phone"]</label>
+                        <input type="text" id="personPhone" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="personOrganization" class="form-label">@Localizer["Organization"]</label>
+                        <input type="text" id="personOrganization" class="form-control" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">@Localizer["Save Button"]</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Cancel Button"]</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let modal;
+
+        function openPersonModal(button) {
+            modal = new bootstrap.Modal(document.getElementById('personModal'), { backdrop: true });
+            document.getElementById('personForm').reset();
+            document.getElementById('targetListId').value = button.getAttribute('data-list');
+            modal.show();
+        }
+
+        function savePerson(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('personName').value.trim();
+            const email = document.getElementById('personEmail').value.trim();
+            const phone = document.getElementById('personPhone').value.trim();
+            const org = document.getElementById('personOrganization').value.trim();
+            const listId = document.getElementById('targetListId').value;
+
+            if (!name) {
+                alert("@Localizer["NameRequiredAlert"]");
+                return false;
+            }
+
+            const container = document.getElementById(listId);
+            const index = container.children.length;
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>
+                    ${name}
+                    <input type="hidden" name="SuspectedPersons[${index}].Name" value="${name}" />
+                </td>
+                <td>
+                    ${email || '-'}
+                    <input type="hidden" name="SuspectedPersons[${index}].Email" value="${email}" />
+                </td>
+                <td>
+                    ${phone || '-'}
+                    <input type="hidden" name="SuspectedPersons[${index}].Phone" value="${phone}" />
+                </td>
+                <td>
+                    ${org || '-'}
+                    <input type="hidden" name="SuspectedPersons[${index}].Organization" value="${org}" />
+                </td>
+                <td class="text-center">
+                    <span style="cursor: pointer; color: red; font-weight: bold;" onclick="deletePersonRow(this)">&#10006;</span>
+                </td>
+            `;
+
+            container.appendChild(row);
+            modal.hide();
+
+            return false;
+        }
+
+        function deletePersonRow(element) {
+            const row = element.closest('tr');
+            row.remove();
+
+            // Re-index hidden input names
+            const rows = document.querySelectorAll('#suspected-people-list tr');
+            rows.forEach((tr, idx) => {
+                const inputs = tr.querySelectorAll('input[type="hidden"]');
+                inputs.forEach(input => {
+                    if (input.name.includes(".Name")) input.name = `SuspectedPersons[${idx}].Name`;
+                    if (input.name.includes(".Email")) input.name = `SuspectedPersons[${idx}].Email`;
+                    if (input.name.includes(".Phone")) input.name = `SuspectedPersons[${idx}].Phone`;
+                    if (input.name.includes(".Organization")) input.name = `SuspectedPersons[${idx}].Organization`;
+                });
+            });
+        }
+    </script>
+}

@@ -76,7 +76,7 @@ public class AccountController(ApplicationDbContext context, ILogger<AccountCont
         {
             Role.Admin => RedirectToAction("Index", "Dashboard"),
             Role.Examiner => RedirectToAction("Index", "Review"),
-            Role.User => RedirectToAction("Create", "Disclosure"),
+            Role.User => RedirectToAction("FormDetails", "Disclosure"),
             _ => RedirectToAction("AccessDenied"),
         };
     }

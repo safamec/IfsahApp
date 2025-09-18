@@ -37,6 +37,7 @@ builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"
 builder.Services.AddTransient<IEmailService, GmailEmailService>();
 
 // 4) Localization + Views
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddLocalization(opts => opts.ResourcesPath = "Resources");
 builder.Services.AddControllersWithViews()
     .AddViewLocalization()
@@ -60,6 +61,10 @@ else
 
 builder.Services.AddScoped<IEnumLocalizer, EnumLocalizer>();
 
+
+builder.Services.AddSingleton<IHttpStatusLocalizer, ErrorLocalizer>();
+
+
 // 6) Authentication & Authorization
 builder.Services.AddAppAuthentication(builder.Environment);
 
@@ -82,6 +87,16 @@ using (var scope = app.Services.CreateScope())
     DbSeeder.Seed(db);
 }
 
+
+
+
+builder.Services.AddLogging(loggingBuilder =>
+{
+    loggingBuilder.AddConsole();
+    loggingBuilder.AddDebug();
+});
+
+
 // 9) Localization middleware
 var supportedCultures = new[] { "en", "ar" };
 var locOptions = new RequestLocalizationOptions()
@@ -90,6 +105,13 @@ var locOptions = new RequestLocalizationOptions()
     .AddSupportedUICultures(supportedCultures);
 
 app.UseRequestLocalization(locOptions);
+
+
+// إعدادات معالجة الأخطاء
+app.UseExceptionHandler("/Error");
+app.UseStatusCodePagesWithReExecute("/Error/{0}");
+
+
 
 // 10) Middleware pipeline
 app.UseStaticFiles();

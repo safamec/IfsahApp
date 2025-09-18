@@ -19,7 +19,7 @@
     /* Header gradients */
     --header-gradient-light: linear-gradient(135deg, var(--primary-color), #004578);
     --header-gradient-dark: linear-gradient(135deg,  #2d2d2d, #1e1e1e);
-    --header-gradient:var( --header-gradient-light);
+    --header-gradient: var(--header-gradient-light);
     --header-text: #fff;
 
     /* Navbar */

@@ -18,3 +18,66 @@ html, body {
 #main-content {
     flex: 1; /* push footer down */
 }
+
+/* Error page styles */
+.error-card {
+    background-color: var(--card-bg);
+    padding: 50px 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    max-width: 700px;
+    margin: 80px auto;
+    text-align: center;
+}
+
+.error-code {
+    font-size: 7rem;
+    font-weight: 900;
+    background: var(--header-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+}
+
+.error-message {
+    font-size: 1.8rem;
+    font-weight: 500;
+    color: var(--secondary-color);
+    margin-bottom: 20px;
+}
+
+.error-description {
+    font-size: 1rem;
+    color: var(--text-color);
+    margin-bottom: 25px;
+    line-height: 1.6;
+}
+
+.request-id {
+    font-family: monospace;
+    background-color: #f1f3f5;
+    padding: 8px 12px;
+    border-radius: 5px;
+    display: inline-block;
+    margin-bottom: 25px;
+}
+
+.error-actions {
+    margin-top: 20px;
+}
+
+.error-actions .btn-home {
+    display: inline-block;
+    margin: 5px;
+}
+
+@media (max-width: 576px) {
+    .error-code {
+        font-size: 5rem;
+    }
+    .error-card {
+        padding: 30px 20px;
+        margin: 50px 15px;
+    }
+}

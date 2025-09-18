@@ -14,3 +14,31 @@
 .notif-btn:focus {
     box-shadow: none; /* remove focus outline */
 }
+
+/* زر الصفحة الرئيسية لصفحة الخطأ */
+.btn-home {
+    padding: 12px 30px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #fff;
+    background-color: var(--primary-color);
+    border: none;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+    display: inline-block;
+}
+
+.btn-home:hover {
+    background-color: #004578;
+    color: #fff;
+}
+
+/* أزرار إضافية لصفحة الخطأ */
+.btn-home.secondary {
+    background-color: #6c757d;
+}
+
+.btn-home.secondary:hover {
+    background-color: #5a6268;
+}

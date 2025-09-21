@@ -45,9 +45,9 @@ public DbSet<EmailVerification> EmailVerifications { get; set; } = null!;
         modelBuilder.Entity<DisclosureType>()
             .HasIndex(t => t.EnglishName)
             .IsUnique();
-                  modelBuilder.Entity<DisclosureType>()
-            .HasIndex(t => t.ArabicName)
-            .IsUnique();
+        modelBuilder.Entity<DisclosureType>()
+  .HasIndex(t => t.ArabicName)
+  .IsUnique();
 
         modelBuilder.Entity<User>()
             .HasIndex(u => u.ADUserName)
@@ -156,5 +156,19 @@ public DbSet<EmailVerification> EmailVerifications { get; set; } = null!;
             .WithMany(u => u.AssignedDisclosures)
             .HasForeignKey(d => d.AssignedToUserId)
             .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<RoleDelegation>(e =>
+{
+    e.HasOne(d => d.FromUser)
+     .WithMany()
+     .HasForeignKey(d => d.FromUserId)
+     .OnDelete(DeleteBehavior.Restrict);
+
+    e.HasOne(d => d.ToUser)
+     .WithMany()
+     .HasForeignKey(d => d.ToUserId)
+     .OnDelete(DeleteBehavior.Restrict);
+
+    e.Property(d => d.Role).HasMaxLength(32);
+});
     }
 }

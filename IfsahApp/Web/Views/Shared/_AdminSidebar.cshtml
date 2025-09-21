@@ -1,0 +1,137 @@
+@{
+    // Current route
+    var currentAction = (ViewContext?.RouteData?.Values["action"] as string) ?? "";
+    var currentController = (ViewContext?.RouteData?.Values["controller"] as string) ?? "";
+
+    // Simple active helper
+    Func<string,string,bool> isActive = (ctrl, act) =>
+        string.Equals(currentController, ctrl, StringComparison.OrdinalIgnoreCase) &&
+        string.Equals(currentAction, act, StringComparison.OrdinalIgnoreCase);
+}
+
+<!-- Sidebar (Desktop) -->
+<aside class="admin-sidebar d-none d-lg-block">
+  <!-- Brand → link to Dashboard -->
+  <a class="brand d-inline-flex align-items-center gap-2 text-white text-decoration-none mb-2"
+     asp-area=""
+     asp-controller="Dashboard"
+     asp-action="Index">
+     <i class="bi bi-speedometer2"></i>
+     <span>لوحة التحكم</span>
+  </a>
+
+  <nav class="nav flex-column gap-1">
+    <a class="nav-link @(isActive("Admin","AdminPanal") ? "active" : "")"
+       asp-area=""
+       asp-controller="Admin"
+       asp-action="AdminPanal"
+       aria-current="@(isActive("Admin","AdminPanal") ? "page" : null)">
+       <i class="bi bi-people"></i> الممتحنون
+    </a>
+
+    <a class="nav-link @(isActive("Admin","AddExaminer") ? "active" : "")"
+       asp-area=""
+       asp-controller="Admin"
+       asp-action="AddExaminer"
+       aria-current="@(isActive("Admin","AddExaminer") ? "page" : null)">
+       <i class="bi bi-person-plus"></i> إضافة ممتحن
+    </a>
+
+    <div class="mt-2 small text-white-50 px-2">أخرى</div>
+
+    <a class="nav-link @(isActive("Disclosure","Index") ? "active" : "")"
+       asp-area=""
+       asp-controller="Disclosure"
+       asp-action="Index"
+       aria-current="@(isActive("Disclosure","Index") ? "page" : null)">
+       <i class="bi bi-file-earmark-text"></i> البلاغات
+    </a>
+
+    <a class="nav-link @(isActive("Notifications","Index") ? "active" : "")"
+       asp-area=""
+       asp-controller="Notifications"
+       asp-action="Index"
+       aria-current="@(isActive("Notifications","Index") ? "page" : null)">
+       <i class="bi bi-bell"></i> الإشعارات
+    </a>
+
+    <a class="nav-link @(isActive("Home","Index") ? "active" : "")"
+       asp-area=""
+       asp-controller="Home"
+       asp-action="Index"
+       aria-current="@(isActive("Home","Index") ? "page" : null)">
+       <i class="bi bi-house"></i> الواجهة
+    </a>
+  </nav>
+</aside>
+
+<!-- Offcanvas (Mobile) -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="adminAside">
+  <div class="offcanvas-header">
+    <h6 class="offcanvas-title">القائمة</h6>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="إغلاق"></button>
+  </div>
+
+  <div class="offcanvas-body p-0">
+    <div class="admin-sidebar" style="display:block; position:static; height:auto; top:auto; background:var(--sidebar-bg);">
+      <!-- Brand link inside offcanvas too -->
+      <a class="brand d-inline-flex align-items-center gap-2 text-white text-decoration-none mb-2"
+         asp-area=""
+         asp-controller="Dashboard"
+         asp-action="Index"
+         data-bs-dismiss="offcanvas">
+         <i class="bi bi-speedometer2"></i>
+         <span>لوحة التحكم</span>
+      </a>
+
+      <nav class="nav flex-column gap-1">
+        <a class="nav-link @(isActive("Admin","AdminPanal") ? "active" : "")"
+           asp-area=""
+           asp-controller="Admin"
+           asp-action="AdminPanal"
+           data-bs-dismiss="offcanvas"
+           aria-current="@(isActive("Admin","AdminPanal") ? "page" : null)">
+           <i class="bi bi-people"></i> الممتحنون
+        </a>
+
+        <a class="nav-link @(isActive("Admin","AddExaminer") ? "active" : "")"
+           asp-area=""
+           asp-controller="Admin"
+           asp-action="AddExaminer"
+           data-bs-dismiss="offcanvas"
+           aria-current="@(isActive("Admin","AddExaminer") ? "page" : null)">
+           <i class="bi bi-person-plus"></i> إضافة ممتحن
+        </a>
+
+        <div class="mt-2 small text-white-50 px-2">أخرى</div>
+
+        <a class="nav-link @(isActive("Disclosure","Index") ? "active" : "")"
+           asp-area=""
+           asp-controller="Disclosure"
+           asp-action="Index"
+           data-bs-dismiss="offcanvas"
+           aria-current="@(isActive("Disclosure","Index") ? "page" : null)">
+           <i class="bi bi-file-earmark-text"></i> البلاغات
+        </a>
+
+        <a class="nav-link @(isActive("Notifications","Index") ? "active" : "")"
+           asp-area=""
+           asp-controller="Notifications"
+           asp-action="Index"
+           data-bs-dismiss="offcanvas"
+           aria-current="@(isActive("Notifications","Index") ? "page" : null)">
+           <i class="bi bi-bell"></i> الإشعارات
+        </a>
+
+        <a class="nav-link @(isActive("Home","Index") ? "active" : "")"
+           asp-area=""
+           asp-controller="Home"
+           asp-action="Index"
+           data-bs-dismiss="offcanvas"
+           aria-current="@(isActive("Home","Index") ? "page" : null)">
+           <i class="bi bi-house"></i> الواجهة
+        </a>
+      </nav>
+    </div>
+  </div>
+</div>

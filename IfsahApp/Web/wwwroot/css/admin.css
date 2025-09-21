@@ -1,0 +1,102 @@
+/* ================================
+   Admin Layout (Desktop & Mobile)
+   ================================ */
+
+/* Grid: 280px sidebar (first) + content */
+.admin-frame{
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 0;
+  flex: 1 1 auto;              /* stretch within a flex column wrapper */
+}
+
+/* Content area */
+.admin-content{
+  padding: 1rem;
+  min-width: 0;                /* prevent horizontal overflow in grid */
+}
+.admin-content > *:first-child{ margin-top: 0; }
+.admin-content h1:first-child,
+.admin-content h2:first-child,
+.admin-content h3:first-child,
+.admin-content h4:first-child,
+.admin-content h5:first-child{ margin-top: 0; }
+
+/* ================================
+   Sidebar (solid #0f6cbd + full-height right line)
+   ================================ */
+:root{
+  --sidebar-bg: #0f6cbd;
+  --sidebar-line: #ffffff;
+  --hover-bg: rgba(255,255,255,.08);
+  --active-bg: rgba(255,255,255,.16);
+}
+
+.admin-sidebar{
+  position: relative;
+  padding: 1rem;
+  background: var(--sidebar-bg);
+  color: #fff;
+  border-radius: 0;
+}
+
+/* Full-height vertical line on the right (RTL/LTR friendly) */
+.admin-sidebar::before{
+  content: "";
+  position: absolute;
+  inset-inline-end: 0;   /* right in RTL, left in LTR */
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--sidebar-line);
+  opacity: .95;
+}
+
+/* Sidebar links */
+.admin-sidebar .nav-link{
+  color: #fff;
+  padding: .6rem .9rem;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  text-decoration: none;
+}
+.admin-sidebar .nav-link i{ opacity: .95; }
+
+.admin-sidebar .nav-link:hover,
+.admin-sidebar .nav-link:focus{
+  background: var(--hover-bg);
+}
+
+.admin-sidebar .nav-link.active{
+  background: var(--active-bg);
+  font-weight: 600;
+  border-inline-start: none !important;  /* we use the full-height line instead */
+  padding-inline-start: .9rem;
+}
+
+/* Section helper text inside sidebar */
+.admin-sidebar .small{ color: rgba(255,255,255,.8) !important; }
+
+/* ================================
+   Mobile
+   ================================ */
+@media (max-width: 992px){
+  .admin-frame{ display: block; }  /* sidebar is offcanvas on mobile */
+  .offcanvas .admin-sidebar{
+    background: var(--sidebar-bg);
+    border-radius: 0;
+  }
+}
+
+/* ================================
+   Optional polish
+   ================================ */
+
+/* Tables: avoid layout jump on long strings */
+.table{ table-layout: auto; }
+.table td, .table th{ word-wrap: break-word; }
+
+/* Ensure no unintended rounded corners anywhere in admin area */
+.admin-content, .offcanvas, .offcanvas .admin-sidebar{ border-radius: 0 !important; }

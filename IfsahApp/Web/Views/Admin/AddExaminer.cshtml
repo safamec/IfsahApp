@@ -1,0 +1,121 @@
+@using IfsahApp.Core.ViewModels
+@model AddExaminerVM
+
+@{
+    ViewData["Title"] = "إضافة ممتحن";
+}
+
+@section AdminSidebar {
+    @await Html.PartialAsync("_AdminSidebar")
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+}
+
+<div class="card shadow-sm position-relative">
+  <div class="card-body">
+    <h5 class="mb-3">إضافة ممتحن</h5>
+
+    <form asp-action="AddExaminer" method="post" novalidate>
+      @Html.AntiForgeryToken()
+      <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+      <div class="row g-3">
+        <div class="col-md-4 position-relative">
+          <label class="form-label">اسم AD</label>
+          <input asp-for="ADUserName" class="form-control" id="adBox" autocomplete="off" />
+          <span asp-validation-for="ADUserName" class="text-danger"></span>
+          <div class="form-text">اكتب جزءًا من الاسم وسيظهر الاقتراح تلقائيًا.</div>
+
+          <!-- suggestions dropdown -->
+          <div id="adResults" class="list-group" style="display:none; position:absolute; inset-inline-start:0; top:100%; z-index:1050; min-width:100%; max-height:280px; overflow:auto; border:1px solid #dee2e6; border-radius:.5rem; background:#fff;"></div>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">الاسم الكامل</label>
+          <input asp-for="FullName" class="form-control" />
+          <span asp-validation-for="FullName" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">البريد</label>
+          <input asp-for="Email" class="form-control" />
+          <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">القسم (اختياري)</label>
+          <input asp-for="Department" class="form-control" />
+        </div>
+      </div>
+
+      <div class="mt-4 d-flex gap-2">
+        <button class="btn btn-primary" type="submit">حفظ</button>
+        <a asp-action="AdminPanal" class="btn btn-outline-secondary">رجوع</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+@section Scripts{
+<script>
+const adBox   = document.getElementById('adBox');
+const listEl  = document.getElementById('adResults');
+
+let debounceId;
+adBox.addEventListener('input', () => {
+  clearTimeout(debounceId);
+  const q = adBox.value.trim();
+  if(!q){ hideList(); return; }
+
+  debounceId = setTimeout(async () => {
+    try{
+      const res = await fetch(`/Admin/SearchAdUsers?q=${encodeURIComponent(q)}`);
+      if(!res.ok){ hideList(); return; }
+      const data = await res.json();
+      if(!Array.isArray(data) || data.length === 0){
+        listEl.innerHTML = `<div class="p-2 text-muted">لا توجد نتائج</div>`;
+        showList(); return;
+      }
+
+      listEl.innerHTML = data.map(u => `
+        <button type="button" class="list-group-item list-group-item-action"
+                data-sam="${html(u.sam)}"
+                data-name="${html(u.name||'')}"
+                data-email="${html(u.email||'')}"
+                data-dept="${html(u.dept||'')}">
+          ${html(u.name || u.sam)} — <small class="text-muted">${html(u.sam)}</small>
+        </button>
+      `).join('');
+      showList();
+    }catch{ hideList(); }
+  }, 250);
+});
+
+// click to fill fields
+listEl.addEventListener('click', (e)=>{
+  const btn = e.target.closest('.list-group-item');
+  if(!btn) return;
+  const sam  = btn.dataset.sam || '';
+  const name = btn.dataset.name || '';
+  const mail = btn.dataset.email || '';
+  const dept = btn.dataset.dept || '';
+  document.querySelector('[name="ADUserName"]').value = sam;
+  document.querySelector('[name="FullName"]').value   = name || sam;
+  document.querySelector('[name="Email"]').value      = mail;
+  document.querySelector('[name="Department"]').value = dept;
+  hideList();
+});
+
+// hide when clicking outside
+document.addEventListener('click', (e)=>{
+  if(e.target !== adBox && !listEl.contains(e.target)) hideList();
+});
+
+// helpers
+function showList(){ listEl.style.display = 'block'; }
+function hideList(){ listEl.style.display = 'none'; }
+function html(s){ return (s??'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+</script>
+}

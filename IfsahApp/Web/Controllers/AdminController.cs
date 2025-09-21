@@ -3,23 +3,22 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using IfsahApp.Core.Enums;                  // Role enum: Admin, Examiner, User
-using IfsahApp.Core.Models;                 // User model
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+using IfsahApp.Core.Enums;                  // Role enum: Admin, Examiner, User (string delegation uses "Admin")
+using IfsahApp.Core.Models;                 // User, RoleDelegation
+using IfsahApp.Core.ViewModels;             // AddExaminerVM, ExaminerRowVM
 using IfsahApp.Infrastructure.Data;         // ApplicationDbContext
 using IfsahApp.Infrastructure.Services.AdUser;
 using IfsahApp.Infrastructure.Services.Email;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
 namespace IfsahApp.Web.Controllers
 {
-    // DTOs لطلبات الـ API
-    public record AssignRoleRequest(string Sam, string DisplayName, string Email, string Department, string Role);
-    public record SamOnlyRequest(string Sam);
-    public record SetActiveRequest(string Sam, bool Active);
-
-    [Authorize]               // (اختياري) علّقيها مؤقتًا لو عندك مشكلة دخول
-    [Route("Admin")]          // أساس الراوت لكل الأكشنات هنا
+    [Authorize]
+    [Route("Admin")]
     public class AdminController : Controller
     {
         private readonly IAdUserService _adUsers;
@@ -33,275 +32,271 @@ namespace IfsahApp.Web.Controllers
             _mailer  = mailer;
         }
 
-        // ---------- صفحات ----------
-        // GET https://localhost:5001/Admin/Index
+        // =========================================================
+        // PAGES (Views)
+        // =========================================================
+
+        // GET /Admin  (redirect to AdminPanal)
         [HttpGet("")]
         [HttpGet("Index")]
-        public IActionResult Index() => View();
+        public IActionResult Index() => RedirectToAction(nameof(AdminPanal));
 
-        // GET https://localhost:5001/Admin/ExaminersPage
-        [HttpGet("ExaminersPage")]
-        public IActionResult ExaminersPage() => View();
-
-        // ---------- البحث العام عن مستخدمي AD (للاوتوكومبليت) ----------
-        // GET /Admin/SearchAdUsers?q=...&take=8
-        [HttpGet("SearchAdUsers")]
-        public async Task<IActionResult> SearchAdUsers(string q, int take = 8, CancellationToken ct = default)
+        // GET /Admin/AdminPanal  -> list page using Views/Admin/AdminPanal.cshtml
+        [HttpGet("AdminPanal")]
+        public async Task<IActionResult> AdminPanal(CancellationToken ct = default)
         {
-            take = Math.Clamp(take <= 0 ? 8 : take, 1, 50);
-            var list = await _adUsers.SearchAsync(q ?? string.Empty, take, ct);
-            return Json(list.Select(u => new
-            {
-                sam  = u.SamAccountName,
-                name = u.DisplayName,
-                email= u.Email,
-                dept = u.Department
-            }));
+            var now = DateTime.UtcNow;
+
+            var model = await _db.Users
+                .OrderBy(u => u.FullName)
+                .Select(u => new ExaminerRowVM
+                {
+                    Id          = u.Id,
+                    ADUserName  = u.ADUserName,
+                    FullName    = u.FullName,
+                    Email       = u.Email,
+                    Department  = u.Department,
+                    Role        = u.Role.ToString(),
+                    HasActiveTempAdmin = _db.RoleDelegations.Any(d =>
+                        d.ToUserId == u.Id &&
+                        d.Role == "Admin" &&                 // <-- string-based delegation, "Admin"
+                        d.StartDate <= now &&
+                        (d.EndDate == null || d.EndDate >= now))
+                })
+                .ToListAsync(ct);
+
+            return View("AdminPanal", model);               // Views/Admin/AdminPanal.cshtml
         }
 
-        // GET /Admin/GetAdUser?sam=ahmed.wahaibi
-        [HttpGet("GetAdUser")]
-        public async Task<IActionResult> GetAdUser(string sam, CancellationToken ct = default)
-        {
-            sam = (sam ?? string.Empty).Trim();
-            if (string.IsNullOrWhiteSpace(sam))
-                return BadRequest(new { message = "sam is required." });
+        // (Optional) Legacy: /Admin/Examiners -> also show the same page
+        [HttpGet("Examiners")]
+        public Task<IActionResult> Examiners(CancellationToken ct = default)
+            => AdminPanal(ct);
 
-            var one = (await _adUsers.SearchAsync(sam, 1, ct)).FirstOrDefault();
-            if (one is null) return NotFound(new { message = "User not found." });
+        // GET /Admin/AddExaminer  -> add form
+        [HttpGet("AddExaminer")]
+        public IActionResult AddExaminer() => View("AddExaminer", new AddExaminerVM());
 
-            return Json(new
-            {
-                sam  = one.SamAccountName,
-                name = one.DisplayName,
-                email= one.Email,
-                dept = one.Department
-            });
-        }
-
-        // ---------- حفظ/تحديث الدور + إرسال بريد ----------
-        // POST /Admin/AssignRole
-        [HttpPost("AssignRole")]
+        // POST /Admin/AddExaminer  -> handle form submit
+        [HttpPost("AddExaminer")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AssignRole([FromBody] AssignRoleRequest req, CancellationToken ct = default)
+        public async Task<IActionResult> AddExaminer([FromForm] AddExaminerVM vm, CancellationToken ct)
         {
-            if (req is null || string.IsNullOrWhiteSpace(req.Sam))
-                return BadRequest(new { message = "User (sam) is required." });
+            if (!ModelState.IsValid)
+                return View("AddExaminer", vm);
 
-            var role = MapRole(req.Role); // Admin/Examiner/User (default User)
+            var sam = NormalizeSam(vm.ADUserName);
+            if (string.IsNullOrWhiteSpace(sam))
+            {
+                ModelState.AddModelError(nameof(vm.ADUserName), "اسم AD مطلوب");
+                return View("AddExaminer", vm);
+            }
 
-            var samNorm  = req.Sam.Trim();
-            var samLower = samNorm.ToLower();
-
-            var user = _db.Users.FirstOrDefault(u => u.ADUserName.ToLower() == samLower);
-
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.ADUserName.ToLower() == sam.ToLower(), ct);
             if (user is null)
             {
                 user = new User
                 {
-                    ADUserName = samNorm,
-                    FullName   = string.IsNullOrWhiteSpace(req.DisplayName) ? samNorm : req.DisplayName.Trim(),
-                    Email      = (req.Email ?? string.Empty).Trim(),
-                    Department = string.IsNullOrWhiteSpace(req.Department) ? null : req.Department.Trim(),
-                    Role       = role,
+                    ADUserName = sam,
+                    FullName   = string.IsNullOrWhiteSpace(vm.FullName) ? sam : vm.FullName.Trim(),
+                    Email      = vm.Email?.Trim(),
+                    Department = string.IsNullOrWhiteSpace(vm.Department) ? null : vm.Department!.Trim(),
+                    Role       = Role.Examiner,
                     IsActive   = true
                 };
                 _db.Users.Add(user);
             }
             else
             {
-                if (!string.IsNullOrWhiteSpace(req.DisplayName)) user.FullName   = req.DisplayName.Trim();
-                if (!string.IsNullOrWhiteSpace(req.Email))       user.Email      = req.Email.Trim();
-                if (!string.IsNullOrWhiteSpace(req.Department))  user.Department = req.Department.Trim();
-                user.Role = role;
+                user.FullName = string.IsNullOrWhiteSpace(vm.FullName) ? user.FullName : vm.FullName.Trim();
+                if (!string.IsNullOrWhiteSpace(vm.Email))      user.Email      = vm.Email.Trim();
+                if (!string.IsNullOrWhiteSpace(vm.Department)) user.Department = vm.Department.Trim();
+                user.Role     = Role.Examiner;
+                user.IsActive = true;
             }
 
             await _db.SaveChangesAsync(ct);
 
-            await TrySendMail(
-                user.Email,
-                subject: "Access Granted / Updated",
-                htmlBody: $@"
-<p>Dear {Escape(user.FullName)},</p>
-<p>Your access has been {(role == Role.Examiner ? "granted as Examiner" : "updated")}.</p>
-<ul>
-  <li><b>Username:</b> {Escape(user.ADUserName)}</li>
-  <li><b>Role:</b> {Escape(user.Role.ToString())}</li>
-  <li><b>Department:</b> {Escape(user.Department ?? "")}</li>
-</ul>
-<p>Regards,<br/>System Admin</p>",
-                ct);
-
-            return Ok(new { success = true, role = user.Role.ToString() });
+            TempData["ok"] = "تمت إضافة/تحديث الممتحن بنجاح.";
+            return RedirectToAction(nameof(AdminPanal));
         }
 
-        // ---------- إدارة الممتحنين (Examiners) ----------
-        // GET /Admin/Examiners  -> بيانات الجدول
-        [HttpGet("Examiners")]
-        public IActionResult Examiners()
-        {
-            var items = _db.Users
-                .Where(u => u.Role == Role.Examiner)
-                .OrderBy(u => u.FullName)
-                .Select(u => new
-                {
-                    sam    = u.ADUserName,
-                    name   = u.FullName,
-                    email  = u.Email,
-                    dept   = u.Department,
-                    active = u.IsActive
-                })
-                .ToList();
-
-            return Json(items);
-        }// POST /Admin/AddExaminer
-[HttpPost("AddExaminer")]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> AddExaminer([FromBody] AssignRoleRequest req, CancellationToken ct = default)
-{
-    if (req is null || string.IsNullOrWhiteSpace(req.Sam))
-        return BadRequest(new { message = "User (sam) is required." });
-
-    var samNorm  = req.Sam.Trim();
-    var samLower = samNorm.ToLower();
-
-    var user = _db.Users.FirstOrDefault(u => u.ADUserName.ToLower() == samLower);
-
-    if (user is null)
-    {
-        user = new User
-        {
-            ADUserName = samNorm,
-            FullName   = string.IsNullOrWhiteSpace(req.DisplayName) ? samNorm : req.DisplayName.Trim(),
-            Email      = (req.Email ?? string.Empty).Trim(),
-            Department = string.IsNullOrWhiteSpace(req.Department) ? null : req.Department.Trim(),
-            Role       = Role.Examiner,   // افتراضي ممتحن
-            IsActive   = true
-        };
-        _db.Users.Add(user);
-    }
-    else
-    {
-        if (!string.IsNullOrWhiteSpace(req.DisplayName)) user.FullName   = req.DisplayName.Trim();
-        if (!string.IsNullOrWhiteSpace(req.Email))       user.Email      = req.Email.Trim();
-        if (!string.IsNullOrWhiteSpace(req.Department))  user.Department = req.Department.Trim();
-        user.Role     = Role.Examiner;
-        user.IsActive = true;
-    }
-
-    await _db.SaveChangesAsync(ct);
-
-    await TrySendMail(
-        user.Email,
-        subject: "Examiner Access Granted",
-        htmlBody: $@"
-<p>Dear {Escape(user.FullName)},</p>
-<p>You have been granted Examiner access.</p>
-<ul>
-  <li><b>Username:</b> {Escape(user.ADUserName)}</li>
-  <li><b>Role:</b> Examiner</li>
-  <li><b>Department:</b> {Escape(user.Department ?? "")}</li>
-  <li><b>Active:</b> {user.IsActive}</li>
-</ul>
-<p>Regards,<br/>System Admin</p>",
-        ct);
-
-    // ✅ بعد النجاح، ارجعي مباشرة لصفحة جدول الممتحنين
-    return RedirectToAction("ExaminersPage");
-}
-
-
-        // POST /Admin/RemoveExaminer  -> يحوله User (ويرسل إيميل إزالة)
-        [HttpPost("RemoveExaminer")]
+        // POST /Admin/PromoteToAdmin
+        [HttpPost("PromoteToAdmin")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RemoveExaminer([FromBody] SamOnlyRequest req, CancellationToken ct = default)
+        public async Task<IActionResult> PromoteToAdmin([FromForm] int id, CancellationToken ct)
         {
-            if (req is null || string.IsNullOrWhiteSpace(req.Sam))
-                return BadRequest(new { message = "User (sam) is required." });
+            var u = await _db.Users.FindAsync(new object?[] { id }, ct);
+            if (u == null) { TempData["err"] = "المستخدم غير موجود"; return RedirectToAction(nameof(AdminPanal)); }
 
-            var samNorm  = req.Sam.Trim();
-            var samLower = samNorm.ToLower();
-
-            var user = _db.Users.FirstOrDefault(u => u.ADUserName.ToLower() == samLower);
-            if (user is null) return NotFound(new { message = "User not found." });
-
-            user.Role = Role.User;
+            u.Role = Role.Admin;
             await _db.SaveChangesAsync(ct);
 
-            await TrySendMail(
-                user.Email,
-                subject: "Examiner Access Removed",
-                htmlBody: $@"
-<p>Dear {Escape(user.FullName)},</p>
-<p>Your Examiner role has been removed. Your role is now: <b>User</b>.</p>
-<ul>
-  <li><b>Username:</b> {Escape(user.ADUserName)}</li>
-  <li><b>Active:</b> {user.IsActive}</li>
-</ul>
-<p>Regards,<br/>System Admin</p>",
-                ct);
-
-            return Ok(new { success = true });
+            TempData["ok"] = $"تمت ترقية {u.FullName} إلى Admin.";
+            return RedirectToAction(nameof(AdminPanal));
         }
 
-        // POST /Admin/SetActive  -> تفعيل/تعطيل (ويرسل إيميل بالحالة)
-        [HttpPost("SetActive")]
+        // POST /Admin/DemoteToExaminer
+        [HttpPost("DemoteToExaminer")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SetActive([FromBody] SetActiveRequest req, CancellationToken ct = default)
+        public async Task<IActionResult> DemoteToExaminer([FromForm] int id, CancellationToken ct)
         {
-            if (req is null || string.IsNullOrWhiteSpace(req.Sam))
-                return BadRequest(new { message = "User (sam) is required." });
+            var u = await _db.Users.FindAsync(new object?[] { id }, ct);
+            if (u == null) { TempData["err"] = "المستخدم غير موجود"; return RedirectToAction(nameof(AdminPanal)); }
 
-            var samNorm  = req.Sam.Trim();
-            var samLower = samNorm.ToLower();
-
-            var user = _db.Users.FirstOrDefault(u => u.ADUserName.ToLower() == samLower);
-            if (user is null) return NotFound(new { message = "User not found." });
-
-            user.IsActive = req.Active;
+            u.Role = Role.Examiner;
             await _db.SaveChangesAsync(ct);
 
-            await TrySendMail(
-                user.Email,
-                subject: req.Active ? "Account Activated" : "Account Deactivated",
-                htmlBody: $@"
-<p>Dear {Escape(user.FullName)},</p>
-<p>Your account has been {(req.Active ? "activated" : "deactivated")}.</p>
-<ul>
-  <li><b>Username:</b> {Escape(user.ADUserName)}</li>
-  <li><b>Role:</b> {Escape(user.Role.ToString())}</li>
-  <li><b>Active:</b> {user.IsActive}</li>
-</ul>
-<p>Regards,<br/>System Admin</p>",
-                ct);
-
-            return Ok(new { success = true, active = user.IsActive });
+            TempData["ok"] = $"تم إرجاع {u.FullName} إلى Examiner.";
+            return RedirectToAction(nameof(AdminPanal));
         }
 
-        // ---------- Helpers ----------
-        private Role MapRole(string? roleText)
+        // POST /Admin/GrantTempAdmin  (from modal in list page)
+        [HttpPost("GrantTempAdmin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GrantTempAdmin([FromForm] int id, [FromForm] DateTime endLocal, [FromForm] string? reason, CancellationToken ct)
         {
-            if (string.IsNullOrWhiteSpace(roleText)) return Role.User;
-            if (roleText.Equals("Admin", StringComparison.OrdinalIgnoreCase))    return Role.Admin;
-            if (roleText.Equals("Examiner", StringComparison.OrdinalIgnoreCase)) return Role.Examiner;
-            return Role.User;
+            var to = await _db.Users.FindAsync(new object?[] { id }, ct);
+            if (to == null) { TempData["err"] = "المستخدم غير موجود"; return RedirectToAction(nameof(AdminPanal)); }
+
+            // current (effective) admin
+            var currentSam = GetCurrentSam();
+            var from = await GetOrCreateUserBySamAsync(currentSam, ct);
+            if (from == null || EffectiveRole(from) != Role.Admin)
+            {
+                TempData["err"] = "غير مصرح.";
+                return RedirectToAction(nameof(AdminPanal));
+            }
+
+            var startUtc = DateTime.UtcNow;
+            var endUtc   = DateTime.SpecifyKind(endLocal, DateTimeKind.Local).ToUniversalTime();
+            if (endUtc <= startUtc)
+            {
+                TempData["err"] = "تاريخ الانتهاء يجب أن يكون لاحقاً للآن.";
+                return RedirectToAction(nameof(AdminPanal));
+            }
+
+            var entry = new RoleDelegation
+            {
+                FromUserId  = from.Id,
+                ToUserId    = to.Id,
+                Role        = "Admin",                    // <-- string-based temp admin delegation
+                IsPermanent = false,
+                StartDate   = startUtc,
+                EndDate     = endUtc,
+                Reason      = string.IsNullOrWhiteSpace(reason) ? null : reason
+            };
+            _db.RoleDelegations.Add(entry);
+            await _db.SaveChangesAsync(ct);
+
+            TempData["ok"] = $"تم منح صلاحية Admin مؤقتة إلى {to.FullName} حتى {endLocal}.";
+            return RedirectToAction(nameof(AdminPanal));
         }
+
+        // =========================================================
+        // JSON helper (AD Search)
+        // =========================================================
+
+        // GET /Admin/SearchAdUsers?q=ali&take=8   (also accepts 'query=')
+        [HttpGet("SearchAdUsers")]
+        public async Task<IActionResult> SearchAdUsers(string q, string? query, int take = 8, CancellationToken ct = default)
+        {
+            var term = (q ?? query ?? string.Empty).Trim();
+            take = Math.Clamp(take <= 0 ? 8 : take, 1, 50);
+
+            var list = await _adUsers.SearchAsync(term, take, ct);
+
+            // optional: fallback to local DB during dev
+            if ((list == null || list.Count == 0) && !string.IsNullOrWhiteSpace(term))
+            {
+                var dbHits = _db.Users
+                    .Where(u => u.ADUserName.Contains(term) || u.FullName.Contains(term) || (u.Email ?? "").Contains(term))
+                    .OrderBy(u => u.FullName)
+                    .Take(take)
+                    .Select(u => new { u.ADUserName, u.FullName, u.Email, u.Department })
+                    .ToList();
+
+                return Json(dbHits.Select(u => new {
+                    sam   = u.ADUserName,
+                    name  = u.FullName,
+                    email = u.Email,
+                    dept  = u.Department
+                }));
+            }
+
+            return Json(list.Select(u => new
+            {
+                sam   = u.SamAccountName,
+                name  = u.DisplayName,
+                email = u.Email,
+                dept  = u.Department
+            }));
+        }
+
+        // =========================================================
+        // Helpers
+        // =========================================================
 
         private async Task TrySendMail(string? email, string subject, string htmlBody, CancellationToken ct)
         {
             if (string.IsNullOrWhiteSpace(email)) return;
-            try
-            {
-                await _mailer.SendAsync(email.Trim(), subject, htmlBody, isHtml: true, ct);
-            }
-            catch
-            {
-                // نتجاهل خطأ SMTP حتى لا يفشل طلب الـ API كله
-            }
+            try { await _mailer.SendAsync(email.Trim(), subject, htmlBody, isHtml: true, ct); }
+            catch { /* ignore SMTP errors to not break page flow */ }
         }
 
-        private static string Escape(string s) => (s ?? string.Empty)
-            .Replace("<", "&lt;")
-            .Replace(">", "&gt;");
+        private static string NormalizeSam(string sam)
+        {
+            if (string.IsNullOrWhiteSpace(sam)) return string.Empty;
+            if (sam.Contains('\\')) return sam.Split('\\').Last().Trim(); // DOMAIN\sam -> sam
+            if (sam.Contains('@'))  return sam.Split('@').First().Trim(); // sam@domain -> sam
+            return sam.Trim();
+        }
+
+        private string GetCurrentSam()
+        {
+            // Adjust to your identity provider as needed:
+            var name = User?.Identity?.Name ?? string.Empty; // often "DOMAIN\\sam"
+            var fromClaim = User?.FindFirst("samAccountName")?.Value;
+            var raw = string.IsNullOrWhiteSpace(fromClaim) ? name : fromClaim;
+            return NormalizeSam(raw);
+        }
+
+        private async Task<User?> GetOrCreateUserBySamAsync(string sam, CancellationToken ct)
+        {
+            var samNorm = NormalizeSam(sam);
+            if (string.IsNullOrWhiteSpace(samNorm)) return null;
+
+            var samLower = samNorm.ToLower();
+            var user = _db.Users.FirstOrDefault(u => u.ADUserName.ToLower() == samLower);
+            if (user != null) return user;
+
+            // Try resolve from AD
+            var ad = (await _adUsers.SearchAsync(samNorm, 1, ct)).FirstOrDefault();
+            user = new User
+            {
+                ADUserName = samNorm,
+                FullName   = ad?.DisplayName ?? samNorm,
+                Email      = ad?.Email ?? "",
+                Department = string.IsNullOrWhiteSpace(ad?.Department) ? null : ad!.Department,
+                Role       = Role.User,
+                IsActive   = true
+            };
+            _db.Users.Add(user);
+            await _db.SaveChangesAsync(ct);
+            return user;
+        }
+
+        private bool HasActiveAdminDelegation(int userId)
+        {
+            var now = DateTime.UtcNow;
+            return _db.RoleDelegations.Any(d =>
+                d.ToUserId == userId &&
+                d.Role == "Admin" &&                      // <-- string comparison for delegation
+                d.StartDate <= now &&
+                (d.EndDate == null || d.EndDate >= now));
+        }
+
+        private Role EffectiveRole(User u) =>
+            (u.Role == Role.Admin || HasActiveAdminDelegation(u.Id)) ? Role.Admin : u.Role;
     }
 }

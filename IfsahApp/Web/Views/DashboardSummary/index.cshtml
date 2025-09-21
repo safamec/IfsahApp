@@ -1,0 +1,153 @@
+@model IEnumerable<IfsahApp.Core.ViewModels.DashboardSummaryViewModel>
+
+@{
+    ViewBag.Title = "Dashboard Summary";
+    var monthsFull = Model.Select(m => m.Month).ToArray(); // e.g., "September 2025"
+    // Convert months to short format
+    var monthsShort = monthsFull.Select(m => {
+        var parts = m.Split(' ');
+        var monthName = parts[0];
+        var year = parts.Length > 1 ? parts[1] : "";
+        return monthName.Substring(0,3); // first 3 letters
+    }).ToArray();
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+
+<style>
+  .chart-card { height: 320px; display:flex; flex-direction:column; justify-content:flex-start; padding:.75rem; }
+  .chart-title { font-size:1rem; font-weight:600; color:#000; text-align:center; margin-bottom:.5rem; }
+  .chart-canvas-wrap { position:relative; flex:1 1 auto; min-height:240px; }
+  .chart-canvas-wrap canvas { width:100% !important; height:100% !important; }
+  .table-card { margin-top:1.25rem; }
+  .card-header.bp { background-color:#0056A3; color:#fff; font-weight:600; }
+  body { background-color:#fafafa; }
+</style>
+
+<div class="container mb-5">
+  <h2 class="text-center my-4 fw-bold text-dark">@ViewBag.Title</h2>
+
+  <div class="row g-3">
+    <!-- Pie -->
+    <div class="col-md-4">
+      <div class="card shadow-sm chart-card">
+        <div class="chart-title">Evolution of Disclosures by Status - 2025</div>
+        <div class="chart-canvas-wrap"><canvas id="pieChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Line -->
+    <div class="col-md-4">
+      <div class="card shadow-sm chart-card">
+        <div class="chart-title">Disclosures Trend - 2025</div>
+        <div class="chart-canvas-wrap"><canvas id="lineChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Bar -->
+    <div class="col-md-4">
+      <div class="card shadow-sm chart-card">
+        <div class="chart-title">Monthly Comparison of Disclosure Statuses - 2025</div>
+        <div class="chart-canvas-wrap"><canvas id="barChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data table below charts -->
+  <div class="card shadow-sm table-card">
+    <div class="card-header bp">Disclosure Details</div>
+    <div class="table-responsive">
+      <table class="table table-striped table-hover align-middle mb-0">
+        <thead class="table-light sticky-top">
+          <tr>
+            <th>Month</th>
+            <th>Number of Disclosures</th>
+            <th>Disclosures Under Review</th>
+            <th>Disclosures In Process</th>
+            <th>Cancelled Disclosures</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (Model != null && Model.Any())
+          {
+              foreach (var item in Model)
+              {
+                  <tr>
+                      <td>@item.Month</td>
+                      <td>@item.NumberOfDisclosures</td>
+                      <td>@item.DisclosuresUnderReview</td>
+                      <td>@item.DisclosuresInProcess</td>
+                      <td>@item.CancelledDisclosures</td>
+                  </tr>
+              }
+          }
+          else
+          {
+              <tr><td colspan="5" class="text-center">No data available</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+    <script>
+        const months = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(monthsShort));
+        const total = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(m=>m.NumberOfDisclosures)));
+        const underReview = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(m=>m.DisclosuresUnderReview)));
+        const inProcess = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(m=>m.DisclosuresInProcess)));
+        const cancelled = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(m=>m.CancelledDisclosures)));
+
+        // Complementary palette
+        const navbarBlue = '#0056A3', teal = '#7EB6FF', orange = '#FFBFA5', paleBlue = '#A8E6CF', lightGray = '#CBA1FF';
+        const sumArray = arr => arr.reduce((a,b)=>a+(+b||0),0);
+
+        // PIE chart
+        const pieValues = [sumArray(total), sumArray(underReview), sumArray(inProcess), sumArray(cancelled)];
+        const pieTotal = sumArray(pieValues);
+        new Chart(document.getElementById('pieChart'), {
+            type:'pie',
+            data:{ labels:['Total Disclosures','Under Review','In Process','Cancelled'], datasets:[{ data:pieValues, backgroundColor:[navbarBlue,teal,orange,paleBlue], borderColor:'#fff', borderWidth:1 }] },
+            options:{
+                responsive:true, maintainAspectRatio:false,
+                plugins:{ legend:{position:'right', labels:{boxWidth:14,padding:12}},
+                    datalabels:{ formatter: (value)=> pieTotal===0?'0':((value/pieTotal*100).toFixed(1)+'%')+'\n('+value+')',
+                                 color: (ctx)=> [paleBlue, lightGray].includes(ctx.chart.data.datasets[0].backgroundColor[ctx.dataIndex])?'#000':'#fff',
+                                 font:{weight:'600', size:11}, align:'center', anchor:'center' } }
+            },
+            plugins:[ChartDataLabels]
+        });
+
+        // LINE chart
+        new Chart(document.getElementById('lineChart'), {
+            type:'line',
+            data:{ labels:months,
+                datasets:[
+                    { label:'In Process', data:inProcess, borderColor:orange, backgroundColor:orange, tension:0.35, pointRadius:4, pointBackgroundColor:'#fff', pointBorderColor:orange, pointBorderWidth:2, fill:false },
+                    { label:'Under Review', data:underReview, borderColor:teal, backgroundColor:teal, tension:0.35, pointRadius:4, pointBackgroundColor:'#fff', pointBorderColor:teal, pointBorderWidth:2, fill:false }
+                ]
+            },
+            options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'top'} },
+                      scales:{ y:{beginAtZero:true, grid:{color:'#f0f0f0'}}, x:{grid:{display:false}} } }
+        });
+
+        // BAR chart
+        new Chart(document.getElementById('barChart'), {
+            type:'bar',
+            data:{ labels:months,
+                datasets:[
+                    { label:'Total', data:total, backgroundColor:navbarBlue },
+                    { label:'Under Review', data:underReview, backgroundColor:teal },
+                    { label:'In Process', data:inProcess, backgroundColor:orange },
+                    { label:'Cancelled', data:cancelled, backgroundColor:paleBlue }
+                ]
+            },
+            options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top'}},
+                      scales:{ y:{beginAtZero:true, grid:{color:'#f0f0f0'}}, x:{ticks:{autoSkip:false}} } }
+        });
+    </script>
+}

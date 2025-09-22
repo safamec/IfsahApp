@@ -1,8 +1,101 @@
 @model dynamic
 @{
-    Layout = null;
+    Layout = null; // مهم في قوالب الإيميل
+    var brand = "#0b5ed7";
+    var text  = "#212529";
+    var muted = "#6c757d";
 }
-<h2>تأكيد البريد الإلكتروني</h2>
-<p>مرحبًا @Model.FullName، الرجاء تأكيد بريدك لإكمال الوصول للحساب.</p>
-<p><a href="@Model.Link">اضغط هنا لتأكيد بريدك</a></p>
-<p>سينتهي الرابط بعد 24 ساعة، ويُستخدم مرة واحدة فقط.</p>
+
+/* رسالة بريد HTML بنمط بسيط ومتوافق */
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>تأكيد البريد الإلكتروني</title>
+
+  <!-- نص مُسبق الظهور في المعاينة (يختفي داخل الرسالة) -->
+  <style>
+    .preheader{display:none !important;visibility:hidden;opacity:0;color:transparent;height:0;width:0;overflow:hidden;}
+  </style>
+</head>
+<body style="margin:0;padding:0;background:#f6f8fb;font-family:Tahoma, Arial, sans-serif;direction:rtl;">
+
+  <!-- Preheader -->
+  <div class="preheader">مرحبًا @Model?.FullName — اضغطي الزر لتأكيد بريدك خلال 24 ساعة.</div>
+
+  <!-- Wrapper -->
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f8fb;">
+    <tr>
+      <td align="center" style="padding:24px 12px;">
+
+        <!-- Card -->
+        <table role="presentation" width="640" cellpadding="0" cellspacing="0"
+               style="max-width:640px;background:#ffffff;border:1px solid #e8ecf2;border-radius:10px;overflow:hidden;">
+          <!-- Header bar -->
+          <tr>
+            <td style="background:@brand;color:#fff;padding:18px 22px;font-weight:700;font-size:18px;">
+              🔒 تأكيد البريد الإلكتروني
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:28px 24px 8px 24px;color:@text;font-size:16px;line-height:1.7;">
+              <p style="margin:0 0 8px 0;">مرحبًا <strong>@(Model?.FullName ?? "ضيفتنا الكريمة")</strong>،</p>
+              <p style="margin:0 0 16px 0;">
+                الرجاء تأكيد بريدك الإلكتروني لإكمال الوصول إلى حسابك.
+              </p>
+
+              <!-- Button (رابط كبزر) -->
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin:18px 0 12px 0;">
+                <tr>
+                  <td align="center" bgcolor="@brand"
+                      style="border-radius:8px;">
+                    <a href="@Model?.Link"
+                       style="display:inline-block;padding:12px 22px;border-radius:8px;
+                              color:#ffffff;text-decoration:none;font-weight:700;"
+                       target="_blank" rel="noopener">
+                      تأكيد البريد الآن
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:8px 0 0 0;color:@muted;font-size:14px;">
+                صلاحية رابط التأكيد <strong>24 ساعة</strong> ويُستخدم <strong>مرة واحدة فقط</strong>.
+              </p>
+
+              <!-- Fallback link -->
+              <p style="margin:16px 0 0 0;color:@muted;font-size:13px;">
+                إذا لم يعمل الزر أعلاه، انسخي هذا الرابط وافتحيه في المتصفح:
+              </p>
+              <p style="margin:6px 0 0 0;word-break:break-all;font-size:13px;">
+                <a href="@Model?.Link" style="color:@brand;text-decoration:underline;" target="_blank" rel="noopener">
+                  @Model?.Link
+                </a>
+              </p>
+
+              <!-- Safety note -->
+              <p style="margin:20px 0 0 0;color:@muted;font-size:13px;">
+                إن لم تطلبي هذا الإجراء، يمكنك تجاهل هذه الرسالة.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:18px 24px;color:@muted;background:#fafbfe;font-size:12px;text-align:center;border-top:1px solid #eef2f7;">
+              © @(DateTime.UtcNow.Year) نظام استقبال البلاغات — جميع الحقوق محفوظة.
+            </td>
+          </tr>
+        </table>
+        <!-- /Card -->
+
+      </td>
+    </tr>
+  </table>
+  <!-- /Wrapper -->
+
+</body>
+</html>

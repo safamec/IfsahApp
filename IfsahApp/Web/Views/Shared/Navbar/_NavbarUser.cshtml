@@ -1,13 +1,17 @@
+@* _Navbar.cshtml *@
 @inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 
 <ul class="navbar-nav">
-    <li class="nav-item">
-    <a class="nav-link" asp-controller="DevLogin" asp-action="Index">
-        <i class="bi bi-box-arrow-in-right me-1"></i>
-        Login
-    </a>
-</li>
 
+    <!-- Dev login (visible when not authenticated) -->
+    <li class="nav-item">
+        <a class="nav-link" asp-controller="DevLogin" asp-action="Index">
+            <i class="bi bi-box-arrow-in-right me-1"></i>
+            Login
+        </a>
+    </li>
+
+    <!-- User dropdown (you can toggle display via JS/auth) -->
     <li class="nav-item dropdown" id="user-nav" style="display: none;">
         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="bi bi-person-circle me-1"></i>
@@ -20,9 +24,7 @@
                     <span>@Localizer["profile"]</span>
                 </a>
             </li>
-            <li>
-                <hr class="dropdown-divider">
-            </li>
+            <li><hr class="dropdown-divider"></li>
             <li>
                 <a class="dropdown-item" href="#">
                     <i class="bi bi-box-arrow-right me-2"></i>
@@ -31,6 +33,8 @@
             </li>
         </ul>
     </li>
+
+    <!-- Help -->
     <li class="nav-item">
         <a class="nav-link" href="#">
             <i class="bi bi-question-circle me-1"></i>
@@ -40,18 +44,24 @@
 
    <!-- Notifications bell (navbar item) -->
 <li class="nav-item dropdown">
-  <button id="btnNotif"
-          class="btn btn-link nav-link position-relative"
-          type="button"
-          data-bs-toggle="dropdown"
-          aria-expanded="false">
+  <a id="btnNotif"
+     class="nav-link dropdown-toggle position-relative"
+     href="#"
+     role="button"
+     data-bs-toggle="dropdown"
+     aria-expanded="false">
     <i class="bi bi-bell fs-5"></i>
     <span id="notifBadge"
           class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
-  </button>
+  </a>
 
-  <ul class="dropdown-menu dropdown-menu-end shadow"
-      style="min-width:340px;max-height:380px;overflow:auto;">
+  <!-- منع الإغلاق عند التفاعل داخل القائمة -->
+<ul class="dropdown-menu dropdown-menu-end shadow"
+    data-bs-auto-close="outside"
+    aria-labelledby="btnNotif"
+    style="min-width:340px;max-height:380px;overflow:auto;">
+
+    <!-- رأس القائمة -->
     <li class="px-3 pt-2 pb-1 d-flex justify-content-between align-items-center">
       <strong>الإشعارات</strong>
 
@@ -66,7 +76,7 @@
 
     <li><hr class="dropdown-divider"></li>
 
-    <!-- قائمة الإشعارات ستُملأ بالـ JS -->
+    <!-- قائمة الإشعارات تُملأ بالـ JS -->
     <li id="notifList">
       <div class="text-center text-muted py-3">لا توجد إشعارات</div>
     </li>
@@ -74,7 +84,7 @@
 </li>
 
 
-    <!-- Theme toggle-theme -->
+    <!-- Theme toggle -->
     <li class="nav-item p-2">
         <label class="toggle-theme">
             <input type="checkbox" id="theme-checkbox">
@@ -92,17 +102,19 @@
             @if (System.Threading.Thread.CurrentThread.CurrentCulture.Name.StartsWith("ar"))
             {
                 <a asp-controller="Culture" asp-action="SetLanguage" asp-route-culture="en"
-                    asp-route-returnUrl="@currentUrl" class="btn toggle-lang active">
+                   asp-route-returnUrl="@currentUrl" class="btn toggle-lang active">
                     عربي
                 </a>
             }
             else
             {
                 <a asp-controller="Culture" asp-action="SetLanguage" asp-route-culture="ar"
-                    asp-route-returnUrl="@currentUrl" class="btn toggle-lang active">
+                   asp-route-returnUrl="@currentUrl" class="btn toggle-lang active">
                     English
                 </a>
             }
         </div>
     </li>
 </ul>
+
+

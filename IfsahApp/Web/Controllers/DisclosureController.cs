@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting; // IWebHostEnvironment
 using IfsahApp.Core.Models;
 using IfsahApp.Core.ViewModels;
-using IfsahApp.Hubs;
 using IfsahApp.Infrastructure.Data;
 using IfsahApp.Infrastructure.Services;
 using IfsahApp.Infrastructure.Services.Email;
@@ -18,7 +17,13 @@ using Newtonsoft.Json;
 using System.Threading;        // Thread.CurrentThread
 using System.IO;              // Path / File / Directory
 using System.Security.Claims; // << ADDED for CurrentDbUserIdAsync
-using System;                 // DateTime, Guid
+using System;        
+using System.Security.Cryptography;
+using System.Text;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.WebUtilities;
+using IfsahApp.Hubs;
+// DateTime, Guid
 
 namespace IfsahApp.Web.Controllers
 {
@@ -235,83 +240,73 @@ namespace IfsahApp.Web.Controllers
         }
 
         // Step 5 - POST (submit final)
-        [HttpPost, ActionName("ReviewForm")]
-        public async Task<IActionResult> ReviewFormPost()
+[HttpPost, ActionName("ReviewForm")]
+public async Task<IActionResult> ReviewFormPost()
+{
+    var form = GetFormFromTempData();
+    if (form == null) return RedirectToAction(nameof(FormDetails));
+    if (!ModelState.IsValid) return RedirectToAction(nameof(ReviewForm));
+
+    var disclosure = _mapper.Map<Disclosure>(form);
+    disclosure.DisclosureNumber = DisclosureNumberGeneratorHelper.Generate();
+
+    var submitterId = await CurrentDbUserIdAsync();
+    disclosure.SubmittedById = submitterId;
+
+    AddPersonsToDisclosure(disclosure, form);
+    await TryAddAttachmentsFromTempAsync(disclosure, form.SavedAttachmentPaths);
+
+    // 1) Save disclosure first
+    _context.Disclosures.Add(disclosure);
+    await _context.SaveChangesAsync();
+
+    // 2) Push to admins (SignalR)
+    try
+    {
+        await _hub.Clients.Group("admins").SendAsync("Notify", new
         {
-            var form = GetFormFromTempData();
-            if (form == null)
-                return RedirectToAction(nameof(FormDetails));
+            id        = disclosure.Id,
+            eventType = "NewDisclosure",
+            message   = $"بلاغ جديد: {disclosure.DisclosureNumber}",
+            createdAt = DateTime.UtcNow,
+            url       = Url.Action("Details", "Disclosure", new { id = disclosure.Id })
+        });
+    }
+    catch (Exception ex)
+    {
+        _logger.LogWarning(ex, "SignalR group-broadcast to admins failed for {Report}", disclosure.DisclosureNumber);
+    }
 
-            if (!ModelState.IsValid)
-                return RedirectToAction(nameof(ReviewForm));
+    // 3) Create DB notification for the submitter (no SignalR push for non-admins)
+    try
+    {
+        var receipt = new Notification
+        {
+            RecipientId = submitterId,
+            EventType   = "Receipt",
+            Message     = $"تم استلام البلاغ رقم {disclosure.DisclosureNumber}.",
+            CreatedAt   = DateTime.UtcNow,
+            IsRead      = false
+        };
+        _context.Notifications.Add(receipt);
+        await _context.SaveChangesAsync();
+        // ملاحظة: لا نرسل SignalR للمستخدم العادي لأن الـ Hub للأدمِن فقط
+    }
+    catch (Exception ex)
+    {
+        _logger.LogWarning(ex, "Failed to create submitter notification for report {Report}", disclosure.DisclosureNumber);
+    }
 
-            var disclosure = _mapper.Map<Disclosure>(form);
-            disclosure.DisclosureNumber = DisclosureNumberGeneratorHelper.Generate();
+    // 4) تنظيف الحالة المؤقتة
+    TempData.Remove(TempDataKey);
+    TempData.Remove("TempAttachmentPaths");
 
-            // << ADDED: resolve current DB user id instead of hard-coded 1
-            var submitterId = await CurrentDbUserIdAsync();
-            disclosure.SubmittedById = submitterId;
+    // 5) خيارك الحالي لإشعار الإداريين عبر مساعد (إن وجد)
+    await NotificationHelper.NotifyAdminsAsync(_context, _hub, disclosure, Url);
 
-            AddPersonsToDisclosure(disclosure, form);
-
-            // move files from tempUploads -> uploads
-            await TryAddAttachmentsFromTempAsync(disclosure, form.SavedAttachmentPaths);
-
-            _context.Disclosures.Add(disclosure);
-            await _context.SaveChangesAsync();
-
-            // << ADDED: create a notification for the submitter
-            try
-            {
-                var link = Url.Action(
-                    action: "SubmitDisclosure",
-                    controller: "Disclosure",
-                    values: new { reportNumber = disclosure.DisclosureNumber },
-                    protocol: Request.Scheme
-                ) ?? "#";
-
-                var receipt = new Notification
-                {
-                    RecipientId = submitterId,
-                    EventType   = "Receipt",
-                    Message     = $"تم استلام البلاغ رقم {disclosure.DisclosureNumber}.",
-                    CreatedAt   = DateTime.UtcNow,
-                    IsRead      = false
-                };
-
-                _context.Notifications.Add(receipt);
-                await _context.SaveChangesAsync();
-
-                // بث فوري (SignalR) — يعتمد أن UserIdentifier يطابق Users.Id.ToString()
-                try
-                {
-                    await _hub.Clients.User(submitterId.ToString()).SendAsync("Notify", new
-                    {
-                        id        = receipt.Id,
-                        eventType = receipt.EventType,
-                        message   = receipt.Message,
-                        createdAt = receipt.CreatedAt,
-                    });
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "SignalR notify (submitter) failed for report {Report}", disclosure.DisclosureNumber);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Failed to create submitter notification for report {Report}", disclosure.DisclosureNumber);
-            }
-
-            // cleanup TempData
-            TempData.Remove(TempDataKey);
-            TempData.Remove("TempAttachmentPaths");
-
-            // موجود أصلاً عندك: يُبلغ الإداريين (إن لزم) وينشئ إشعاراتهم
-            await NotificationHelper.NotifyAdminsAsync(_context, _hub, disclosure, Url);
-
-            return RedirectToAction(nameof(SubmitDisclosure), new { reportNumber = disclosure.DisclosureNumber });
-        }
+    // 6) التحويل
+    return RedirectToAction(nameof(SubmitDisclosure), new { reportNumber = disclosure.DisclosureNumber });
+}
 
         #endregion
 
@@ -434,6 +429,21 @@ namespace IfsahApp.Web.Controllers
             return 0;
         }
 
+private static string GenerateToken(int size = 32)
+{
+    var bytes = RandomNumberGenerator.GetBytes(size);
+    // URL-safe
+    return WebEncoders.Base64UrlEncode(bytes);
+}
+
+private static string Sha256Hex(string value)
+{
+    var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(value));
+    var sb = new StringBuilder(bytes.Length * 2);
+    foreach (var b in bytes) sb.Append(b.ToString("x2"));
+    return sb.ToString();
+}
+
         #endregion
 
         [HttpGet]
@@ -446,30 +456,55 @@ namespace IfsahApp.Web.Controllers
         [HttpPost("/Disclosure/SubscribeEmail")]
         public async Task<IActionResult> SubscribeEmail([FromBody] SubscribeEmailDto dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.ReportNumber))
-                return BadRequest(new { ok = false, message = "رقم البلاغ مطلوب" });
-
-            if (!IsValidEmail(dto.Email))
-                return BadRequest(new { ok = false, message = "البريد الإلكتروني غير صالح" });
-
-            var exists = await _context.Disclosures
-                .AsNoTracking()
-                .AnyAsync(d => d.DisclosureNumber == dto.ReportNumber);
-
-            if (!exists)
-                return NotFound(new { ok = false, message = "رقم البلاغ غير موجود" });
-
+            // دائمًا نُرجِع 200 لنمنع Enumeration مهما كانت النتيجة
             try
             {
-                var model = new DisclosureConfirmEmailViewModel
+                if (string.IsNullOrWhiteSpace(dto?.ReportNumber) || string.IsNullOrWhiteSpace(dto?.Email))
+                    return Ok(new { ok = true });
+
+                // نتأكد من وجود البلاغ
+                var reportExists = await _context.Disclosures
+                    .AsNoTracking()
+                    .AnyAsync(d => d.DisclosureNumber == dto.ReportNumber);
+
+                if (!reportExists)
+                    return Ok(new { ok = true });
+
+                // نبحث عن المستخدم بالبريد داخل قاعدة البيانات
+                var user = await _context.Users
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(u => u.Email == dto.Email);
+
+                if (user is null)
+                    return Ok(new { ok = true });
+
+                // توليد توكن وتخزين هاشه فقط
+                var rawToken = GenerateToken();
+                var tokenHash = Sha256Hex(rawToken);
+
+                var ev = new EmailVerification
                 {
-                    ReportNumber = dto.ReportNumber,
-                    ReceivedDate = DateTime.Now.ToString("yyyy/MM/dd"),
-                    TrackUrl = Url.Action("Track", "Disclosure", new { id = dto.ReportNumber }, Request.Scheme) ?? "#",
-                    LogoUrl = $"{Request.Scheme}://{Request.Host}/images/logo-mem.svg"
+                    UserId = user.Id,
+                    TokenHash = tokenHash,
+                    ExpiresAt = DateTime.UtcNow.AddHours(24),
+                    Purpose = $"subscribe_report:{dto.ReportNumber}"
                 };
 
-                var html = await _viewRender.RenderToStringAsync("Emails/DisclosureConfirm", model);
+                _context.Add(ev);
+                await _context.SaveChangesAsync();
+
+                // رابط التأكيد
+                var confirmUrl = Url.Action(
+                    "ConfirmSubscription", "Disclosure",
+                    new { token = rawToken, report = dto.ReportNumber },
+                    Request.Scheme
+                ) ?? "#";
+
+                // إيميل بسيط وواضح (HTML)
+                var html = $@"
+            <p>لتأكيد الاشتراك لتحديثات البلاغ رقم <strong>{dto.ReportNumber}</strong>، اضغطي الرابط التالي:</p>
+            <p><a href=""{confirmUrl}"">تأكيد الاشتراك</a></p>
+            <p>صلاحية الرابط 24 ساعة ويُستخدم مرة واحدة.</p>";
 
                 await _email.SendAsync(
                     dto.Email,
@@ -480,11 +515,74 @@ namespace IfsahApp.Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to send confirmation email for report {Report}", dto.ReportNumber);
+                _logger.LogWarning(ex, "SubscribeEmail failed for {Email} / {Report}", dto?.Email, dto?.ReportNumber);
             }
 
-            return Ok(new { ok = true, message = "تم التحقق وإرسال التأكيد على البريد" });
+            // نفس الرد دائمًا – لا نكشف أي معلومة
+            return Ok(new { ok = true });
         }
+[AllowAnonymous]
+[HttpGet("/Disclosure/ConfirmSubscription")]
+public async Task<IActionResult> ConfirmSubscription(string token, string report)
+{
+    if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(report))
+        return View("ConfirmSubscriptionError");
+
+    var hash = Sha256Hex(token);
+
+    var ev = await _context.Set<EmailVerification>()
+        .FirstOrDefaultAsync(x =>
+            x.TokenHash  == hash &&
+            x.Purpose    == $"subscribe_report:{report}" &&
+            x.ConsumedAt == null &&
+            x.ExpiresAt  > DateTime.UtcNow);
+
+    if (ev is null)
+        return View("ConfirmSubscriptionError");
+
+    ev.ConsumedAt = DateTime.UtcNow;
+    await _context.SaveChangesAsync();
+
+    try
+    {
+        var note = new Notification
+        {
+            RecipientId = ev.UserId,
+            EventType   = "SubscribeReport",
+            Message     = $"تم تأكيد الاشتراك لتحديثات البلاغ {report}."
+        };
+        _context.Add(note);
+        await _context.SaveChangesAsync();
+
+        // ⬅️ التغيير هنا: أرسل لمجموعة user-{DbId}
+        await _hub.Clients.Group($"user-{ev.UserId}").SendAsync("Notify", new
+        {
+            id        = note.Id,
+            eventType = note.EventType,
+            message   = note.Message,
+            createdAt = note.CreatedAt
+        });
+
+        // (اختياري) بث للإداريين
+        await _hub.Clients.Group("admins").SendAsync("Notify", new
+        {
+            id        = note.Id,
+            eventType = "SubscribeReport",
+            message   = $"تم تأكيد اشتراك مستخدم لتحديثات البلاغ {report}.",
+            createdAt = note.CreatedAt
+        });
+    }
+    catch (Exception ex)
+    {
+        _logger.LogWarning(ex, "SignalR notify failed in ConfirmSubscription for report {Report}", report);
+    }
+
+    ViewBag.Report = report;
+    return View("ConfirmSubscriptionSuccess");
+}
+
+
+
 
         private static bool IsValidEmail(string? v) =>
             !string.IsNullOrWhiteSpace(v) &&

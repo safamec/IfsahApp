@@ -3,31 +3,32 @@
     Layout = null;
     var brandDark = "#0d3b66";
     var brandBlue = "#0d6efd";
-    var brandAccent = "#f26522";
-    var muted = "#6c757d";
+    var muted     = "#6c757d";
 }
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
-  <title>تأكيد استلام البلاغ - @Model.ReportNumber</title>
+  <title>تأكيد الاشتراك لتحديثات البلاغ - @Model.ReportNumber</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
     @@media (max-width:600px){
-        .container{width:100%!important;}
-        .px{padding-right:16px!important;padding-left:16px!important;}
+      .container{width:100% !important;}
+      .px{padding-right:16px !important; padding-left:16px !important;}
     }
+    .btn{display:inline-block;padding:12px 22px;border-radius:8px;
+         color:#fff;text-decoration:none;font-weight:700}
   </style>
 </head>
-<body style="margin:0;background:#f4f6f8;font-family:Tahoma, Arial, sans-serif;">
+<body style="margin:0;background:#f4f6f8;font-family:Tahoma, Arial, sans-serif;direction:rtl;">
   <center style="width:100%;background:#f4f6f8;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
       <tr>
         <td align="center" style="padding:32px 12px;">
 
-          <!-- البطاقة الرئيسية -->
+          <!-- البطاقة -->
           <table role="presentation" class="container" width="640" cellpadding="0" cellspacing="0" border="0"
                  style="width:640px;max-width:100%;background:#fff;border:1px solid #e9ecef;border-radius:14px;overflow:hidden;">
-
             <!-- الهيدر -->
             <tr>
               <td style="background:@brandDark;padding:18px 28px;color:#fff;font-weight:700;font-size:18px;text-align:center;">
@@ -37,40 +38,54 @@
 
             <!-- المحتوى -->
             <tr>
-              <td class="px" style="padding:28px;color:#333;text-align:center;">
-                <h2 style="margin:0 0 12px;font-size:22px;">تم تفعيل الإشعارات لبلاغك</h2>
-                <p style="margin:0;font-size:15px;color:@muted;line-height:1.6;">
-                  شكرًا لتواصلك معنا. تم استلام طلب التفعيل بنجاح، وستخطَر بأي تحديثات تخص بلاغك.
+              <td class="px" style="padding:28px;color:#212529;text-align:right;line-height:1.7;">
+                <h2 style="margin:0 0 12px;font-size:22px;text-align:center;">تأكيد الاشتراك لتحديثات البلاغ</h2>
+                <p style="margin:0 0 6px;color:@muted;text-align:center;">رقم البلاغ:</p>
+                <p style="margin:0 0 16px;font-weight:700;font-size:18px;color:@brandBlue;text-align:center;" dir="ltr">
+                  @Model.ReportNumber
+                </p>
+
+                <p style="margin:0 0 10px;">
+                  اضغطي الزر بالأسفل لإتمام تأكيد الاشتراك واستلام الإشعارات الخاصة بالبلاغ.
+                </p>
+
+                <!-- الزر (استعملي TrackUrl مؤقتًا كرابط حتى لو كان زر تأكيد) -->
+                <p style="margin:18px 0 12px;text-align:center;">
+                  <a href="@Model.TrackUrl" class="btn" style="background:@brandBlue;" target="_blank" rel="noopener">
+                    تأكيد الاشتراك
+                  </a>
+                </p>
+
+                <p style="margin:10px 0 0;color:@muted;font-size:13px;">
+                  لو لم يعمل الزر، انسخي هذا الرابط وافتحيه في المتصفح:
+                </p>
+                <p style="margin:6px 0 0;word-break:break-all;font-size:13px;">
+                  <a href="@Model.TrackUrl" style="color:@brandBlue;text-decoration:underline;" target="_blank" rel="noopener">
+                    @Model.TrackUrl
+                  </a>
+                </p>
+
+                <p style="margin:16px 0 0;color:@muted;font-size:13px;">
+                  صلاحية رابط التأكيد 24 ساعة ويُستخدم مرة واحدة فقط.
                 </p>
               </td>
             </tr>
 
-            <!-- بطاقة بيانات البلاغ -->
+            <!-- معلومات إضافية -->
             <tr>
-              <td class="px" style="padding:0 28px 28px;">
-                <table role="presentation" width="100%" style="background:#f9fbfd;border:1px solid #e9ecef;border-radius:12px;">
-                  <tr>
-                    <td style="padding:18px;color:#333;font-size:15px;">
-                      <p style="margin:6px 0;color:@muted;">رقم البلاغ:</p>
-                      <p style="margin:0;font-weight:700;font-size:18px;color:@brandBlue;" dir="ltr">
-                        @Model.ReportNumber
-                      </p>
-                      <p style="margin:12px 0 4px;color:@muted;">تاريخ الاستلام:</p>
-                      <p style="margin:0;font-size:14px;">@Model.ReceivedDate</p>
-                    </td>
-                  </tr>
-                </table>
+              <td class="px" style="padding:0 28px 24px;color:@muted;font-size:12px;">
+                تاريخ الطلب: @Model.ReceivedDate
               </td>
             </tr>
 
             <!-- الفوتر -->
             <tr>
-              <td style="padding:20px 28px;color:@muted;font-size:12px;text-align:center;background:#fafbfc;border-top:1px solid #eef1f4;">
-                هذه رسالة آلية من نظام إفصاح. إذا لم تكن المعني بالبلاغ، يُرجى تجاهل الرسالة.
+              <td style="padding:16px 28px;color:@muted;font-size:12px;text-align:center;background:#fafbfc;border-top:1px solid #eef1f4;">
+                هذه رسالة آلية من نظام إفصاح. إن لم تطلبي هذا الإجراء، تجاهلي الرسالة.
               </td>
             </tr>
-
           </table>
+
         </td>
       </tr>
     </table>

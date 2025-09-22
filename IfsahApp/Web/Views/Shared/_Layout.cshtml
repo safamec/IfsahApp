@@ -1,9 +1,11 @@
 @using System.Globalization
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @inject IHtmlLocalizer<SharedResource> SharedLocalizer
 <!DOCTYPE html>
 <html lang="@CultureInfo.CurrentUICulture.TwoLetterISOLanguageName"
       dir="@(CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? "rtl" : "ltr")">
 <head>
+
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="نظام تلقي الإفصاحات - وزارة الطاقة والمعادن - حماية المبلغين وتعزيز الشفافية" />
@@ -38,11 +40,19 @@
         @RenderBody()
       </main>
     }
+    
 
     @await Html.PartialAsync("Footer/_Footer")
   </div>
+  @{
+  var tokens = Antiforgery.GetAndStoreTokens(Context);
+  var isAdmin = User.IsInRole("Admin") || User.IsInRole("Examiner");
+}
 
   @await Html.PartialAsync("_ThemeScripts")
+  
+  
   @RenderSection("Scripts", required: false)
+
 </body>
 </html>

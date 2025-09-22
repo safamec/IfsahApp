@@ -89,11 +89,10 @@ builder.Services.AddSignalR();
 // 8) Build app
 var app = builder.Build();
 
-// 9) DB Seeding
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    DbSeeder.Seed(db);
+    DbSeeder.Seed(db);   // ✅ make sure DbSeeder.Seed(ApplicationDbContext) is static and idempotent
 }
 
 // 10) Localization middleware (should be early in pipeline)

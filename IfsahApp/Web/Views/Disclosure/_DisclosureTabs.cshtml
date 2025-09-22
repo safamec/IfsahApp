@@ -1,0 +1,71 @@
+@{
+    var currentStep = ViewData["Step"] as int? ?? 1;
+}
+
+
+<style>
+    body {
+        background: #f5f7fb;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .steps {
+        display: flex;
+        justify-content: space-between;
+        list-style: none;
+        padding: 0;
+        margin: 30px 0;
+    }
+
+    .steps li {
+        flex: 1;
+        text-align: center;
+        padding: 10px;
+        border-bottom: 3px solid #ddd;
+        color: #999;
+        font-weight: 500;
+    }
+
+    .steps li.active {
+        border-color: #6a11cb;
+        color: #6a11cb;
+    }
+
+    .card {
+        background: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        max-width: 700px;
+        margin: auto;
+
+    }
+
+    .steps li.active {
+        border-bottom: 3px solid #6a11cb;
+        color: #6a11cb;
+        font-weight: 700;
+        background-color: #e6e0f8;
+    }
+
+    .steps li.completed {
+        color: green;
+        font-weight: 600;
+        border-bottom: 3px solid green;
+    }
+</style>
+
+<body>
+    <div class="container">
+        <ul class="steps">
+            <li class="@(currentStep > 1 ? "completed" : (currentStep == 1 ? "active" : ""))">1. Basic Info</li>
+            <li class="@(currentStep > 2 ? "completed" : (currentStep == 2 ? "active" : ""))">2. Suspected People</li>
+            <li class="@(currentStep > 3 ? "completed" : (currentStep == 3 ? "active" : ""))">3. Related People</li>
+            <li class="@(currentStep > 4 ? "completed" : (currentStep == 4 ? "active" : ""))">4. Attachments</li>
+            <li class="@(currentStep == 5 ? "active" : "")">5. Review</li>
+        </ul>
+
+
+</body>
+
+</html>

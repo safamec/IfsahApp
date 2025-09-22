@@ -1,0 +1,100 @@
+@model IfsahApp.Core.ViewModels.DisclosureFormViewModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = "Disclosure Details";
+    ViewData["Step"] = Model.Step;
+}
+@section StepTabs {
+    @await Html.PartialAsync("_DisclosureTabs")
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="FormDetails" method="post">
+    <div class="form-group">
+        <label asp-for="DisclosureTypeId">@Localizer["Disclosure Type"]</label>
+        <select asp-for="DisclosureTypeId" asp-items="ViewBag.DisclosureTypes" class="form-control"></select>
+        <span asp-validation-for="DisclosureTypeId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description">@Localizer["Description"]</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Location">@Localizer["Location"]</label>
+        <input asp-for="Location" class="form-control" />
+        <span asp-validation-for="Location" class="text-danger"></span>
+    </div>
+
+    <!-- Date Range Picker Section -->
+    <div class="mb-3">
+        <label class="form-label">@Localizer["ReportDateRangeLabel"]</label>
+        <input id="dateRangePicker" type="text" class="form-control" autocomplete="off"
+            placeholder='@Localizer["SelectDateRangePlaceholder"]' />
+
+        <input type="hidden" asp-for="IncidentStartDate" />
+        <input type="hidden" asp-for="IncidentEndDate" />
+
+        <span asp-validation-for="IncidentStartDate" class="text-danger"></span>
+        <span asp-validation-for="IncidentEndDate" class="text-danger"></span>
+    </div>
+    <div class="d-flex justify-content-between mt-3">
+        <button type="button" class="btn btn-secondary" onclick="history.back()">
+            @Localizer["Back"]
+        </button>
+        <button type="submit" class="btn btn-primary">@Localizer["Next"]</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <!-- Date Range Picker dependencies -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+    <script>
+        $(function () {
+            $('#dateRangePicker').daterangepicker({
+                locale: {
+                    format: 'YYYY-MM-DD',
+                    applyLabel: '@Localizer["Apply"]',
+                    cancelLabel: '@Localizer["Cancel"]',
+                    fromLabel: '@Localizer["From"]',
+                    toLabel: '@Localizer["To"]',
+                    customRangeLabel: '@Localizer["Custom"]',
+                    daysOfWeek: [
+                        '@Localizer["Su"]', '@Localizer["Mo"]', '@Localizer["Tu"]',
+                        '@Localizer["We"]', '@Localizer["Th"]', '@Localizer["Fr"]', '@Localizer["Sa"]'
+                    ],
+                    monthNames: [
+                        '@Localizer["January"]', '@Localizer["February"]', '@Localizer["March"]',
+                        '@Localizer["April"]', '@Localizer["May"]', '@Localizer["June"]',
+                        '@Localizer["July"]', '@Localizer["August"]', '@Localizer["September"]',
+                        '@Localizer["October"]', '@Localizer["November"]', '@Localizer["December"]'
+                    ],
+                    firstDay: 0
+                },
+                autoUpdateInput: false
+            });
+
+            $('#dateRangePicker').on('apply.daterangepicker', function (ev, picker) {
+                $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+                $('input[name="IncidentStartDate"]').val(picker.startDate.format('YYYY-MM-DD'));
+                $('input[name="IncidentEndDate"]').val(picker.endDate.format('YYYY-MM-DD'));
+            });
+
+            $('#dateRangePicker').on('cancel.daterangepicker', function () {
+                $(this).val('');
+                $('input[name="IncidentStartDate"]').val('');
+                $('input[name="IncidentEndDate"]').val('');
+            });
+        });
+    </script>
+}

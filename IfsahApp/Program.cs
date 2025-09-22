@@ -32,6 +32,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(dbOptions =>
 
 // 2) AutoMapper
 builder.Services.AddAutoMapper(typeof(DisclosureMappingProfile));
+builder.Services.AddControllersWithViews()
+    .AddSessionStateTempDataProvider();
+builder.Services.AddSession();
 
 // 3) Email settings + service
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
@@ -103,6 +106,7 @@ app.UseRequestLocalization(locOptions);
 
 // 11) Pipeline
 app.UseStaticFiles();
+app.UseSession();
 app.UseRouting();
 app.UseAdUser();        // BEFORE auth/authorization so Login sees HttpContext.Items["AdUser"]
 app.UseAuthentication();

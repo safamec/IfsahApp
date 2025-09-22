@@ -38,14 +38,41 @@
         </a>
     </li>
 
-    <!-- Notification Button -->
-    <li class="nav-item p-2">
-        <button id="notifBtn" type="button" class="btn notif-btn position-relative">
-            <span>🔔</span>
-            <span id="notifBadge"
-                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
+   <!-- Notifications bell (navbar item) -->
+<li class="nav-item dropdown">
+  <button id="btnNotif"
+          class="btn btn-link nav-link position-relative"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false">
+    <i class="bi bi-bell fs-5"></i>
+    <span id="notifBadge"
+          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
+  </button>
+
+  <ul class="dropdown-menu dropdown-menu-end shadow"
+      style="min-width:340px;max-height:380px;overflow:auto;">
+    <li class="px-3 pt-2 pb-1 d-flex justify-content-between align-items-center">
+      <strong>الإشعارات</strong>
+
+      <!-- زر تعيين الكل كمقروء عبر POST + AntiForgery -->
+      <form id="notifMarkAllForm" method="post" action="/Notifications/MarkAllRead" class="m-0 p-0">
+        @Html.AntiForgeryToken()
+        <button id="notifMarkAll" class="btn btn-sm btn-outline-secondary" type="submit">
+          تعيين مقروءة
         </button>
+      </form>
     </li>
+
+    <li><hr class="dropdown-divider"></li>
+
+    <!-- قائمة الإشعارات ستُملأ بالـ JS -->
+    <li id="notifList">
+      <div class="text-center text-muted py-3">لا توجد إشعارات</div>
+    </li>
+  </ul>
+</li>
+
 
     <!-- Theme toggle-theme -->
     <li class="nav-item p-2">

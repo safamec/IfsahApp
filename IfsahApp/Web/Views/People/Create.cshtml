@@ -1,0 +1,39 @@
+@model IfsahApp.Core.ViewModels.PeopleViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<form id="personForm" method="post" asp-controller="People" asp-action="Create">
+    @Html.AntiForgeryToken()
+
+    <!-- نرسل النوع مرتين لضمان الربط -->
+    <input type="hidden" name="Type" value="@Model.Type" />
+    <input type="hidden" name="peopletype" value="@Model.Type" />
+
+    <div class="mb-3">
+        <label class="form-label">Name</label>
+        <input name="Name" class="form-control" />
+        <span class="text-danger" data-valmsg-for="Name"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input name="Email" class="form-control" />
+        <span class="text-danger" data-valmsg-for="Email"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Phone</label>
+        <input name="Phone" class="form-control" />
+        <span class="text-danger" data-valmsg-for="Phone"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Organization</label>
+        <input name="Organization" class="form-control" />
+        <span class="text-danger" data-valmsg-for="Organization"></span>
+    </div>
+
+    <div class="d-flex gap-2 justify-content-end">
+        <button type="submit" class="btn btn-success">Save</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+    </div>
+</form>

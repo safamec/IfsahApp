@@ -1,0 +1,143 @@
+@model IfsahApp.Core.ViewModels.DisclosureFormViewModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    ViewData["Title"] = Localizer["Review Disclosure"];
+    ViewData["Step"] = Model.Step;
+
+    // If you want to show the disclosure type text, make sure the controller loaded it:
+    // await LoadDisclosureTypesAsync(Model.DisclosureTypeId) in GET ReviewForm.
+    var disclosureTypes = ViewBag.DisclosureTypes as IEnumerable<SelectListItem>;
+}
+
+@section StepTabs { @await Html.PartialAsync("_DisclosureTabs") }
+
+<h2>@ViewData["Title"]</h2>
+
+<!-- Disclosure Details -->
+<div class="mb-4">
+    <h4>@Localizer["Disclosure Details"]</h4>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>@Localizer["Disclosure Type"]</th>
+            <th>@Localizer["Description"]</th>
+            <th>@Localizer["Location"]</th>
+            <th>@Localizer["Incident Start Date"]</th>
+            <th>@Localizer["Incident End Date"]</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+             @(
+    disclosureTypes?.FirstOrDefault(d => d.Value == Model.DisclosureTypeId.ToString())?.Text
+    ?? Model.DisclosureTypeId.ToString()
+)
+
+            </td>
+            <td>@Model.Description</td>
+            <td>@Model.Location</td>
+            <td>@Model.IncidentStartDate?.ToString("yyyy-MM-dd")</td>
+            <td>@Model.IncidentEndDate?.ToString("yyyy-MM-dd")</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Suspected People -->
+<div class="mb-4">
+    <h4>@Localizer["Suspected People"]</h4>
+    @if (Model.SuspectedPersons != null && Model.SuspectedPersons.Any())
+    {
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>@Localizer["Name"]</th>
+                <th>@Localizer["Email"]</th>
+                <th>@Localizer["Phone"]</th>
+                <th>@Localizer["Organization"]</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var sp in Model.SuspectedPersons)
+            {
+                <tr>
+                    <td>@sp.Name</td>
+                    <td>@sp.Email</td>
+                    <td>@sp.Phone</td>
+                    <td>@sp.Organization</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p class="text-muted">@Localizer["No suspected people"]</p>
+    }
+</div>
+
+<!-- Related People -->
+<div class="mb-4">
+    <h4>@Localizer["Related People"]</h4>
+    @if (Model.RelatedPersons != null && Model.RelatedPersons.Any())
+    {
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>@Localizer["Name"]</th>
+                <th>@Localizer["Email"]</th>
+                <th>@Localizer["Phone"]</th>
+                <th>@Localizer["Organization"]</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var rp in Model.RelatedPersons)
+            {
+                <tr>
+                    <td>@rp.Name</td>
+                    <td>@rp.Email</td>
+                    <td>@rp.Phone</td>
+                    <td>@rp.Organization</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p class="text-muted">@Localizer["No related people"]</p>
+    }
+</div>
+
+<!-- Attachments (from TempData via Model.SavedAttachmentPaths) -->
+<div class="mb-4">
+    <h4>@Localizer["Attachments"]</h4>
+    @if (Model.SavedAttachmentPaths != null && Model.SavedAttachmentPaths.Any())
+    {
+        <ul class="list-unstyled">
+            @foreach (var name in Model.SavedAttachmentPaths)
+            {
+                <!-- Before submit, files are in /tempUploads; after submit you move them to /uploads -->
+                <li>
+                    <a href="~/tempUploads/@name" target="_blank">@name</a>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p class="text-muted">@Localizer["No attachments"]</p>
+    }
+</div>
+
+<!-- Final submit of the review -->
+<form asp-action="ReviewForm" method="post">
+    @Html.AntiForgeryToken()
+    <div class="d-flex justify-content-between mt-3">
+        <a asp-action="Attachments" class="btn btn-secondary">@Localizer["Back"]</a>
+        <button type="submit" class="btn btn-success">@Localizer["Submit Disclosure"]</button>
+    </div>
+</form>

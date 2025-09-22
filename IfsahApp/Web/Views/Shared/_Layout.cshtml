@@ -19,24 +19,25 @@
     @await Html.PartialAsync("Navbar/_Navbar")
 
     @{
-    var hasAdminSidebar = IsSectionDefined("AdminSidebar");
-}
-@if (hasAdminSidebar)
-{
-  <div class="admin-frame container-fluid px-0">
-    @RenderSection("AdminSidebar", required: false)
-    <main class="admin-content">
-      @RenderBody()
-    </main>
-  </div>
-}
-else
-{
-  <main class="container my-4 flex-fill" id="main-content">
-    @RenderBody()
-  </main>
-}
-
+      var hasAdminSidebar = IsSectionDefined("AdminSidebar");
+    }
+    @if (hasAdminSidebar)
+    {
+      <div class="admin-frame container-fluid px-0">
+        @RenderSection("AdminSidebar", required: false)
+        <main class="admin-content">
+          @RenderSection("StepTabs", required: false)  <!-- ✅ إضافة لعرض تبويبات الخطوات -->
+          @RenderBody()
+        </main>
+      </div>
+    }
+    else
+    {
+      <main class="container my-4 flex-fill" id="main-content">
+        @RenderSection("StepTabs", required: false)    <!-- ✅ إضافة لعرض تبويبات الخطوات -->
+        @RenderBody()
+      </main>
+    }
 
     @await Html.PartialAsync("Footer/_Footer")
   </div>

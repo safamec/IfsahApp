@@ -10,7 +10,7 @@ public class NotificationsController : Controller
     private readonly ApplicationDbContext _db;
     public NotificationsController(ApplicationDbContext db) => _db = db;
 
-    // Resolve the *DB* User.Id for current principal (by numeric id, then Email, then ADUserName/User.Identity.Name)
+    // يحل هوية المستخدم الحالي إلى Users.Id داخل DB
     private async Task<int> CurrentDbUserIdAsync()
     {
         var idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -26,7 +26,6 @@ public class NotificationsController : Controller
             if (found != 0) return found;
         }
 
-        // Try AD username (sAM/UPN)
         var ad = User.FindFirstValue(ClaimTypes.WindowsAccountName) ?? User.Identity?.Name;
         if (!string.IsNullOrWhiteSpace(ad))
         {
@@ -49,7 +48,6 @@ public class NotificationsController : Controller
         return View(items);
     }
 
-    // Returns a LIST (what your JS expects)
     [HttpGet]
     public async Task<IActionResult> Unread()
     {
@@ -58,11 +56,11 @@ public class NotificationsController : Controller
             .Where(n => n.RecipientId == uid && !n.IsRead)
             .OrderByDescending(n => n.CreatedAt)
             .Select(n => new {
-                id = n.Id,
+                id        = n.Id,
                 eventType = n.EventType,
-                message = n.Message,
+                message   = n.Message,
                 createdAt = n.CreatedAt,
-                url = (string?)null
+           
             })
             .ToListAsync();
         return Json(items);
@@ -77,11 +75,11 @@ public class NotificationsController : Controller
             .OrderByDescending(n => n.CreatedAt)
             .Take(Math.Clamp(take, 1, 200))
             .Select(n => new {
-                id = n.Id,
+                id        = n.Id,
                 eventType = n.EventType,
-                message = n.Message,
+                message   = n.Message,
                 createdAt = n.CreatedAt,
-                url = (string?)null
+              
             })
             .ToListAsync();
         return Json(items);
@@ -92,9 +90,16 @@ public class NotificationsController : Controller
     public async Task<IActionResult> MarkAsRead([FromQuery] int id)
     {
         var uid = await CurrentDbUserIdAsync();
-        var n = await _db.Notifications.FirstOrDefaultAsync(x => x.Id == id && x.RecipientId == uid);
+        var n = await _db.Notifications
+            .FirstOrDefaultAsync(x => x.Id == id && x.RecipientId == uid);
+
         if (n == null) return NotFound();
-        if (!n.IsRead) { n.IsRead = true; await _db.SaveChangesAsync(); }
+
+        if (!n.IsRead)
+        {
+            n.IsRead = true;
+            await _db.SaveChangesAsync();
+        }
         return Ok();
     }
 
@@ -103,18 +108,21 @@ public class NotificationsController : Controller
     public async Task<IActionResult> MarkAllRead()
     {
         var uid = await CurrentDbUserIdAsync();
-        var notes = await _db.Notifications.Where(n => n.RecipientId == uid && !n.IsRead).ToListAsync();
-        if (notes.Count > 0) { notes.ForEach(n => n.IsRead = true); await _db.SaveChangesAsync(); }
+        var notes = await _db.Notifications
+            .Where(n => n.RecipientId == uid && !n.IsRead)
+            .ToListAsync();
+
+        if (notes.Count > 0)
+        {
+            notes.ForEach(n => n.IsRead = true);
+            await _db.SaveChangesAsync();
+        }
+
+        // للطلبات AJAX نرجّع 200؛ لو جي من صفحة Index بيصير redirect طبيعي
+        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            return Ok();
+
         TempData["Msg"] = "All notifications marked as read.";
         return RedirectToAction(nameof(Index));
     }
-
-    // Aliases used by your JS
-    [HttpPost("Notifications/MarkAllAsRead")]
-    [ValidateAntiForgeryToken]
-    public Task<IActionResult> MarkAllAsRead() => MarkAllRead();
-
-    [HttpPost("Notifications/MarkRead")]
-    [ValidateAntiForgeryToken]
-    public Task<IActionResult> MarkRead([FromQuery] int id) => MarkAsRead(id);
 }

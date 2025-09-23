@@ -219,25 +219,27 @@ namespace IfsahApp.Web.Controllers
         }
 
         // Step 5 - GET
-        [HttpGet]
-        public IActionResult ReviewForm()
-        {
-            var form = GetFormFromTempData();
-            if (form == null)
-                return RedirectToAction(nameof(FormDetails));
+        // DisclosureController
+[HttpGet]
+public async Task<IActionResult> ReviewForm()
+{
+    var form = GetFormFromTempData();
+    if (form == null) return RedirectToAction(nameof(FormDetails));
 
-            // 🔧 ensure attachments are visible on review
-            form.SavedAttachmentPaths =
-                TempDataExtensions.Get<List<string>>(TempData, "TempAttachmentPaths")
-                ?? form.SavedAttachmentPaths
-                ?? new List<string>();
+    // hydrate attachments (as before)
+    form.SavedAttachmentPaths =
+        TempDataExtensions.Get<List<string>>(TempData, "TempAttachmentPaths")
+        ?? new List<string>();
 
-            form.Step = 5;
+    // 🔹 load the select list so the view can map id -> text
+    await LoadDisclosureTypesAsync(form.DisclosureTypeId);
 
-            TempData.Keep(TempDataKey);
-            TempData.Keep("TempAttachmentPaths");
-            return View(form);
-        }
+    form.Step = 5;
+    TempData.Keep(TempDataKey);
+    TempData.Keep("TempAttachmentPaths");
+    return View(form);
+}
+
 
         // Step 5 - POST (submit final)
 [HttpPost, ActionName("ReviewForm")]

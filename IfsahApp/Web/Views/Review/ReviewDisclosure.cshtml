@@ -1,44 +1,55 @@
 @model CaseItem
 
+@{
+    ViewBag.Title = "Review Disclosure";
+}
+
 @if (Model == null)
 {
-    <div class="alert alert-warning text-center">
+    <div class="alert alert-warning text-center mt-4">
         Case not found.
     </div>
 }
 else
 {
-    <form asp-action="SubmitReview" asp-controller="Review" method="post" enctype="multipart/form-data">
-        <input type="hidden" name="reference" value="@Model.Reference" />
+    <div class="container py-5 d-flex justify-content-center">
+        <div class="card shadow-sm" style="max-width: 600px; width: 100%;">
+            <div class="card-header bg-white border-0">
+                <h2 class="mb-0">Disclosure Details</h2>
+                <small class="text-muted">Reference: @Model.Reference</small>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title mb-3">Disclosure Details</h5>
 
-        <div class="container py-5 d-flex justify-content-center">
-            <div class="card shadow-sm" style="max-width: 600px; width: 100%;">
-                <div class="card-header bg-white border-0">
-                    <h2 class="mb-0">Review Violation Case</h2>
-                    <small class="text-muted">Reference: @Model.Reference</small>
+                <p><strong>Type:</strong> @Model.Type</p>
+                <p><strong>Date:</strong> @Model.Date.ToString("yyyy-MM-dd")</p>
+                <p><strong>Location:</strong> @Model.Location</p>
+                <p><strong>Description:</strong> @Model.Description</p>
+
+                <hr />
+
+                <!-- Reviewer Notes -->
+                <div class="mb-3">
+                    <label for="reviewerNotes" class="form-label">Reviewer Notes</label>
+                    <textarea id="reviewerNotes" name="reviewerNotes" class="form-control" rows="4" placeholder="Add your notes here..."></textarea>
                 </div>
-                <div class="card-body">
-                    <h5 class="card-title mb-3">Violation Details</h5>
-                    <p><strong>Type:</strong> @Model.Type</p>
-                    <p><strong>Date:</strong> @Model.Date.ToString("yyyy-MM-dd")</p>
-                    <p><strong>Location:</strong> @Model.Location</p>
-                    <p><strong>Description:</strong> @Model.Description</p>
 
-                    <hr />
+                <!-- Buttons row -->
+                <div class="d-flex gap-2">
+                    <!-- Submit Review Form -->
+                    <form asp-action="SubmitReview" asp-controller="Review" method="post" enctype="multipart/form-data" class="flex-grow-1">
+                        <input type="hidden" name="reference" value="@Model.Reference" />
+                        <button type="submit" class="btn btn-primary w-100">Submit Disclosure</button>
+                    </form>
 
-                    <div class="mb-3">
-                        <label for="reviewerNotes" class="form-label">Reviewer Notes</label>
-                        <textarea id="reviewerNotes" name="reviewerNotes" class="form-control" rows="4" placeholder="Add your notes here..."></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="attachment" class="form-label">Upload Attachment (PDF only)</label>
-                        <input type="file" class="form-control" id="attachment" name="attachment" accept=".pdf" />
-                    </div>
-
-                    <button type="submit" class="btn btn-primary w-100">Submit Review</button>
+                    <!-- Cancel Disclosure Form -->
+                    <form asp-action="CancelDisclosure" asp-controller="Review" method="post" class="flex-grow-1"
+                          onsubmit="return confirm('Are you sure you want to Reject this disclosure?');">
+                        <input type="hidden" name="reference" value="@Model.Reference" />
+                        <button type="submit" class="btn btn-danger w-100">Reject Disclosure</button>
+                    </form>
                 </div>
             </div>
         </div>
-    </form>
+    </div>
 }

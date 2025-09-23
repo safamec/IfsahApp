@@ -6,5 +6,6 @@ public enum DisclosureStatus
     New,
     Assigned,
     InReview,
-    Completed
+    Completed, 
+    Rejected
 }

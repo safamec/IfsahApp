@@ -4,10 +4,11 @@ using IfsahApp.Infrastructure.Data;
 using IfsahApp.Core.Models;
 using IfsahApp.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
+using IfsahApp.Core.Enums;
 
 namespace IfsahApp.Web.Controllers;
 
-[Authorize(Roles = "Examiner")]
+[Authorize(Roles = "Examiner,Admin")]
 public class ReviewController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -37,31 +38,30 @@ public class ReviewController : Controller
             Reference = d.DisclosureNumber,
             Date = d.SubmittedAt,
             Location = d.Location ?? string.Empty,
-            Status = _enumLocalizer.LocalizeEnum(d.Status),  // Now string
+            Status = _enumLocalizer.LocalizeEnum(d.Status),
             Description = d.Description ?? string.Empty
         });
 
-        // Filter: show only Assigned disclosures
+        // Show only Assigned disclosures
         cases = cases.Where(c => c.Status == "Assigned");
 
-        // Filter by reference if provided
+        // Filter by reference
         if (!string.IsNullOrEmpty(reference))
             cases = cases.Where(c => c.Reference.Contains(reference));
 
         // Pagination
         var totalItems = cases.Count();
         var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
-
-        var pagedCases = cases
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToList();
+        var pagedCases = cases.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
         // Pass data to view
         ViewBag.SelectedReference = reference;
         ViewBag.PageSize = pageSize;
         ViewBag.CurrentPage = page;
         ViewBag.TotalPages = totalPages;
+
+        // Show success message if available
+        ViewBag.Message = TempData["Message"];
 
         return View(pagedCases);
     }
@@ -84,7 +84,7 @@ public class ReviewController : Controller
             Reference = disclosure.DisclosureNumber,
             Date = disclosure.SubmittedAt,
             Location = disclosure.Location ?? string.Empty,
-            Status = _enumLocalizer.LocalizeEnum(disclosure.Status), // string
+            Status = _enumLocalizer.LocalizeEnum(disclosure.Status),
             Description = disclosure.Description ?? string.Empty
         };
 
@@ -107,9 +107,36 @@ public class ReviewController : Controller
             await attachment.CopyToAsync(stream);
         }
 
+        // TODO: save reviewer notes to DB
         Console.WriteLine($"Reference: {reference}");
         Console.WriteLine("Reviewer Notes: " + reviewerNotes);
 
-        return RedirectToAction("Index");
+    return RedirectToAction("Index", "Dashboard");
+    }
+
+    // ============================
+    // CANCEL DISCLOSURE ACTION
+    // ============================
+    [HttpPost]
+public IActionResult CancelDisclosure(string reference)
+{
+    if (string.IsNullOrEmpty(reference))
+        return BadRequest();
+
+    // Find the disclosure entity (enum)
+    var disclosure = _context.Disclosures.FirstOrDefault(d => d.DisclosureNumber == reference);
+    if (disclosure == null)
+        return NotFound();
+
+    // Set status to enum value
+    disclosure.Status = DisclosureStatus.Rejected; // enum
+    _context.SaveChanges();
+
+
+    // Use TempData to show success message on dashboard
+    TempData["Message"] = $"Disclosure {reference} has been successfully Rejected.";
+
+    return RedirectToAction("Index", "Dashboard");
+
     }
 }

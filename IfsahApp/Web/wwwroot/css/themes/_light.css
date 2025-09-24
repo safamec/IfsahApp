@@ -38,4 +38,14 @@
     --btn-toggle-text: #212529;
     --btn-toggle-border: #ced4da;
     --btn-toggle-knob: #ffffff;
+    /* notifications */
+  --notif-card-bg:      #ffffff;
+  --notif-card-border:  rgba(0,0,0,.18);
+  --notif-item-bg:      #ffffff;
+  --notif-item-text:    #212529;
+  --notif-muted:        #6c757d;
+  --notif-icon:         var(--navbar-text, #ffffff); /* bell uses navbar text color */
+  --notif-hover-bg:     rgba(0,0,0,.06);
+  --notif-toast-bg:     #0d6efd;  /* primary */
+  --notif-toast-text:   #ffffff;
 }

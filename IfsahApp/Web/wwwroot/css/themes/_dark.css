@@ -38,4 +38,14 @@
     --btn-toggle-text: #f8f9fa;
     --btn-toggle-border: #495057;
     --btn-toggle-knob: #dee2e6;
+    
+    --notif-card-bg:      #1e1f22;
+  --notif-card-border:  rgba(255,255,255,.12);
+  --notif-item-bg:      #1e1f22;
+  --notif-item-text:    #e9ecef;
+  --notif-muted:        #adb5bd;
+  --notif-icon:         #e9ecef;
+  --notif-hover-bg:     rgba(255,255,255,.08);
+  --notif-toast-bg:     #0d6efd;
+  --notif-toast-text:   #ffffff;
 }

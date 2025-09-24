@@ -1,55 +1,104 @@
 @model IEnumerable<IfsahApp.Core.Models.Notification>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+
 @{
     ViewData["Title"] = "Notifications";
-    var csrf = Antiforgery.GetAndStoreTokens(Context).RequestToken;
+    var tokens = Antiforgery.GetAndStoreTokens(Context);
+    var csrf = tokens.RequestToken;
 }
+
+<!-- expose anti-forgery to JS (optional if already in _Layout) -->
+<meta name="csrf-token" content="@csrf" />
+
 <script>
+  // global helper for CSRF header (matches Program.cs: HeaderName = "RequestVerificationToken")
   window.NOTIF_OPTS = { csrfHeaderName: 'RequestVerificationToken', csrfToken: '@csrf' };
+  function csrfHeaders(){
+    const h={};
+    if(window.NOTIF_OPTS?.csrfHeaderName && window.NOTIF_OPTS?.csrfToken){
+      h[window.NOTIF_OPTS.csrfHeaderName] = window.NOTIF_OPTS.csrfToken;
+    }
+    // Tell server we want JSON so controller returns Ok() not Redirect
+    h['Accept'] = 'application/json';
+    h['X-Requested-With'] = 'XMLHttpRequest';
+    return h;
+  }
 </script>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="mb-0">Notifications</h3>
-    <button id="markAllBtn" class="btn btn-sm btn-outline-secondary">Mark all as read</button>
+  <h3 class="mb-0">Notifications</h3>
+  <button id="markAllBtn" class="btn btn-sm btn-outline-secondary">Mark all as read</button>
 </div>
 
 <table class="table table-hover align-middle">
-    <thead>
-        <tr><th>Type</th><th>Message</th><th>Created</th><th>Status</th><th></th></tr>
-    </thead>
-    <tbody>
-    @foreach (var n in Model)
-    {
-        <tr class="@(n.IsRead ? "" : "table-warning")" data-id="@n.Id">
-            <td>@n.EventType</td>
-            <td>@n.Message</td>
-            <td>@n.CreatedAt.ToString("u")</td>
-            <td>@(n.IsRead ? "Read" : "Unread")</td>
-            <td>
-                @if (!n.IsRead)
-                { <button class="btn btn-sm btn-outline-success mark-read">Mark as read</button> }
-            </td>
-        </tr>
-    }
-    </tbody>
+  <thead>
+    <tr><th>Type</th><th>Message</th><th>Created</th><th>Status</th><th></th></tr>
+  </thead>
+  <tbody>
+  @foreach (var n in Model)
+  {
+      <tr class="@(n.IsRead ? "" : "table-warning")" data-id="@n.Id">
+        <td>@n.EventType</td>
+        <td>@n.Message</td>
+        <td>@n.CreatedAt.ToString("u")</td>
+        <td>@(n.IsRead ? "Read" : "Unread")</td>
+        <td class="text-end">
+          @if (!n.IsRead)
+          {
+            <button class="btn btn-sm btn-outline-success mark-read">Mark as read</button>
+          }
+        </td>
+      </tr>
+  }
+  </tbody>
 </table>
 
 @section Scripts {
 <script>
-  function csrfHeaders(){ const h={}; if(window.NOTIF_OPTS?.csrfHeaderName&&window.NOTIF_OPTS?.csrfToken){ h[window.NOTIF_OPTS.csrfHeaderName]=window.NOTIF_OPTS.csrfToken; } return h; }
-
+  // Mark one
   document.addEventListener('click', async (e) => {
-    if (e.target.matches('.mark-read')) {
-      const tr = e.target.closest('tr');
-      const id = tr.getAttribute('data-id');
-      const res = await fetch('/Notifications/MarkRead?id=' + id, { method: 'POST', headers: csrfHeaders() });
-      if (res.ok) location.reload();
+    if (!e.target.matches('.mark-read')) return;
+    const tr = e.target.closest('tr');
+    const id = tr.getAttribute('data-id');
+
+    try {
+      const res = await fetch('/Notifications/MarkAsRead?id=' + encodeURIComponent(id), {
+        method: 'POST',
+        headers: csrfHeaders(),
+        credentials: 'same-origin'
+      });
+      if (res.ok) {
+        location.reload();
+      } else if (res.status === 401) {
+        // not authenticated -> go to your login path
+        window.location.href = '/DevLogin'; // or '/Account/Login'
+      } else {
+        console.error('MarkAsRead failed', res.status);
+      }
+    } catch (err) {
+      console.error(err);
     }
   });
 
+  // Mark all
   document.getElementById('markAllBtn')?.addEventListener('click', async () => {
-    const res = await fetch('/Notifications/MarkAllAsRead', { method: 'POST', headers: csrfHeaders() });
-    if (res.ok) location.reload();
+    try {
+      const res = await fetch('/Notifications/MarkAllRead', {
+        method: 'POST',
+        headers: csrfHeaders(),
+        credentials: 'same-origin'
+      });
+      if (res.ok) {
+        location.reload();
+      } else if (res.status === 401) {
+        window.location.href = '/DevLogin'; // or '/Account/Login'
+      } else {
+        console.error('MarkAllRead failed', res.status);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   });
 </script>
 }

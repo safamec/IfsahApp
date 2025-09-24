@@ -1,29 +1,34 @@
+using System;
+using System.IO;                               // Path / File / Directory
+using System.Linq;
+using System.Text;
+using System.Threading;                        // Thread.CurrentThread
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Security.Claims;                  // Claims
+using System.Security.Cryptography;            // RNG / SHA256
+
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;            // IWebHostEnvironment
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Hosting; // IWebHostEnvironment
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+
+using IfsahApp.Core.Enums;
 using IfsahApp.Core.Models;
 using IfsahApp.Core.ViewModels;
+using IfsahApp.Core.ViewModels.Emails;
+using IfsahApp.Hubs;
 using IfsahApp.Infrastructure.Data;
 using IfsahApp.Infrastructure.Services;
 using IfsahApp.Infrastructure.Services.Email;
 using IfsahApp.Utils;
 using IfsahApp.Utils.Helpers;
-using IfsahApp.Core.Dtos;
-using IfsahApp.Core.ViewModels.Emails;
-using Newtonsoft.Json;
-using System.Threading;        // Thread.CurrentThread
-using System.IO;              // Path / File / Directory
-using System.Security.Claims; // << ADDED for CurrentDbUserIdAsync
-using System;        
-using System.Security.Cryptography;
-using System.Text;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.WebUtilities;
-using IfsahApp.Hubs;
-// DateTime, Guid
 
 namespace IfsahApp.Web.Controllers
 {
@@ -52,14 +57,14 @@ namespace IfsahApp.Web.Controllers
             ViewRenderService viewRender,
             ILogger<DisclosureController> logger)
         {
-            _context = context;
-            _env = env;
+            _context       = context;
+            _env           = env;
             _enumLocalizer = enumLocalizer;
-            _mapper = mapper;
-            _hub = hub;
-            _email = email;
-            _viewRender = viewRender;
-            _logger = logger;
+            _mapper        = mapper;
+            _hub           = hub;
+            _email         = email;
+            _viewRender    = viewRender;
+            _logger        = logger;
         }
 
         // /Disclosure/Create -> step 1
@@ -90,7 +95,7 @@ namespace IfsahApp.Web.Controllers
             }
 
             var form = GetFormFromTempData() ?? new DisclosureFormViewModel();
-            form.Step = 1;
+            form.Step              = 1;
             form.DisclosureTypeId  = model.DisclosureTypeId;
             form.Description       = model.Description;
             form.Location          = model.Location;
@@ -164,7 +169,7 @@ namespace IfsahApp.Web.Controllers
             var form = GetFormFromTempData() ?? new DisclosureFormViewModel();
             form.Step = 4;
 
-            // 🔧 hydrate from TempData so the view can render existing files
+            // hydrate from TempData so the view can render existing files
             form.SavedAttachmentPaths =
                 TempDataExtensions.Get<List<string>>(TempData, "TempAttachmentPaths")
                 ?? form.SavedAttachmentPaths
@@ -219,96 +224,116 @@ namespace IfsahApp.Web.Controllers
         }
 
         // Step 5 - GET
-        // DisclosureController
-[HttpGet]
-public async Task<IActionResult> ReviewForm()
-{
-    var form = GetFormFromTempData();
-    if (form == null) return RedirectToAction(nameof(FormDetails));
+        [HttpGet]
+        public async Task<IActionResult> ReviewForm()
+        {
+            var form = GetFormFromTempData();
+            if (form == null) return RedirectToAction(nameof(FormDetails));
 
-    // hydrate attachments (as before)
-    form.SavedAttachmentPaths =
-        TempDataExtensions.Get<List<string>>(TempData, "TempAttachmentPaths")
-        ?? new List<string>();
+            // hydrate attachments (as before)
+            form.SavedAttachmentPaths =
+                TempDataExtensions.Get<List<string>>(TempData, "TempAttachmentPaths")
+                ?? new List<string>();
 
-    // 🔹 load the select list so the view can map id -> text
-    await LoadDisclosureTypesAsync(form.DisclosureTypeId);
+            // load select list so the view can map id -> text
+            await LoadDisclosureTypesAsync(form.DisclosureTypeId);
 
-    form.Step = 5;
-    TempData.Keep(TempDataKey);
-    TempData.Keep("TempAttachmentPaths");
-    return View(form);
-}
-
+            form.Step = 5;
+            TempData.Keep(TempDataKey);
+            TempData.Keep("TempAttachmentPaths");
+            return View(form);
+        }
 
         // Step 5 - POST (submit final)
-[HttpPost, ActionName("ReviewForm")]
-public async Task<IActionResult> ReviewFormPost()
-{
-    var form = GetFormFromTempData();
-    if (form == null) return RedirectToAction(nameof(FormDetails));
-    if (!ModelState.IsValid) return RedirectToAction(nameof(ReviewForm));
-
-    var disclosure = _mapper.Map<Disclosure>(form);
-    disclosure.DisclosureNumber = DisclosureNumberGeneratorHelper.Generate();
-
-    var submitterId = await CurrentDbUserIdAsync();
-    disclosure.SubmittedById = submitterId;
-
-    AddPersonsToDisclosure(disclosure, form);
-    await TryAddAttachmentsFromTempAsync(disclosure, form.SavedAttachmentPaths);
-
-    // 1) Save disclosure first
-    _context.Disclosures.Add(disclosure);
-    await _context.SaveChangesAsync();
-
-    // 2) Push to admins (SignalR)
-    try
-    {
-        await _hub.Clients.Group("admins").SendAsync("Notify", new
+        [HttpPost, ActionName("ReviewForm")]
+        public async Task<IActionResult> ReviewFormPost()
         {
-            id        = disclosure.Id,
-            eventType = "NewDisclosure",
-            message   = $"بلاغ جديد: {disclosure.DisclosureNumber}",
-            createdAt = DateTime.UtcNow,
-            url       = Url.Action("Details", "Disclosure", new { id = disclosure.Id })
-        });
-    }
-    catch (Exception ex)
-    {
-        _logger.LogWarning(ex, "SignalR group-broadcast to admins failed for {Report}", disclosure.DisclosureNumber);
-    }
+            var form = GetFormFromTempData();
+            if (form == null) return RedirectToAction(nameof(FormDetails));
+            if (!ModelState.IsValid) return RedirectToAction(nameof(ReviewForm));
 
-    // 3) Create DB notification for the submitter (no SignalR push for non-admins)
-    try
-    {
-        var receipt = new Notification
-        {
-            RecipientId = submitterId,
-            EventType   = "Receipt",
-            Message     = $"تم استلام البلاغ رقم {disclosure.DisclosureNumber}.",
-            CreatedAt   = DateTime.UtcNow,
-            IsRead      = false
-        };
-        _context.Notifications.Add(receipt);
-        await _context.SaveChangesAsync();
-        // ملاحظة: لا نرسل SignalR للمستخدم العادي لأن الـ Hub للأدمِن فقط
-    }
-    catch (Exception ex)
-    {
-        _logger.LogWarning(ex, "Failed to create submitter notification for report {Report}", disclosure.DisclosureNumber);
-    }
+            var disclosure = _mapper.Map<Disclosure>(form);
+            disclosure.DisclosureNumber = DisclosureNumberGeneratorHelper.Generate();
 
-    // 4) تنظيف الحالة المؤقتة
-    TempData.Remove(TempDataKey);
-    TempData.Remove("TempAttachmentPaths");
+            var submitterId = await CurrentDbUserIdAsync();
+            disclosure.SubmittedById = submitterId;
 
-    // 5) خيارك الحالي لإشعار الإداريين عبر مساعد (إن وجد)
-    await NotificationHelper.NotifyAdminsAsync(_context, _hub, disclosure, Url);
+            AddPersonsToDisclosure(disclosure, form);
+            await TryAddAttachmentsFromTempAsync(disclosure, form.SavedAttachmentPaths);
 
-    // 6) التحويل
-    return RedirectToAction(nameof(SubmitDisclosure), new { reportNumber = disclosure.DisclosureNumber });
-}
+            // 1) Save disclosure first
+            _context.Disclosures.Add(disclosure);
+            await _context.SaveChangesAsync();
+
+            // -------------------------------
+            // Notifications
+            // -------------------------------
+
+            // 1) choose recipients (Admins)
+            var recipients = await _context.Users
+                .Where(u => u.IsActive && u.Role == Role.Admin)
+                .Select(u => new { u.Id, u.Email })
+                .ToListAsync();
+
+            // 2) create rows
+            var notes = recipients.Select(r => new Notification
+            {
+                RecipientId = r.Id,
+                EventType   = "Disclosure",
+                Message     = $"New disclosure {disclosure.DisclosureNumber} created",
+                EmailAddress = r.Email,
+                IsRead      = false,
+                CreatedAt   = DateTime.UtcNow
+            }).ToList();
+
+            _context.Notifications.AddRange(notes);
+            await _context.SaveChangesAsync();
+
+            // 3) live push via SignalR (by numeric id group)
+            await Task.WhenAll(notes.Select(n =>
+                _hub.Clients.Group($"user-{n.RecipientId}")
+                    .SendAsync("Notify", new
+                    {
+                        id        = n.Id,
+                        eventType = n.EventType,
+                        message   = n.Message,
+                        createdAt = n.CreatedAt.ToString("u"),
+                        url       = Url.Action("Details", "Dashboard", new { id = disclosure.Id })
+                    })
+            ));
+
+            // also push to email and ADUserName groups
+            var recipientKeys = await _context.Users
+                .Where(u => recipients.Select(r => r.Id).Contains(u.Id))
+                .Select(u => new { u.Id, u.Email, u.ADUserName })
+                .ToListAsync();
+
+            await Task.WhenAll(notes.Select(async n =>
+            {
+                var r = recipientKeys.FirstOrDefault(x => x.Id == n.RecipientId);
+                if (r == null) return;
+
+                var payload = new
+                {
+                    id        = n.Id,
+                    eventType = n.EventType,
+                    message   = n.Message,
+                    createdAt = n.CreatedAt.ToString("u"),
+                    url       = Url.Action("Details", "Dashboard", new { id = disclosure.Id })
+                };
+
+                var tasks = new List<Task>();
+                if (!string.IsNullOrWhiteSpace(r.Email))
+                    tasks.Add(_hub.Clients.Group($"user-{r.Email}").SendAsync("Notify", payload));
+                if (!string.IsNullOrWhiteSpace(r.ADUserName))
+                    tasks.Add(_hub.Clients.Group($"user-{r.ADUserName}").SendAsync("Notify", payload));
+
+                await Task.WhenAll(tasks);
+            }));
+
+            // ✅ بعد الحفظ: اذهبي لصفحة الاشتراك بالتحديثات وتمرير رقم البلاغ
+            return RedirectToAction(nameof(SubmitDisclosure), new { reportNumber = disclosure.DisclosureNumber });
+        }
 
         #endregion
 
@@ -321,7 +346,7 @@ public async Task<IActionResult> ReviewFormPost()
                 .Select(dt => new
                 {
                     dt.Id,
-                    ArabicName = dt.ArabicName ?? dt.EnglishName,
+                    ArabicName  = dt.ArabicName  ?? dt.EnglishName,
                     EnglishName = dt.EnglishName ?? dt.ArabicName
                 })
                 .ToListAsync();
@@ -369,7 +394,7 @@ public async Task<IActionResult> ReviewFormPost()
 
             disclosure.Attachments ??= new List<DisclosureAttachment>();
 
-            var tempFolder = Path.Combine(_env.WebRootPath, TempUploadsFolderName);
+            var tempFolder      = Path.Combine(_env.WebRootPath, TempUploadsFolderName);
             var permanentFolder = Path.Combine(_env.WebRootPath, "uploads");
 
             if (!Directory.Exists(permanentFolder))
@@ -381,7 +406,7 @@ public async Task<IActionResult> ReviewFormPost()
                 if (!System.IO.File.Exists(tempFilePath))
                     continue;
 
-                var newFileName = $"{Guid.NewGuid()}{Path.GetExtension(fileName)}";
+                var newFileName       = $"{Guid.NewGuid()}{Path.GetExtension(fileName)}";
                 var permanentFilePath = Path.Combine(permanentFolder, newFileName);
 
                 System.IO.File.Move(tempFilePath, permanentFilePath);
@@ -399,7 +424,7 @@ public async Task<IActionResult> ReviewFormPost()
             await Task.CompletedTask;
         }
 
-        // << ADDED: resolve current user to Users.Id in DB
+        // Resolve current principal to Users.Id in DB
         private async Task<int> CurrentDbUserIdAsync()
         {
             var idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -421,8 +446,9 @@ public async Task<IActionResult> ReviewFormPost()
             var ad = User.FindFirstValue(ClaimTypes.WindowsAccountName) ?? User.Identity?.Name;
             if (!string.IsNullOrWhiteSpace(ad))
             {
-                var found = await _context.Users
-                    .Where(u => u.ADUserName == ad)
+                var simple = ad.Contains('\\') ? ad.Split('\\').Last() : ad;
+                var found  = await _context.Users
+                    .Where(u => u.ADUserName == simple)
                     .Select(u => u.Id)
                     .FirstOrDefaultAsync();
                 if (found != 0) return found;
@@ -431,40 +457,47 @@ public async Task<IActionResult> ReviewFormPost()
             return 0;
         }
 
-private static string GenerateToken(int size = 32)
-{
-    var bytes = RandomNumberGenerator.GetBytes(size);
-    // URL-safe
-    return WebEncoders.Base64UrlEncode(bytes);
-}
+        private static string GenerateToken(int size = 32)
+        {
+            var bytes = RandomNumberGenerator.GetBytes(size);
+            return WebEncoders.Base64UrlEncode(bytes); // URL-safe
+        }
 
-private static string Sha256Hex(string value)
-{
-    var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(value));
-    var sb = new StringBuilder(bytes.Length * 2);
-    foreach (var b in bytes) sb.Append(b.ToString("x2"));
-    return sb.ToString();
-}
+        private static string Sha256Hex(string value)
+        {
+            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(value));
+            var sb = new StringBuilder(bytes.Length * 2);
+            foreach (var b in bytes) sb.Append(b.ToString("x2"));
+            return sb.ToString();
+        }
 
         #endregion
 
+        // ====== صفحة ما بعد الإرسال تعرض نموذج الاشتراك ======
         [HttpGet]
         public IActionResult SubmitDisclosure(string reportNumber)
         {
-            ViewData["ReportNumber"] = reportNumber;
-            return View();
+            ViewData["ReportNumber"] = reportNumber ?? "";
+            return View(); // Views/Disclosure/SubmitDisclosure.cshtml
+        }
+
+        // ====== استقبال طلب الاشتراك عبر البريد ======
+        public sealed class SubscribeEmailDto
+        {
+            public string? ReportNumber { get; set; }
+            public string? Email        { get; set; }
         }
 
         [HttpPost("/Disclosure/SubscribeEmail")]
         public async Task<IActionResult> SubscribeEmail([FromBody] SubscribeEmailDto dto)
         {
-            // دائمًا نُرجِع 200 لنمنع Enumeration مهما كانت النتيجة
+            // نرجّع 200 دائمًا لنمنع enumeration
             try
             {
                 if (string.IsNullOrWhiteSpace(dto?.ReportNumber) || string.IsNullOrWhiteSpace(dto?.Email))
                     return Ok(new { ok = true });
 
-                // نتأكد من وجود البلاغ
+                // تأكد من وجود البلاغ
                 var reportExists = await _context.Disclosures
                     .AsNoTracking()
                     .AnyAsync(d => d.DisclosureNumber == dto.ReportNumber);
@@ -472,7 +505,7 @@ private static string Sha256Hex(string value)
                 if (!reportExists)
                     return Ok(new { ok = true });
 
-                // نبحث عن المستخدم بالبريد داخل قاعدة البيانات
+                // ابحث عن المستخدم بالبريد داخل قاعدة البيانات
                 var user = await _context.Users
                     .AsNoTracking()
                     .FirstOrDefaultAsync(u => u.Email == dto.Email);
@@ -486,10 +519,10 @@ private static string Sha256Hex(string value)
 
                 var ev = new EmailVerification
                 {
-                    UserId = user.Id,
+                    UserId    = user.Id,
                     TokenHash = tokenHash,
                     ExpiresAt = DateTime.UtcNow.AddHours(24),
-                    Purpose = $"subscribe_report:{dto.ReportNumber}"
+                    Purpose   = $"subscribe_report:{dto.ReportNumber}"
                 };
 
                 _context.Add(ev);
@@ -502,11 +535,11 @@ private static string Sha256Hex(string value)
                     Request.Scheme
                 ) ?? "#";
 
-                // إيميل بسيط وواضح (HTML)
+                // رسالة التأكيد
                 var html = $@"
-            <p>لتأكيد الاشتراك لتحديثات البلاغ رقم <strong>{dto.ReportNumber}</strong>، اضغطي الرابط التالي:</p>
-            <p><a href=""{confirmUrl}"">تأكيد الاشتراك</a></p>
-            <p>صلاحية الرابط 24 ساعة ويُستخدم مرة واحدة.</p>";
+<p>لتأكيد الاشتراك لتحديثات البلاغ رقم <strong>{dto.ReportNumber}</strong>، اضغطي الرابط التالي:</p>
+<p><a href=""{confirmUrl}"">تأكيد الاشتراك</a></p>
+<p>صلاحية الرابط 24 ساعة ويُستخدم مرة واحدة.</p>";
 
                 await _email.SendAsync(
                     dto.Email,
@@ -520,72 +553,71 @@ private static string Sha256Hex(string value)
                 _logger.LogWarning(ex, "SubscribeEmail failed for {Email} / {Report}", dto?.Email, dto?.ReportNumber);
             }
 
-            // نفس الرد دائمًا – لا نكشف أي معلومة
             return Ok(new { ok = true });
         }
-[AllowAnonymous]
-[HttpGet("/Disclosure/ConfirmSubscription")]
-public async Task<IActionResult> ConfirmSubscription(string token, string report)
-{
-    if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(report))
-        return View("ConfirmSubscriptionError");
 
-    var hash = Sha256Hex(token);
-
-    var ev = await _context.Set<EmailVerification>()
-        .FirstOrDefaultAsync(x =>
-            x.TokenHash  == hash &&
-            x.Purpose    == $"subscribe_report:{report}" &&
-            x.ConsumedAt == null &&
-            x.ExpiresAt  > DateTime.UtcNow);
-
-    if (ev is null)
-        return View("ConfirmSubscriptionError");
-
-    ev.ConsumedAt = DateTime.UtcNow;
-    await _context.SaveChangesAsync();
-
-    try
-    {
-        var note = new Notification
+        // ====== تأكيد الاشتراك (مسموح بدون تسجيل) ======
+        [AllowAnonymous]
+        [HttpGet("/Disclosure/ConfirmSubscription")]
+        public async Task<IActionResult> ConfirmSubscription(string token, string report)
         {
-            RecipientId = ev.UserId,
-            EventType   = "SubscribeReport",
-            Message     = $"تم تأكيد الاشتراك لتحديثات البلاغ {report}."
-        };
-        _context.Add(note);
-        await _context.SaveChangesAsync();
+            if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(report))
+                return View("ConfirmSubscriptionError");
 
-        // ⬅️ التغيير هنا: أرسل لمجموعة user-{DbId}
-        await _hub.Clients.Group($"user-{ev.UserId}").SendAsync("Notify", new
-        {
-            id        = note.Id,
-            eventType = note.EventType,
-            message   = note.Message,
-            createdAt = note.CreatedAt
-        });
+            var hash = Sha256Hex(token);
 
-        // (اختياري) بث للإداريين
-        await _hub.Clients.Group("admins").SendAsync("Notify", new
-        {
-            id        = note.Id,
-            eventType = "SubscribeReport",
-            message   = $"تم تأكيد اشتراك مستخدم لتحديثات البلاغ {report}.",
-            createdAt = note.CreatedAt
-        });
-    }
-    catch (Exception ex)
-    {
-        _logger.LogWarning(ex, "SignalR notify failed in ConfirmSubscription for report {Report}", report);
-    }
+            var ev = await _context.Set<EmailVerification>()
+                .FirstOrDefaultAsync(x =>
+                    x.TokenHash  == hash &&
+                    x.Purpose    == $"subscribe_report:{report}" &&
+                    x.ConsumedAt == null &&
+                    x.ExpiresAt  > DateTime.UtcNow);
 
-    ViewBag.Report = report;
-    return View("ConfirmSubscriptionSuccess");
-}
+            if (ev is null)
+                return View("ConfirmSubscriptionError");
 
+            ev.ConsumedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
 
+            try
+            {
+                var note = new Notification
+                {
+                    RecipientId = ev.UserId,
+                    EventType   = "SubscribeReport",
+                    Message     = $"تم تأكيد الاشتراك لتحديثات البلاغ {report}."
+                };
+                _context.Add(note);
+                await _context.SaveChangesAsync();
 
+                // بث إلى مجموعة user-{DbId}
+                await _hub.Clients.Group($"user-{ev.UserId}").SendAsync("Notify", new
+                {
+                    id        = note.Id,
+                    eventType = note.EventType,
+                    message   = note.Message,
+                    createdAt = note.CreatedAt
+                });
 
+                // (اختياري) إشعار مجموعة الإداريين
+                await _hub.Clients.Group("admins").SendAsync("Notify", new
+                {
+                    id        = note.Id,
+                    eventType = "SubscribeReport",
+                    message   = $"تم تأكيد اشتراك مستخدم لتحديثات البلاغ {report}.",
+                    createdAt = note.CreatedAt
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "SignalR notify failed in ConfirmSubscription for report {Report}", report);
+            }
+
+            ViewBag.Report = report;
+            return View("ConfirmSubscriptionSuccess");
+        }
+
+        // ====== أدوات مساعدة أخرى ======
         private static bool IsValidEmail(string? v) =>
             !string.IsNullOrWhiteSpace(v) &&
             System.Text.RegularExpressions.Regex.IsMatch(v.Trim(), @"^[^\s@]+@[^\s@]+\.[^\s@]+$");

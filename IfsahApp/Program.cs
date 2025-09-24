@@ -32,15 +32,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(dbOptions =>
 
 // 2) AutoMapper
 builder.Services.AddAutoMapper(typeof(DisclosureMappingProfile));
-builder.Services.AddControllersWithViews()
-    .AddSessionStateTempDataProvider();
-builder.Services.AddSession();
 
 // 3) Email settings + service
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
 builder.Services.AddTransient<IEmailService, GmailEmailService>();
 
-// 4) Localization + Views (+ antiforgery auto-validate on unsafe verbs)
+// 4) Localization + MVC + Antiforgery (single, consolidated chain) + TempData in Session
 builder.Services.AddLocalization(opts => opts.ResourcesPath = "Resources");
 builder.Services
     .AddControllersWithViews(o =>
@@ -52,27 +49,26 @@ builder.Services
     .AddDataAnnotationsLocalization()
     .AddRazorOptions(opts =>
     {
-        // set custom view locations
+        // custom view locations
         opts.ViewLocationFormats.Clear();
         opts.ViewLocationFormats.Add("/Web/Views/{1}/{0}.cshtml");
         opts.ViewLocationFormats.Add("/Web/Views/Shared/{0}.cshtml");
-    });
+    })
+    .AddSessionStateTempDataProvider();
+
+builder.Services.AddSession();
 
 // 5) Custom Services (AD user: fake in Dev, LDAP in Prod)
 if (builder.Environment.IsDevelopment())
-{
     builder.Services.AddSingleton<IAdUserService, FakeAdUserService>();
-}
 else
-{
     builder.Services.AddSingleton<IAdUserService, LdapAdUserService>();
-}
 
 builder.Services.AddScoped<IEnumLocalizer, EnumLocalizer>();
 builder.Services.AddScoped<ViewRenderService>();
 
 // 6) Authentication & Authorization
-builder.Services.AddAppAuthentication(builder.Environment); // your extension method for cookie auth
+builder.Services.AddAppAuthentication(builder.Environment); // must set Cookie LoginPath/AccessDeniedPath
 
 builder.Services.AddAuthorization(options =>
 {
@@ -82,20 +78,23 @@ builder.Services.AddAuthorization(options =>
         .Build();
 });
 
-// 7) Extras
+// 7) Antiforgery header name (matches your JS)
 builder.Services.AddAntiforgery(o => o.HeaderName = "RequestVerificationToken");
+
+// 8) SignalR
 builder.Services.AddSignalR();
 
-// 8) Build app
+// ---------- Build ----------
 var app = builder.Build();
 
+// (Optional) seed (idempotent)
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    DbSeeder.Seed(db);   // ✅ make sure DbSeeder.Seed(ApplicationDbContext) is static and idempotent
+    DbSeeder.Seed(db);
 }
 
-// 10) Localization middleware (should be early in pipeline)
+// 10) Localization middleware (early)
 var supportedCultures = new[] { "en", "ar" };
 var locOptions = new RequestLocalizationOptions()
     .SetDefaultCulture("ar")
@@ -107,8 +106,9 @@ app.UseRequestLocalization(locOptions);
 app.UseStaticFiles();
 app.UseSession();
 app.UseRouting();
-app.UseAdUser();        // BEFORE auth/authorization so Login sees HttpContext.Items["AdUser"]
-app.UseAuthentication();
+
+app.UseAdUser();        // BEFORE auth; your middleware populates HttpContext.Items
+app.UseAuthentication(); // BEFORE UseAuthorization
 app.UseAuthorization();
 
 // 12) Routes
@@ -125,6 +125,7 @@ else
         pattern: "{controller=Account}/{action=Login}/{id?}");
 }
 
+// SignalR hub
 app.MapHub<NotificationHub>("/hubs/notifications");
 
 app.Run();

@@ -40,7 +40,19 @@
         @RenderBody()
       </main>
     }
-    
+    @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+
+
+
+
+
+@{
+
+
+    var csrf = Antiforgery.GetAndStoreTokens(Context).RequestToken;
+
+
+}
 
     @await Html.PartialAsync("Footer/_Footer")
   </div>

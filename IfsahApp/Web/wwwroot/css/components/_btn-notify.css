@@ -1,16 +1,37 @@
-/* Remove border and match size with toggles */
-.notif-btn {
-    background-color: transparent; /* or white if your navbar is dark */
-    border: none;                  /* remove border */
-    width: 50px;                   /* same as theme/language toggle */
-    height: 28px;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
+/* bell button */
+#notifBtn {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--notif-icon) !important;
+  padding: .375rem .6rem;
+}
+#notifBtn:hover, #notifBtn:focus {
+  background: var(--notif-hover-bg) !important;
 }
 
-.notif-btn:focus {
-    box-shadow: none; /* remove focus outline */
+/* panel */
+#notifPanel.card{
+  background: var(--notif-card-bg) !important;
+  border: 1px solid var(--notif-card-border) !important;
+  border-radius: .7rem !important;
+  box-shadow: 0 12px 30px rgba(0,0,0,.15) !important;
 }
+#notifPanel .card-header{
+  background: var(--notif-card-bg) !important;
+  color: var(--notif-item-text) !important;
+  border-bottom: 1px solid var(--notif-card-border) !important;
+}
+#notifList .list-group-item{
+  background: var(--notif-item-bg) !important;
+  color: var(--notif-item-text) !important;
+  border-color: var(--notif-card-border) !important;
+}
+#notifPanel .text-muted{ color: var(--notif-muted) !important; }
+
+/* toast */
+.notif-toast{
+  background: var(--notif-toast-bg) !important;
+  color: var(--notif-toast-text) !important;
+}
+.notif-toast .btn-close{ filter: invert(1); }

@@ -11,22 +11,20 @@ public class DisclosureAttachment
     [Required]
     public int DisclosureId { get; set; }
 
-    // Nullable to satisfy EF Core materialization and avoid CS8618
     public Disclosure? Disclosure { get; set; }
 
     [Required]
-    public string FileName { get; set; } = string.Empty;
+    public string FileName { get; set; } = string.Empty; // الاسم المخزن (GUID)
 
-    // Optional: FileType (e.g., pdf, docx, jpg, etc.)
+    // ✅ الاسم الأصلي اللي رفعه المستخدم
+    public string? OriginalFileName { get; set; }
+
     public string? FileType { get; set; }
 
-    // File size in bytes
     public long FileSize { get; set; }
 
     public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
 
-    // Not stored in DB — dynamically built using appsettings.json
     [NotMapped]
     public string FullPath => FilePathHelper.GetAttachmentPath(FileName, FileType ?? "");
-    
 }

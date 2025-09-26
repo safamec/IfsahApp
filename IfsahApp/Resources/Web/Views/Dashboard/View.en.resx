@@ -1,0 +1,17 @@
+<root>
+  <data name="Description"><value>Description</value></data>
+  <data name="Location"><value>Location</value></data>
+  <data name="Status"><value>Status</value></data>
+  <data name="SubmittedAt"><value>Submitted At</value></data>
+  <data name="AssignedTo"><value>Assigned To</value></data>
+
+  <data name="AdminComments"><value>Admin Comments</value></data>
+  <data name="NoCommentsYet"><value>No comments yet.</value></data>
+
+  <data name="AddCommentAndAssign"><value>Add Comment &amp; Assign</value></data>
+  <data name="Comment"><value>Comment</value></data>
+  <data name="AssignTo"><value>Assign To</value></data>
+  <data name="SelectUserPlaceholder"><value>-- Select User --</value></data>
+  <data name="Submit"><value>Submit</value></data>
+  <data name="Back"><value>Back</value></data>
+</root>

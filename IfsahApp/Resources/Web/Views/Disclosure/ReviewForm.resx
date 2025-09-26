@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- Page -->
+  <data name="Review Disclosure"><value>Review Disclosure</value></data>
+
+  <!-- Sections -->
+  <data name="Disclosure Details"><value>Disclosure Details</value></data>
+  <data name="Suspected People"><value>Suspected People</value></data>
+  <data name="Related People"><value>Related People</value></data>
+  <data name="Attachments"><value>Attachments</value></data>
+
+  <!-- Details table headers -->
+  <data name="Disclosure Type"><value>Disclosure Type</value></data>
+  <data name="Description"><value>Description</value></data>
+  <data name="Location"><value>Location</value></data>
+  <data name="Incident Start Date"><value>Incident Start Date</value></data>
+  <data name="Incident End Date"><value>Incident End Date</value></data>
+
+  <!-- People table headers -->
+  <data name="Name"><value>Name</value></data>
+  <data name="Email"><value>Email</value></data>
+  <data name="Phone"><value>Phone</value></data>
+  <data name="Organization"><value>Organization</value></data>
+
+  <!-- Empty states -->
+  <data name="No suspected people"><value>No suspected people</value></data>
+  <data name="No related people"><value>No related people</value></data>
+  <data name="No attachments"><value>No attachments</value></data>
+
+  <!-- Actions -->
+  <data name="Back"><value>Back</value></data>
+  <data name="Submit Disclosure"><value>Submit Disclosure</value></data>
+</root>

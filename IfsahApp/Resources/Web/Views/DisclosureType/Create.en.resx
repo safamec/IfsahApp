@@ -1,0 +1,11 @@
+<root>
+  <data name="CreateDisclosureTypeTitle"><value>Create New Disclosure Type</value></data>
+  <data name="EditDisclosureTypeTitle"><value>Edit Disclosure Type</value></data>
+  <data name="ArabicNameLabel"><value>Arabic Name</value></data>
+  <data name="EnglishNameLabel"><value>English Name</value></data>
+  <data name="IsActiveLabel"><value>Active</value></data>
+  <data name="ArabicNamePh"><value>Enter the Arabic name…</value></data>
+  <data name="EnglishNamePh"><value>Enter the English name…</value></data>
+  <data name="Save"><value>Save</value></data>
+  <data name="Cancel"><value>Cancel</value></data>
+</root>

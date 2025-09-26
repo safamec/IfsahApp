@@ -1,6 +1,9 @@
-@model DisclosureType
+@model IfsahApp.Core.Models.DisclosureType
+
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
 @{
-    ViewData["Title"] = "Edit Disclosure Type";
+    ViewData["Title"] = Localizer["EditDisclosureTypeTitle"];
 }
 
 <div class="container mt-4">
@@ -10,24 +13,24 @@
         <input type="hidden" asp-for="Id" />
 
         <div class="mb-3">
-            <label asp-for="ArabicName" class="form-label"></label>
+            <label asp-for="ArabicName" class="form-label">@Localizer["ArabicNameLabel"]</label>
             <input asp-for="ArabicName" class="form-control" />
             <span asp-validation-for="ArabicName" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="EnglishName" class="form-label"></label>
+            <label asp-for="EnglishName" class="form-label">@Localizer["EnglishNameLabel"]</label>
             <input asp-for="EnglishName" class="form-control" />
             <span asp-validation-for="EnglishName" class="text-danger"></span>
         </div>
 
         <div class="form-check mb-3">
             <input asp-for="IsActive" class="form-check-input" />
-            <label asp-for="IsActive" class="form-check-label"></label>
+            <label asp-for="IsActive" class="form-check-label">@Localizer["IsActiveLabel"]</label>
         </div>
 
-        <button type="submit" class="btn btn-primary">Save Changes</button>
-        <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+        <button type="submit" class="btn btn-primary">@Localizer["SaveChanges"]</button>
+        <a asp-action="Index" class="btn btn-secondary ms-2">@Localizer["Cancel"]</a>
     </form>
 </div>
 

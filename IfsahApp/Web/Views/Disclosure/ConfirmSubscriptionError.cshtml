@@ -1,6 +1,9 @@
 @{
     Layout = "_Layout"; // أو "_AdminLayout"
-    ViewData["Title"] = "الرابط غير صالح";
+}
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["InvalidLinkTitle"];
 }
 <div class="container py-5" dir="rtl">
   <style>
@@ -19,8 +22,8 @@
     <div class="col-lg-7">
       <div class="cs-card">
         <div class="p-4 cs-hero text-center">
-          <div class="cs-badge mb-2">تأكيد الاشتراك</div>
-          <h2 class="m-0">الرابط غير صالح أو منتهي</h2>
+          <div class="cs-badge mb-2">@Localizer["ConfirmSubscriptionBadge"]</div>
+          <h2 class="m-0">@Localizer["InvalidOrExpiredLinkHeading"]</h2>
         </div>
 
         <div class="bg-white text-center p-4 p-md-5">
@@ -29,16 +32,16 @@
               <path d="M8.982 1.566a1.13 1.13 0 0 0-1.964 0L.165 13.233c-.457.778.091 1.767.982 1.767h13.706c.89 0 1.438-.99.982-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
             </svg>
           </div>
-          <p class="lead mb-2">يبدو أن رابط التأكيد غير صحيح أو انتهت صلاحيته.</p>
-          <p class="text-muted mb-4">اطلبي رابطًا جديدًا من صفحة البلاغ ثم افتحيه خلال 24 ساعة.</p>
+          <p class="lead mb-2">@Localizer["InvalidLinkMessage"]</p>
+          <p class="text-muted mb-4">@Localizer["RequestNewLinkMessage"]</p>
 
           <div class="cs-actions d-grid gap-2 d-sm-flex justify-content-center">
-            <a class="btn btn-primary btn-lg" href="/">العودة للرئيسية</a>
-            <a class="btn btn-outline-secondary btn-lg" href="javascript:history.back()">رجوع</a>
+            <a class="btn btn-primary btn-lg" href="/">@Localizer["BackToHome"]</a>
+            <a class="btn btn-outline-secondary btn-lg" href="javascript:history.back()">@Localizer["GoBack"]</a>
           </div>
 
           <div class="mt-4 small text-muted">
-            لو تكرر الخطأ، تحققي من أن الرابط لم يُفتح من قبل (يُستخدم مرة واحدة).
+            @Localizer["RepeatedErrorHint"]
           </div>
         </div>
       </div>

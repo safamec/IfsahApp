@@ -1,0 +1,8 @@
+<root>
+  <data name="EditDisclosureTypeTitle"><value>Edit Disclosure Type</value></data>
+  <data name="ArabicNameLabel"><value>Arabic Name</value></data>
+  <data name="EnglishNameLabel"><value>English Name</value></data>
+  <data name="IsActiveLabel"><value>Active</value></data>
+  <data name="SaveChanges"><value>Save Changes</value></data>
+  <data name="Cancel"><value>Cancel</value></data>
+</root>

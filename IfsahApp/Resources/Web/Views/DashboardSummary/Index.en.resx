@@ -1,0 +1,22 @@
+<root>
+  <data name="DashboardSummaryTitle"><value>Dashboard Summary</value></data>
+
+  <data name="Chart_EvolutionByStatus"><value>Evolution of Disclosures by Status</value></data>
+  <data name="Chart_DisclosuresTrend"><value>Disclosures Trend</value></data>
+  <data name="Chart_MonthlyComparison"><value>Monthly Comparison of Disclosure Statuses</value></data>
+
+  <data name="TableCard_DisclosureDetails"><value>Disclosure Details</value></data>
+  <data name="Table_Month"><value>Month</value></data>
+  <data name="Table_NumberOfDisclosures"><value>Number of Disclosures</value></data>
+  <data name="Table_DisclosuresUnderReview"><value>Disclosures Under Review</value></data>
+  <data name="Table_DisclosuresInProcess"><value>Disclosures In Process</value></data>
+  <data name="Table_CancelledDisclosures"><value>Cancelled Disclosures</value></data>
+
+  <data name="NoData"><value>No data available</value></data>
+
+  <data name="Legend_TotalDisclosures"><value>Total Disclosures</value></data>
+  <data name="Legend_UnderReview"><value>Under Review</value></data>
+  <data name="Legend_InProcess"><value>In Process</value></data>
+  <data name="Legend_Cancelled"><value>Cancelled</value></data>
+  <data name="Legend_Total"><value>Total</value></data>
+</root>

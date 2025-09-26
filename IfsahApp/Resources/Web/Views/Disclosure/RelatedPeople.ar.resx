@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- Page -->
+  <data name="Related People"><value>الأشخاص المرتبطون</value></data>
+
+  <!-- Buttons -->
+  <data name="Add Related Person"><value>إضافة شخص مرتبط</value></data>
+  <data name="Back"><value>رجوع</value></data>
+  <data name="Next"><value>التالي</value></data>
+  <data name="SaveButton"><value>حفظ</value></data>
+  <data name="CancelButton"><value>إلغاء</value></data>
+
+  <!-- Table Headers -->
+  <data name="Name"><value>الاسم</value></data>
+  <data name="Email"><value>البريد الإلكتروني</value></data>
+  <data name="Phone"><value>رقم الهاتف</value></data>
+  <data name="Organization"><value>الجهة</value></data>
+  <data name="Actions"><value>الإجراءات</value></data>
+  <data name="DeleteRow"><value>حذف الصف</value></data>
+
+  <!-- Empty State -->
+  <data name="NoRelatedYet"><value>لا يوجد أشخاص مرتبطون بعد</value></data>
+</root>

@@ -1,0 +1,12 @@
+<root>
+  <data name="DisclosureTypeDetailsTitle"><value>Disclosure Type Details</value></data>
+  <data name="Id"><value>Id</value></data>
+  <data name="ArabicName"><value>Arabic Name</value></data>
+  <data name="EnglishName"><value>English Name</value></data>
+  <data name="IsActive"><value>Is Active</value></data>
+  <data name="ActiveLabel"><value>Active</value></data>
+  <data name="InactiveLabel"><value>Inactive</value></data>
+  <data name="CreatedAt"><value>Created At</value></data>
+  <data name="Edit"><value>Edit</value></data>
+  <data name="BackToList"><value>Back to List</value></data>
+</root>

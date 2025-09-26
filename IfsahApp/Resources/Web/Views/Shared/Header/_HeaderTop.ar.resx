@@ -1,18 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
 <root>
-<data name="SkipToMainContent" xml:space="preserve">
-    <value>تخطي إلى المحتوى الرئيسي</value>
-  </data>
-  <data name="Arabic" xml:space="preserve">
-    <value>العربية</value>
-  </data>
-  <data name="English" xml:space="preserve">
-    <value>English</value>
-  </data>
-  <data name="ToggleTheme" xml:space="preserve">
-    <value>تبديل الوضع الداكن</value>
-  </data>
-  <data name="ToggleThemeLabel" xml:space="preserve">
-    <value>تبديل النمط</value>
-  </data>
+  <data name="SkipToMainContent"><value>تخطَّ إلى المحتوى الرئيسي</value></data>
+  <data name="SkipToMainContentTitle"><value>الانتقال مباشرةً إلى المحتوى الرئيسي</value></data>
+  <data name="TopHeaderRegion"><value>رأس الصفحة العلوي</value></data>
+  <data name="HeaderBar"><value>شريط الرأس</value></data>
+  <data name="HeaderControls"><value>عناصر تحكم الرأس</value></data>
 </root>

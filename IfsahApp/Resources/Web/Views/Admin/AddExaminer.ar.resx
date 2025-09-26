@@ -1,0 +1,12 @@
+<root>
+  <data name="AddUsersTitle"><value>إضافة المستحدمين</value></data>
+  <data name="AddUserHeading"><value>إضافة مستخدم</value></data>
+  <data name="ADUserNameLabel"><value>اسم AD</value></data>
+  <data name="FullNameLabel"><value>الاسم الكامل</value></data>
+  <data name="EmailLabel"><value>البريد</value></data>
+  <data name="DepartmentOptionalLabel"><value>القسم (اختياري)</value></data>
+  <data name="TypeToSearchHelp"><value>اكتب جزءًا من الاسم وسيظهر الاقتراح تلقائيًا.</value></data>
+  <data name="SaveBtn"><value>حفظ</value></data>
+  <data name="BackBtn"><value>رجوع</value></data>
+  <data name="NoResults"><value>لا توجد نتائج</value></data>
+</root>

@@ -1,0 +1,16 @@
+<root>
+  <data name="AddExaminerTitle"><value>Add Examiner</value></data>
+  <data name="GoToExaminersPageLink"><value>Go to Examiners Page</value></data>
+
+  <data name="SearchUserLabel"><value>Search User</value></data>
+  <data name="SearchUserPlaceholder"><value>Type name or AD username</value></data>
+  <data name="SelectedUserHeading"><value>Selected User</value></data>
+
+  <data name="FullNameColon"><value>Full Name:</value></data>
+  <data name="ADUserColon"><value>AD User:</value></data>
+  <data name="EmailColon"><value>Email:</value></data>
+  <data name="DepartmentColon"><value>Department:</value></data>
+
+  <data name="AddAsExaminerAndNotifyBtn"><value>Add as Examiner &amp; Notify</value></data>
+  <data name="CancelBtn"><value>Cancel</value></data>
+</root>

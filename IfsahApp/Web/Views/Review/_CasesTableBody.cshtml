@@ -1,11 +1,12 @@
 @model List<CaseItem>
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 
 @foreach (var caseItem in Model)
 {
     <tr>
         <td>
             <a href="@Url.Action("ReviewDisclosure", "Review", new { reference = caseItem.Reference })" class="btn btn-success btn-sm">
-                Review
+                @Localizer["Review"]
             </a>
         </td>
         <td>@caseItem.Status</td>
@@ -23,7 +24,7 @@
             <nav>
                 <ul class="pagination justify-content-center">
                     <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
-                        <a class="page-link" href="#" onclick="loadCases(@(ViewBag.CurrentPage - 1))">Previous</a>
+                        <a class="page-link" href="#" onclick="loadCases(@(ViewBag.CurrentPage - 1))">@Localizer["Previous"]</a>
                     </li>
 
                     @for (int i = 1; i <= ViewBag.TotalPages; i++)
@@ -34,7 +35,7 @@
                     }
 
                     <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
-                        <a class="page-link" href="#" onclick="loadCases(@(ViewBag.CurrentPage + 1))">Next</a>
+                        <a class="page-link" href="#" onclick="loadCases(@(ViewBag.CurrentPage + 1))">@Localizer["Next"]</a>
                     </li>
                 </ul>
             </nav>

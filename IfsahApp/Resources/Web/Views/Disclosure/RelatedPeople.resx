@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- Page -->
+  <data name="Related People"><value>Related People</value></data>
+
+  <!-- Buttons -->
+  <data name="Add Related Person"><value>Add Related Person</value></data>
+  <data name="Back"><value>Back</value></data>
+  <data name="Next"><value>Next</value></data>
+  <data name="SaveButton"><value>Save</value></data>
+  <data name="CancelButton"><value>Cancel</value></data>
+
+  <!-- Table Headers -->
+  <data name="Name"><value>Name</value></data>
+  <data name="Email"><value>Email</value></data>
+  <data name="Phone"><value>Phone</value></data>
+  <data name="Organization"><value>Organization</value></data>
+  <data name="Actions"><value>Actions</value></data>
+  <data name="DeleteRow"><value>Delete Row</value></data>
+
+  <!-- Empty State -->
+  <data name="NoRelatedYet"><value>No related people yet</value></data>
+</root>

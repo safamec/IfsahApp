@@ -1,25 +1,48 @@
 @model IEnumerable<IfsahApp.Core.Models.Notification>
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = "Notifications";
+    ViewData["Title"] = Localizer["NotificationsTitle"];
     var tokens = Antiforgery.GetAndStoreTokens(Context);
     var csrf = tokens.RequestToken;
 }
+
+<style>
+  /* Light mode background */
+  :root[data-bs-theme="light"] .notif-table {
+    background-color: #f5f5f5;
+  }
+
+  /* Dark mode background (يستخدم ألوان بوتستراب الداكنة) */
+  :root[data-bs-theme="dark"] .notif-table {
+    background-color: var(--bs-body-bg);
+  }
+
+  /* رأس الجدول */
+  .notif-table thead th {
+    background-color: var(--bs-tertiary-bg);
+    color: var(--bs-emphasis-color);
+  }
+
+  /* صفوف غير مقروء */
+  .notif-table .table-warning {
+    --bs-table-bg: color-mix(in srgb, var(--bs-warning) 15%, transparent);
+    --bs-table-color: var(--bs-body-color);
+  }
+</style>
 
 <!-- expose anti-forgery to JS (optional if already in _Layout) -->
 <meta name="csrf-token" content="@csrf" />
 
 <script>
-  // global helper for CSRF header (matches Program.cs: HeaderName = "RequestVerificationToken")
   window.NOTIF_OPTS = { csrfHeaderName: 'RequestVerificationToken', csrfToken: '@csrf' };
   function csrfHeaders(){
     const h={};
     if(window.NOTIF_OPTS?.csrfHeaderName && window.NOTIF_OPTS?.csrfToken){
       h[window.NOTIF_OPTS.csrfHeaderName] = window.NOTIF_OPTS.csrfToken;
     }
-    // Tell server we want JSON so controller returns Ok() not Redirect
     h['Accept'] = 'application/json';
     h['X-Requested-With'] = 'XMLHttpRequest';
     return h;
@@ -27,32 +50,40 @@
 </script>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h3 class="mb-0">Notifications</h3>
-  <button id="markAllBtn" class="btn btn-sm btn-outline-secondary">Mark all as read</button>
+  <h3 class="mb-0">@Localizer["NotificationsTitle"]</h3>
+  <button id="markAllBtn" class="btn btn-sm btn-outline-secondary">@Localizer["MarkAllAsRead"]</button>
 </div>
 
-<table class="table table-hover align-middle">
-  <thead>
-    <tr><th>Type</th><th>Message</th><th>Created</th><th>Status</th><th></th></tr>
-  </thead>
-  <tbody>
-  @foreach (var n in Model)
-  {
-      <tr class="@(n.IsRead ? "" : "table-warning")" data-id="@n.Id">
-        <td>@n.EventType</td>
-        <td>@n.Message</td>
-        <td>@n.CreatedAt.ToString("u")</td>
-        <td>@(n.IsRead ? "Read" : "Unread")</td>
-        <td class="text-end">
-          @if (!n.IsRead)
-          {
-            <button class="btn btn-sm btn-outline-success mark-read">Mark as read</button>
-          }
-        </td>
+<div class="table-responsive rounded-3 shadow-sm">
+  <table class="table table-hover align-middle mb-0 notif-table">
+    <thead>
+      <tr>
+        <th>@Localizer["Type"]</th>
+        <th>@Localizer["Message"]</th>
+        <th>@Localizer["Created"]</th>
+        <th>@Localizer["Status"]</th>
+        <th></th>
       </tr>
-  }
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+    @foreach (var n in Model)
+    {
+        <tr class="@(n.IsRead ? "" : "table-warning")" data-id="@n.Id">
+          <td>@n.EventType</td>
+          <td>@n.Message</td>
+          <td>@n.CreatedAt.ToString("u")</td>
+          <td>@(n.IsRead ? Localizer["Read"] : Localizer["Unread"])</td>
+          <td class="text-end">
+            @if (!n.IsRead)
+            {
+              <button class="btn btn-sm btn-outline-success mark-read">@Localizer["MarkAsRead"]</button>
+            }
+          </td>
+        </tr>
+    }
+    </tbody>
+  </table>
+</div>
 
 @section Scripts {
 <script>
@@ -71,8 +102,7 @@
       if (res.ok) {
         location.reload();
       } else if (res.status === 401) {
-        // not authenticated -> go to your login path
-        window.location.href = '/DevLogin'; // or '/Account/Login'
+        window.location.href = '/DevLogin';
       } else {
         console.error('MarkAsRead failed', res.status);
       }
@@ -92,7 +122,7 @@
       if (res.ok) {
         location.reload();
       } else if (res.status === 401) {
-        window.location.href = '/DevLogin'; // or '/Account/Login'
+        window.location.href = '/DevLogin';
       } else {
         console.error('MarkAllRead failed', res.status);
       }

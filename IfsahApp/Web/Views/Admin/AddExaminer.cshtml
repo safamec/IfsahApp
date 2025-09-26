@@ -1,8 +1,9 @@
 @using IfsahApp.Core.ViewModels
 @model AddExaminerVM
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = "إضافة ممتحن";
+    ViewData["Title"] = Localizer["AddUsersTitle"];
 }
 
 @section AdminSidebar {
@@ -15,7 +16,7 @@
 
 <div class="card shadow-sm position-relative">
   <div class="card-body">
-    <h5 class="mb-3">إضافة ممتحن</h5>
+    <h5 class="mb-3">@Localizer["AddUserHeading"]</h5>
 
     <form asp-action="AddExaminer" method="post" novalidate>
       @Html.AntiForgeryToken()
@@ -23,36 +24,36 @@
 
       <div class="row g-3">
         <div class="col-md-4 position-relative">
-          <label class="form-label">اسم AD</label>
+          <label class="form-label">@Localizer["ADUserNameLabel"]</label>
           <input asp-for="ADUserName" class="form-control" id="adBox" autocomplete="off" />
           <span asp-validation-for="ADUserName" class="text-danger"></span>
-          <div class="form-text">اكتب جزءًا من الاسم وسيظهر الاقتراح تلقائيًا.</div>
+          <div class="form-text">@Localizer["TypeToSearchHelp"]</div>
 
           <!-- suggestions dropdown -->
           <div id="adResults" class="list-group" style="display:none; position:absolute; inset-inline-start:0; top:100%; z-index:1050; min-width:100%; max-height:280px; overflow:auto; border:1px solid #dee2e6; border-radius:.5rem; background:#fff;"></div>
         </div>
 
         <div class="col-md-4">
-          <label class="form-label">الاسم الكامل</label>
+          <label class="form-label">@Localizer["FullNameLabel"]</label>
           <input asp-for="FullName" class="form-control" />
           <span asp-validation-for="FullName" class="text-danger"></span>
         </div>
 
         <div class="col-md-4">
-          <label class="form-label">البريد</label>
+          <label class="form-label">@Localizer["EmailLabel"]</label>
           <input asp-for="Email" class="form-control" />
           <span asp-validation-for="Email" class="text-danger"></span>
         </div>
 
         <div class="col-md-4">
-          <label class="form-label">القسم (اختياري)</label>
+          <label class="form-label">@Localizer["DepartmentOptionalLabel"]</label>
           <input asp-for="Department" class="form-control" />
         </div>
       </div>
 
       <div class="mt-4 d-flex gap-2">
-        <button class="btn btn-primary" type="submit">حفظ</button>
-        <a asp-action="AdminPanal" class="btn btn-outline-secondary">رجوع</a>
+        <button class="btn btn-primary" type="submit">@Localizer["SaveBtn"]</button>
+        <a asp-action="AdminPanal" class="btn btn-outline-secondary">@Localizer["BackBtn"]</a>
       </div>
     </form>
   </div>
@@ -62,6 +63,7 @@
 <script>
 const adBox   = document.getElementById('adBox');
 const listEl  = document.getElementById('adResults');
+const NO_RESULTS = '@Localizer["NoResults"]';
 
 let debounceId;
 adBox.addEventListener('input', () => {
@@ -75,7 +77,7 @@ adBox.addEventListener('input', () => {
       if(!res.ok){ hideList(); return; }
       const data = await res.json();
       if(!Array.isArray(data) || data.length === 0){
-        listEl.innerHTML = `<div class="p-2 text-muted">لا توجد نتائج</div>`;
+        listEl.innerHTML = `<div class="p-2 text-muted">${NO_RESULTS}</div>`;
         showList(); return;
       }
 

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- عناوين الصفحة -->
+  <data name="Disclosure Details" xml:space="preserve"><value>تفاصيل البلاغ</value></data>
+
+  <!-- الحقول -->
+  <data name="Disclosure Type" xml:space="preserve"><value>نوع البلاغ</value></data>
+  <data name="Description" xml:space="preserve"><value>الوصف</value></data>
+  <data name="Location" xml:space="preserve"><value>موقع المخالفة</value></data>
+
+  <!-- نطاق التاريخ -->
+  <data name="ReportDateRangeLabel" xml:space="preserve"><value>نطاق تاريخ البلاغ</value></data>
+  <data name="SelectDateRangePlaceholder" xml:space="preserve"><value>اختر نطاق التاريخ</value></data>
+
+  <!-- الأزرار العامة -->
+  <data name="Back" xml:space="preserve"><value>رجوع</value></data>
+  <data name="Next" xml:space="preserve"><value>التالي</value></data>
+
+  <!-- مفاتيح DateRangePicker -->
+  <data name="Apply" xml:space="preserve"><value>تطبيق</value></data>
+  <data name="Cancel" xml:space="preserve"><value>إلغاء</value></data>
+  <data name="From" xml:space="preserve"><value>من</value></data>
+  <data name="To" xml:space="preserve"><value>إلى</value></data>
+  <data name="Custom" xml:space="preserve"><value>مخصص</value></data>
+
+  <!-- أيام الأسبوع (اختصارات) -->
+  <data name="Su" xml:space="preserve"><value>أح</value></data>
+  <data name="Mo" xml:space="preserve"><value>إث</value></data>
+  <data name="Tu" xml:space="preserve"><value>ثل</value></data>
+  <data name="We" xml:space="preserve"><value>أر</value></data>
+  <data name="Th" xml:space="preserve"><value>خم</value></data>
+  <data name="Fr" xml:space="preserve"><value>جم</value></data>
+  <data name="Sa" xml:space="preserve"><value>سب</value></data>
+
+  <!-- الأشهر -->
+  <data name="January" xml:space="preserve"><value>يناير</value></data>
+  <data name="February" xml:space="preserve"><value>فبراير</value></data>
+  <data name="March" xml:space="preserve"><value>مارس</value></data>
+  <data name="April" xml:space="preserve"><value>أبريل</value></data>
+  <data name="May" xml:space="preserve"><value>مايو</value></data>
+  <data name="June" xml:space="preserve"><value>يونيو</value></data>
+  <data name="July" xml:space="preserve"><value>يوليو</value></data>
+  <data name="August" xml:space="preserve"><value>أغسطس</value></data>
+  <data name="September" xml:space="preserve"><value>سبتمبر</value></data>
+  <data name="October" xml:space="preserve"><value>أكتوبر</value></data>
+  <data name="November" xml:space="preserve"><value>نوفمبر</value></data>
+  <data name="December" xml:space="preserve"><value>ديسمبر</value></data>
+</root>

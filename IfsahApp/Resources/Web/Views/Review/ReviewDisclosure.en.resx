@@ -1,0 +1,26 @@
+<root>
+  <data name="ReviewDisclosureTitle"><value>Review Disclosure</value></data>
+  <data name="CaseNotFound"><value>Case not found.</value></data>
+
+  <data name="DisclosureDetailsHeading"><value>Disclosure Details</value></data>
+  <data name="ReferenceLabel"><value>Reference:</value></data>
+
+  <data name="Type"><value>Type</value></data>
+  <data name="Date"><value>Date</value></data>
+  <data name="Location"><value>Location</value></data>
+  <data name="Description"><value>Description</value></data>
+
+  <data name="ViewPeopleAndAttachments"><value>View People &amp; Attachments</value></data>
+  <data name="RejectDisclosure"><value>Reject Disclosure</value></data>
+  <data name="ConfirmReject"><value>Are you sure you want to reject this disclosure?</value></data>
+
+  <data name="ModalTitleRelatedSuspectedAttachments"><value>Related / Suspected / Attachments</value></data>
+  <data name="Close"><value>Close</value></data>
+  <data name="Loading"><value>Loading…</value></data>
+
+  <data name="ReviewerNotes"><value>Reviewer Notes</value></data>
+  <data name="AddNotesPlaceholder"><value>Add your notes here...</value></data>
+  <data name="SubmitDisclosure"><value>Submit Disclosure</value></data>
+
+  <data name="FailedToLoadExtras"><value>Failed to load extras</value></data>
+</root>

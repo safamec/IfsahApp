@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- الصفحة -->
+  <data name="Suspected People" xml:space="preserve"><value>الأشخاص المشتبه بهم</value></data>
+
+  <!-- الأزرار -->
+  <data name="AddSuspectedPersonButton" xml:space="preserve"><value>+ إضافة شخص مشتبه به</value></data>
+  <data name="SaveButton" xml:space="preserve"><value>حفظ</value></data>
+  <data name="CancelButton" xml:space="preserve"><value>إلغاء</value></data>
+  <data name="Back" xml:space="preserve"><value>رجوع</value></data>
+  <data name="Next" xml:space="preserve"><value>التالي</value></data>
+
+  <!-- أعمدة الجدول -->
+  <data name="Name" xml:space="preserve"><value>الاسم</value></data>
+  <data name="Email" xml:space="preserve"><value>البريد الإلكتروني</value></data>
+  <data name="Phone" xml:space="preserve"><value>رقم الجوال</value></data>
+  <data name="Organization" xml:space="preserve"><value>الجهة</value></data>
+  <data name="Actions" xml:space="preserve"><value>الإجراءات</value></data>
+  <data name="DeleteRow" xml:space="preserve"><value>حذف الصف</value></data>
+
+  <!-- حالة فارغة -->
+  <data name="NoPeopleYet" xml:space="preserve"><value>لا توجد بيانات مشتبه بهم بعد</value></data>
+</root>

@@ -1,0 +1,11 @@
+<root>
+  <data name="Dashboard"><value>Dashboard</value></data>
+  <data name="UsersNav"><value>Users</value></data>
+  <data name="AddUserNav"><value>Add User</value></data>
+  <data name="OtherSection"><value>Other</value></data>
+  <data name="DisclosuresNav"><value>Disclosures</value></data>
+  <data name="NotificationsNav"><value>Notifications</value></data>
+  <data name="HomeNav"><value>Home</value></data>
+  <data name="MenuTitle"><value>Menu</value></data>
+  <data name="Close"><value>Close</value></data>
+</root>

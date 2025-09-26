@@ -1,0 +1,11 @@
+<root>
+  <data name="NotificationsTitle"><value>الإشعارات</value></data>
+  <data name="MarkAllAsRead"><value>تعيين الكل كمقروء</value></data>
+  <data name="Type"><value>النوع</value></data>
+  <data name="Message"><value>الرسالة</value></data>
+  <data name="Created"><value>تاريخ الإنشاء</value></data>
+  <data name="Status"><value>الحالة</value></data>
+  <data name="Read"><value>مقروء</value></data>
+  <data name="Unread"><value>غير مقروء</value></data>
+  <data name="MarkAsRead"><value>تعيين كمقروء</value></data>
+</root>

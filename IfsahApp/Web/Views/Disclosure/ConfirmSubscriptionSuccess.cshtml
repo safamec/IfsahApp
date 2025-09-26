@@ -1,6 +1,9 @@
 @{
     Layout = "_Layout"; // أو "_AdminLayout"
-    ViewData["Title"] = "تم تأكيد الاشتراك";
+}
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["SubscriptionConfirmedTitle"];
 }
 <div class="container py-5" dir="rtl">
   <style>
@@ -19,10 +22,10 @@
     <div class="col-lg-7">
       <div class="cs-card">
         <div class="p-4 cs-hero text-center">
-          <div class="cs-badge mb-2">اشتراك التحديثات</div>
-          <h2 class="m-0">تم تأكيد اشتراكك بنجاح</h2>
-          @if(ViewBag.Report is string r && !string.IsNullOrWhiteSpace(r)){
-            <p class="mb-0 mt-2">لبلاغ رقم <strong>@r</strong></p>
+          <div class="cs-badge mb-2">@Localizer["UpdatesSubscriptionBadge"]</div>
+          <h2 class="m-0">@Localizer["SubscriptionConfirmedHeading"]</h2>
+          @if (ViewBag.Report is string r && !string.IsNullOrWhiteSpace(r)) {
+            <p class="mb-0 mt-2">@string.Format(Localizer["ForReportNumber"].Value, r)</p>
           }
         </div>
 
@@ -32,16 +35,16 @@
               <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM7 10.5l4.5-4.5-1.06-1.06L7 8.38 5.56 6.94 4.5 8l2.5 2.5z"/>
             </svg>
           </div>
-          <p class="lead mb-2">سيصلك إشعار بأي تحديث يخص هذا البلاغ.</p>
-          <p class="text-muted mb-4">يمكنك إغلاق هذه الصفحة بأمان.</p>
+          <p class="lead mb-2">@Localizer["YouWillReceiveUpdates"]</p>
+          <p class="text-muted mb-4">@Localizer["SafeToClosePage"]</p>
 
           <div class="cs-actions d-grid gap-2 d-sm-flex justify-content-center">
-            <a class="btn btn-primary btn-lg" href="/">العودة للرئيسية</a>
-            <a class="btn btn-outline-secondary btn-lg" href="javascript:history.back()">رجوع</a>
+            <a class="btn btn-primary btn-lg" href="/">@Localizer["BackToHome"]</a>
+            <a class="btn btn-outline-secondary btn-lg" href="javascript:history.back()">@Localizer["GoBack"]</a>
           </div>
 
           <div class="mt-4 small text-muted">
-            نصيحة: أضيفي بريد المرسل إلى قائمة الموثوق لديهم لتجنب وصول الرسائل إلى غير المرغوب.
+            @Localizer["TipAddSenderToSafeList"]
           </div>
         </div>
       </div>

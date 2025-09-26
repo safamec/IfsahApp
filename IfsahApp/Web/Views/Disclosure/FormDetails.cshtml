@@ -2,7 +2,7 @@
 @inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = "Disclosure Details";
+    ViewData["Title"] = @Localizer["Disclosure Details"];
     ViewData["Step"] = Model.Step;
 }
 @section StepTabs {

@@ -1,0 +1,17 @@
+<root>
+  <data name="Description"><value>الوصف</value></data>
+  <data name="Location"><value>الموقع</value></data>
+  <data name="Status"><value>الحالة</value></data>
+  <data name="SubmittedAt"><value>تاريخ الإرسال</value></data>
+  <data name="AssignedTo"><value>مُسند إلى</value></data>
+
+  <data name="AdminComments"><value>تعليقات المشرف</value></data>
+  <data name="NoCommentsYet"><value>لا توجد تعليقات بعد.</value></data>
+
+  <data name="AddCommentAndAssign"><value>إضافة تعليق وإسناد</value></data>
+  <data name="Comment"><value>التعليق</value></data>
+  <data name="AssignTo"><value>إسناد إلى</value></data>
+  <data name="SelectUserPlaceholder"><value>-- اختر مستخدمًا --</value></data>
+  <data name="Submit"><value>إرسال</value></data>
+  <data name="Back"><value>رجوع</value></data>
+</root>

@@ -1,14 +1,18 @@
 @model IfsahApp.Core.ViewModels.DisclosureFormViewModel
 @inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Mvc.Rendering
+
 @{
     ViewData["Title"] = Localizer["Review Disclosure"];
     ViewData["Step"]  = Model.Step;
 
-    // Controller should call: await LoadDisclosureTypesAsync(Model.DisclosureTypeId);
-    var types = ViewBag.DisclosureTypes as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
-    var disclosureTypeText = types.FirstOrDefault(t => t.Value == Model.DisclosureTypeId.ToString())?.Text
-                             ?? Model.DisclosureTypeId.ToString();
+    // Safe lookup for the disclosure type text
+    var types = (ViewBag.DisclosureTypes as IEnumerable<SelectListItem>) ?? Enumerable.Empty<SelectListItem>();
+    var dtId  = Model.DisclosureTypeId.ToString();
+    var disclosureTypeText = types.FirstOrDefault(t => string.Equals(t.Value, dtId, StringComparison.Ordinal))?.Text ?? dtId;
+
+    string S(string? v) => string.IsNullOrWhiteSpace(v) ? "—" : v!;
+    string D(DateTime? d) => d.HasValue ? d.Value.ToString("yyyy-MM-dd") : "—";
 }
 
 @section StepTabs { @await Html.PartialAsync("_DisclosureTabs") }
@@ -18,109 +22,115 @@
 <!-- Disclosure Details -->
 <div class="mb-4">
     <h4>@Localizer["Disclosure Details"]</h4>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>@Localizer["Disclosure Type"]</th>
-                <th>@Localizer["Description"]</th>
-                <th>@Localizer["Location"]</th>
-                <th>@Localizer["Incident Start Date"]</th>
-                <th>@Localizer["Incident End Date"]</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>@disclosureTypeText</td>
-                <td>@Model.Description</td>
-                <td>@Model.Location</td>
-                <td>@Model.IncidentStartDate?.ToString("yyyy-MM-dd")</td>
-                <td>@Model.IncidentEndDate?.ToString("yyyy-MM-dd")</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+            <thead>
+                <tr>
+                    <th>@Localizer["Disclosure Type"]</th>
+                    <th>@Localizer["Description"]</th>
+                    <th>@Localizer["Location"]</th>
+                    <th>@Localizer["Incident Start Date"]</th>
+                    <th>@Localizer["Incident End Date"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>@S(disclosureTypeText)</td>
+                    <td>@S(Model.Description)</td>
+                    <td>@S(Model.Location)</td>
+                    <td>@D(Model.IncidentStartDate)</td>
+                    <td>@D(Model.IncidentEndDate)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <!-- Suspected People -->
 <div class="mb-4">
     <h4>@Localizer["Suspected People"]</h4>
-    @if (Model.SuspectedPersons?.Any() == true)
+    @if (Model.SuspectedPersons != null && Model.SuspectedPersons.Any())
     {
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>@Localizer["Name"]</th>
-                    <th>@Localizer["Email"]</th>
-                    <th>@Localizer["Phone"]</th>
-                    <th>@Localizer["Organization"]</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var sp in Model.SuspectedPersons)
-                {
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+                <thead>
                     <tr>
-                        <td>@sp.Name</td>
-                        <td>@sp.Email</td>
-                        <td>@sp.Phone</td>
-                        <td>@sp.Organization</td>
+                        <th>@Localizer["Name"]</th>
+                        <th>@Localizer["Email"]</th>
+                        <th>@Localizer["Phone"]</th>
+                        <th>@Localizer["Organization"]</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var sp in Model.SuspectedPersons)
+                    {
+                        <tr>
+                            <td>@S(sp?.Name)</td>
+                            <td>@S(sp?.Email)</td>
+                            <td>@S(sp?.Phone)</td>
+                            <td>@S(sp?.Organization)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
     else
     {
-        <p class="text-muted">@Localizer["No suspected people"]</p>
+        <p class="text-muted mb-0">@Localizer["No suspected people"]</p>
     }
 </div>
 
 <!-- Related People -->
 <div class="mb-4">
     <h4>@Localizer["Related People"]</h4>
-    @if (Model.RelatedPersons?.Any() == true)
+    @if (Model.RelatedPersons != null && Model.RelatedPersons.Any())
     {
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>@Localizer["Name"]</th>
-                    <th>@Localizer["Email"]</th>
-                    <th>@Localizer["Phone"]</th>
-                    <th>@Localizer["Organization"]</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var rp in Model.RelatedPersons)
-                {
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+                <thead>
                     <tr>
-                        <td>@rp.Name</td>
-                        <td>@rp.Email</td>
-                        <td>@rp.Phone</td>
-                        <td>@rp.Organization</td>
+                        <th>@Localizer["Name"]</th>
+                        <th>@Localizer["Email"]</th>
+                        <th>@Localizer["Phone"]</th>
+                        <th>@Localizer["Organization"]</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var rp in Model.RelatedPersons)
+                    {
+                        <tr>
+                            <td>@S(rp?.Name)</td>
+                            <td>@S(rp?.Email)</td>
+                            <td>@S(rp?.Phone)</td>
+                            <td>@S(rp?.Organization)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
     else
     {
-        <p class="text-muted">@Localizer["No related people"]</p>
+        <p class="text-muted mb-0">@Localizer["No related people"]</p>
     }
 </div>
 
-<!-- Attachments (from TempData via Model.SavedAttachmentPaths) -->
+<!-- Attachments -->
 <div class="mb-4">
     <h4>@Localizer["Attachments"]</h4>
-    @if (Model.SavedAttachmentPaths?.Any() == true)
+    @if (Model.SavedAttachmentPaths != null && Model.SavedAttachmentPaths.Any())
     {
         <ul class="list-unstyled mb-0">
             @foreach (var name in Model.SavedAttachmentPaths)
             {
-                <li><a href="~/tempUploads/@name" target="_blank">@name</a></li>
+                <li><a href="~/tempUploads/@name" target="_blank" rel="noopener">@name</a></li>
             }
         </ul>
     }
     else
     {
-        <p class="text-muted">@Localizer["No attachments"]</p>
+        <p class="text-muted mb-0">@Localizer["No attachments"]</p>
     }
 </div>
 

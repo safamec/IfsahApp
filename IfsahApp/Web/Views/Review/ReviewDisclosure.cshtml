@@ -1,55 +1,115 @@
 @model CaseItem
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 
 @{
-    ViewBag.Title = "Review Disclosure";
+    ViewBag.Title = Localizer["ReviewDisclosureTitle"];
 }
 
 @if (Model == null)
 {
-    <div class="alert alert-warning text-center mt-4">
-        Case not found.
-    </div>
+    <div class="alert alert-warning text-center mt-4">@Localizer["CaseNotFound"]</div>
 }
 else
 {
     <div class="container py-5 d-flex justify-content-center">
         <div class="card shadow-sm" style="max-width: 600px; width: 100%;">
             <div class="card-header bg-white border-0">
-                <h2 class="mb-0">Disclosure Details</h2>
-                <small class="text-muted">Reference: @Model.Reference</small>
+                <h2 class="mb-0">@Localizer["DisclosureDetailsHeading"]</h2>
+                <small class="text-muted">@Localizer["ReferenceLabel"] @Model.Reference</small>
             </div>
-            <div class="card-body">
-                <h5 class="card-title mb-3">Disclosure Details</h5>
 
-                <p><strong>Type:</strong> @Model.Type</p>
-                <p><strong>Date:</strong> @Model.Date.ToString("yyyy-MM-dd")</p>
-                <p><strong>Location:</strong> @Model.Location</p>
-                <p><strong>Description:</strong> @Model.Description</p>
+            <div class="card-body">
+                <h5 class="card-title mb-3">@Localizer["DisclosureDetailsHeading"]</h5>
+
+                <p><strong>@Localizer["Type"]:</strong> @Model.Type</p>
+                <p><strong>@Localizer["Date"]:</strong> @Model.Date.ToString("yyyy-MM-dd")</p>
+                <p><strong>@Localizer["Location"]:</strong> @Model.Location</p>
+                <p><strong>@Localizer["Description"]:</strong> @Model.Description</p>
 
                 <hr />
 
-                <!-- Reviewer Notes -->
-                <div class="mb-3">
-                    <label for="reviewerNotes" class="form-label">Reviewer Notes</label>
-                    <textarea id="reviewerNotes" name="reviewerNotes" class="form-control" rows="4" placeholder="Add your notes here..."></textarea>
+                <!-- Top action row -->
+                <div class="row g-2 mb-3 align-items-stretch">
+                    <div class="col-12 col-md-6">
+                        <button id="btnExtras"
+                                type="button"
+                                class="btn btn-outline-secondary w-100"
+                                data-url="@Url.Action("Extras","Review", new { reference = Model.Reference })">
+                            @Localizer["ViewPeopleAndAttachments"]
+                        </button>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <form asp-action="CancelDisclosure"
+                              asp-controller="Review"
+                              method="post"
+                              class="d-grid"
+                              onsubmit="return confirm('@Localizer["ConfirmReject"]');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="reference" value="@Model.Reference" />
+                            <button type="submit" class="btn btn-danger w-100">@Localizer["RejectDisclosure"]</button>
+                        </form>
+                    </div>
                 </div>
 
-                <!-- Buttons row -->
-                <div class="d-flex gap-2">
-                    <!-- Submit Review Form -->
-                    <form asp-action="SubmitReview" asp-controller="Review" method="post" enctype="multipart/form-data" class="flex-grow-1">
-                        <input type="hidden" name="reference" value="@Model.Reference" />
-                        <button type="submit" class="btn btn-primary w-100">Submit Disclosure</button>
-                    </form>
-
-                    <!-- Cancel Disclosure Form -->
-                    <form asp-action="CancelDisclosure" asp-controller="Review" method="post" class="flex-grow-1"
-                          onsubmit="return confirm('Are you sure you want to Reject this disclosure?');">
-                        <input type="hidden" name="reference" value="@Model.Reference" />
-                        <button type="submit" class="btn btn-danger w-100">Reject Disclosure</button>
-                    </form>
+                <!-- Modal -->
+                <div class="modal fade" id="extrasModal" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title">@Localizer["ModalTitleRelatedSuspectedAttachments"]</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="@Localizer["Close"]"></button>
+                      </div>
+                      <div class="modal-body">
+                        <div id="extrasContainer" class="py-2 text-center text-muted">@Localizer["Loading"]</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
+                <!-- Submit Review (notes) -->
+                <form asp-action="SubmitReview"
+                      asp-controller="Review"
+                      method="post"
+                      class="mt-2">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="reference" value="@Model.Reference" />
+
+                    <div class="mb-3">
+                        <label for="reviewerNotes" class="form-label">@Localizer["ReviewerNotes"]</label>
+                        <textarea id="reviewerNotes"
+                                  name="reviewerNotes"
+                                  class="form-control"
+                                  rows="4"
+                                  placeholder="@Localizer["AddNotesPlaceholder"]"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">@Localizer["SubmitDisclosure"]</button>
+                </form>
             </div>
         </div>
     </div>
+}
+
+@section Scripts {
+  <script>
+    (function () {
+      const btn = document.getElementById('btnExtras');
+      const modalEl = document.getElementById('extrasModal');
+      const container = document.getElementById('extrasContainer');
+
+      const LOADING_TXT = '@Localizer["Loading"]';
+      const LOAD_ERR_TXT = '@Localizer["FailedToLoadExtras"]';
+
+      btn?.addEventListener('click', function () {
+        container.textContent = LOADING_TXT;
+        fetch(this.dataset.url, { credentials: 'same-origin' })
+          .then(r => { if (!r.ok) throw new Error(LOAD_ERR_TXT); return r.text(); })
+          .then(html => { container.innerHTML = html; })
+          .catch(err => { container.innerHTML = '<div class="text-danger">' + err.message + '</div>'; });
+
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+      });
+    })();
+  </script>
 }

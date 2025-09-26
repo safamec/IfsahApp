@@ -1,4 +1,5 @@
 @model IfsahApp.Core.ViewModels.DisclosureDetailsViewModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 
 <div class="container my-5">
     <div class="row justify-content-center">
@@ -8,15 +9,15 @@
 
                     <h2 class="card-title mb-4 text-center">@Model.Reference - @Model.Type</h2>
 
-                    <p><strong>Description:</strong> @Model.Description</p>
-                    <p><strong>Location:</strong> @Model.Location</p>
-                    <p><strong>Status:</strong> @Model.Status</p>
-                    <p><strong>Submitted At:</strong> @Model.Date.ToString("yyyy-MM-dd")</p>
-                    <p><strong>Assigned To:</strong> @Model.AssignedToUserName</p>
+                    <p><strong>@Localizer["Description"]:</strong> @Model.Description</p>
+                    <p><strong>@Localizer["Location"]:</strong> @Model.Location</p>
+                    <p><strong>@Localizer["Status"]:</strong> @Model.Status</p>
+                    <p><strong>@Localizer["SubmittedAt"]:</strong> @Model.Date.ToString("yyyy-MM-dd")</p>
+                    <p><strong>@Localizer["AssignedTo"]:</strong> @Model.AssignedToUserName</p>
 
                     <hr />
 
-                    <h4>Admin Comments</h4>
+                    <h4>@Localizer["AdminComments"]</h4>
                     @if (Model.Comments.Any())
                     {
                         <ul>
@@ -28,30 +29,30 @@
                     }
                     else
                     {
-                        <p>No comments yet.</p>
+                        <p>@Localizer["NoCommentsYet"]</p>
                     }
 
                     <hr />
 
-                    <h4>Add Comment & Assign</h4>
+                    <h4>@Localizer["AddCommentAndAssign"]</h4>
                     <form asp-action="AddComment" method="post">
                         <input type="hidden" name="disclosureId" value="@Model.Id" />
                         <div class="mb-3">
-                            <label for="commentText" class="form-label">Comment</label>
+                            <label for="commentText" class="form-label">@Localizer["Comment"]</label>
                             <textarea name="commentText" class="form-control" rows="3"></textarea>
                         </div>
                         <div class="mb-3">
-                            <label for="assignToUserId" class="form-label">Assign To</label>
+                            <label for="assignToUserId" class="form-label">@Localizer["AssignTo"]</label>
                             <select name="assignToUserId" class="form-select">
-                                <option value="">-- Select User --</option>
+                                <option value="">@Localizer["SelectUserPlaceholder"]</option>
                                 @foreach (var u in Model.AvailableUsers)
                                 {
                                     <option value="@u.Value">@u.Text</option>
                                 }
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                        <a asp-action="Index" class="btn btn-secondary">Back</a>
+                        <button type="submit" class="btn btn-primary">@Localizer["Submit"]</button>
+                        <a asp-action="Index" class="btn btn-secondary">@Localizer["Back"]</a>
                     </form>
 
                 </div>

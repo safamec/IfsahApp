@@ -1,0 +1,8 @@
+<root>
+  <data name="EditDisclosureTypeTitle"><value>تعديل نوع البلاغ</value></data>
+  <data name="ArabicNameLabel"><value>الاسم بالعربية</value></data>
+  <data name="EnglishNameLabel"><value>الاسم بالإنجليزية</value></data>
+  <data name="IsActiveLabel"><value>نشط</value></data>
+  <data name="SaveChanges"><value>حفظ التغييرات</value></data>
+  <data name="Cancel"><value>إلغاء</value></data>
+</root>

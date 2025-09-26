@@ -1,14 +1,18 @@
+@using IfsahApp.Core.ViewModels
 @model IEnumerable<IfsahApp.Core.ViewModels.DashboardSummaryViewModel>
 
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
 @{
-    ViewBag.Title = "Dashboard Summary";
+    Layout = "_Layout";
+    ViewBag.Title = Localizer["DashboardSummaryTitle"];
+
     var monthsFull = Model.Select(m => m.Month).ToArray(); // e.g., "September 2025"
-    // Convert months to short format
     var monthsShort = monthsFull.Select(m => {
         var parts = m.Split(' ');
         var monthName = parts[0];
         var year = parts.Length > 1 ? parts[1] : "";
-        return monthName.Substring(0,3); // first 3 letters
+        return monthName.Substring(0, 3);
     }).ToArray();
 }
 
@@ -17,8 +21,8 @@
 <style>
   .chart-card { height: 320px; display:flex; flex-direction:column; justify-content:flex-start; padding:.75rem; }
   .chart-title { font-size:1rem; font-weight:600; color:#000; text-align:center; margin-bottom:.5rem; }
-  .chart-canvas-wrap { position:relative; flex:1 1 auto; min-height:240px; }
-  .chart-canvas-wrap canvas { width:100% !important; height:100% !important; }
+  .chart-canvas-wrap { position:relative; flex:1 1 auto; height:260px; min-height:260px; }
+  .chart-canvas-wrap canvas { display:block; width:100% !important; background:#fff; border-radius:6px; }
   .table-card { margin-top:1.25rem; }
   .card-header.bp { background-color:#0056A3; color:#fff; font-weight:600; }
   body { background-color:#fafafa; }
@@ -31,7 +35,7 @@
     <!-- Pie -->
     <div class="col-md-4">
       <div class="card shadow-sm chart-card">
-        <div class="chart-title">Evolution of Disclosures by Status - 2025</div>
+        <div class="chart-title">@Localizer["Chart_EvolutionByStatus"] - 2025</div>
         <div class="chart-canvas-wrap"><canvas id="pieChart"></canvas></div>
       </div>
     </div>
@@ -39,7 +43,7 @@
     <!-- Line -->
     <div class="col-md-4">
       <div class="card shadow-sm chart-card">
-        <div class="chart-title">Disclosures Trend - 2025</div>
+        <div class="chart-title">@Localizer["Chart_DisclosuresTrend"] - 2025</div>
         <div class="chart-canvas-wrap"><canvas id="lineChart"></canvas></div>
       </div>
     </div>
@@ -47,7 +51,7 @@
     <!-- Bar -->
     <div class="col-md-4">
       <div class="card shadow-sm chart-card">
-        <div class="chart-title">Monthly Comparison of Disclosure Statuses - 2025</div>
+        <div class="chart-title">@Localizer["Chart_MonthlyComparison"] - 2025</div>
         <div class="chart-canvas-wrap"><canvas id="barChart"></canvas></div>
       </div>
     </div>
@@ -55,16 +59,16 @@
 
   <!-- Data table below charts -->
   <div class="card shadow-sm table-card">
-    <div class="card-header bp">Disclosure Details</div>
+    <div class="card-header bp">@Localizer["TableCard_DisclosureDetails"]</div>
     <div class="table-responsive">
       <table class="table table-striped table-hover align-middle mb-0">
         <thead class="table-light sticky-top">
           <tr>
-            <th>Month</th>
-            <th>Number of Disclosures</th>
-            <th>Disclosures Under Review</th>
-            <th>Disclosures In Process</th>
-            <th>Cancelled Disclosures</th>
+            <th>@Localizer["Table_Month"]</th>
+            <th>@Localizer["Table_NumberOfDisclosures"]</th>
+            <th>@Localizer["Table_DisclosuresUnderReview"]</th>
+            <th>@Localizer["Table_DisclosuresInProcess"]</th>
+            <th>@Localizer["Table_CancelledDisclosures"]</th>
           </tr>
         </thead>
         <tbody>
@@ -83,7 +87,7 @@
           }
           else
           {
-              <tr><td colspan="5" class="text-center">No data available</td></tr>
+              <tr><td colspan="5" class="text-center">@Localizer["NoData"]</td></tr>
           }
         </tbody>
       </table>
@@ -96,13 +100,26 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
     <script>
+        // Localized labels for JS (safe via JSON)
+        const I18N = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new {
+            Pie_Total = Localizer["Legend_TotalDisclosures"].Value,
+            Pie_Under = Localizer["Legend_UnderReview"].Value,
+            Pie_InProc = Localizer["Legend_InProcess"].Value,
+            Pie_Cancelled = Localizer["Legend_Cancelled"].Value,
+            Line_InProc = Localizer["Legend_InProcess"].Value,
+            Line_Under = Localizer["Legend_UnderReview"].Value,
+            Bar_Total = Localizer["Legend_Total"].Value,
+            Bar_Under = Localizer["Legend_UnderReview"].Value,
+            Bar_InProc = Localizer["Legend_InProcess"].Value,
+            Bar_Cancelled = Localizer["Legend_Cancelled"].Value
+        }));
+
         const months = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(monthsShort));
         const total = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(m=>m.NumberOfDisclosures)));
         const underReview = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(m=>m.DisclosuresUnderReview)));
         const inProcess = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(m=>m.DisclosuresInProcess)));
         const cancelled = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(m=>m.CancelledDisclosures)));
 
-        // Complementary palette
         const navbarBlue = '#0056A3', teal = '#7EB6FF', orange = '#FFBFA5', paleBlue = '#A8E6CF', lightGray = '#CBA1FF';
         const sumArray = arr => arr.reduce((a,b)=>a+(+b||0),0);
 
@@ -111,13 +128,20 @@
         const pieTotal = sumArray(pieValues);
         new Chart(document.getElementById('pieChart'), {
             type:'pie',
-            data:{ labels:['Total Disclosures','Under Review','In Process','Cancelled'], datasets:[{ data:pieValues, backgroundColor:[navbarBlue,teal,orange,paleBlue], borderColor:'#fff', borderWidth:1 }] },
+            data:{
+                labels:[I18N.Pie_Total, I18N.Pie_Under, I18N.Pie_InProc, I18N.Pie_Cancelled],
+                datasets:[{ data:pieValues, backgroundColor:[navbarBlue,teal,orange,paleBlue], borderColor:'#fff', borderWidth:1 }]
+            },
             options:{
                 responsive:true, maintainAspectRatio:false,
-                plugins:{ legend:{position:'right', labels:{boxWidth:14,padding:12}},
-                    datalabels:{ formatter: (value)=> pieTotal===0?'0':((value/pieTotal*100).toFixed(1)+'%')+'\n('+value+')',
-                                 color: (ctx)=> [paleBlue, lightGray].includes(ctx.chart.data.datasets[0].backgroundColor[ctx.dataIndex])?'#000':'#fff',
-                                 font:{weight:'600', size:11}, align:'center', anchor:'center' } }
+                plugins:{
+                  legend:{position:'right', labels:{boxWidth:14,padding:12}},
+                  datalabels:{
+                    formatter: (value)=> pieTotal===0?'0':((value/pieTotal*100).toFixed(1)+'%')+'\n('+value+')',
+                    color:'#fff', font:{weight:'600', size:11}, align:'center', anchor:'center'
+                  }
+                },
+                backgroundColor:'#ffffff'
             },
             plugins:[ChartDataLabels]
         });
@@ -127,12 +151,16 @@
             type:'line',
             data:{ labels:months,
                 datasets:[
-                    { label:'In Process', data:inProcess, borderColor:orange, backgroundColor:orange, tension:0.35, pointRadius:4, pointBackgroundColor:'#fff', pointBorderColor:orange, pointBorderWidth:2, fill:false },
-                    { label:'Under Review', data:underReview, borderColor:teal, backgroundColor:teal, tension:0.35, pointRadius:4, pointBackgroundColor:'#fff', pointBorderColor:teal, pointBorderWidth:2, fill:false }
+                    { label:I18N.Line_InProc, data:inProcess, borderColor:orange, backgroundColor:orange, tension:0.35, pointRadius:4, pointBackgroundColor:'#fff', pointBorderColor:orange, pointBorderWidth:2, fill:false },
+                    { label:I18N.Line_Under, data:underReview, borderColor:teal, backgroundColor:teal, tension:0.35, pointRadius:4, pointBackgroundColor:'#fff', pointBorderColor:teal, pointBorderWidth:2, fill:false }
                 ]
             },
-            options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'top'} },
-                      scales:{ y:{beginAtZero:true, grid:{color:'#f0f0f0'}}, x:{grid:{display:false}} } }
+            options:{
+              responsive:true, maintainAspectRatio:false,
+              plugins:{ legend:{position:'top'} },
+              scales:{ y:{beginAtZero:true, grid:{color:'#f0f0f0'}}, x:{grid:{display:false}} },
+              backgroundColor:'#ffffff'
+            }
         });
 
         // BAR chart
@@ -140,14 +168,29 @@
             type:'bar',
             data:{ labels:months,
                 datasets:[
-                    { label:'Total', data:total, backgroundColor:navbarBlue },
-                    { label:'Under Review', data:underReview, backgroundColor:teal },
-                    { label:'In Process', data:inProcess, backgroundColor:orange },
-                    { label:'Cancelled', data:cancelled, backgroundColor:paleBlue }
+                    { label:I18N.Bar_Total, data:total, backgroundColor:navbarBlue, maxBarThickness:32 },
+                    { label:I18N.Bar_Under, data:underReview, backgroundColor:teal, maxBarThickness:32 },
+                    { label:I18N.Bar_InProc, data:inProcess, backgroundColor:orange, maxBarThickness:32 },
+                    { label:I18N.Bar_Cancelled, data:cancelled, backgroundColor:paleBlue, maxBarThickness:32 }
                 ]
             },
-            options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top'}},
-                      scales:{ y:{beginAtZero:true, grid:{color:'#f0f0f0'}}, x:{ticks:{autoSkip:false}} } }
+            options:{
+              responsive:true, maintainAspectRatio:false,
+              plugins:{
+                legend:{position:'top'},
+                datalabels:{
+                  anchor:'end',
+                  align:'top',
+                  offset: 2,
+                  formatter:(v)=> (v ?? 0) === 0 ? '' : v,
+                  font:{ weight:'600', size:11 },
+                  color:(ctx)=> ctx.dataset.backgroundColor
+                }
+              },
+              scales:{ y:{beginAtZero:true, grid:{color:'#f0f0f0'}}, x:{ticks:{autoSkip:false}} },
+              backgroundColor:'#ffffff'
+            },
+            plugins:[ChartDataLabels]
         });
     </script>
 }

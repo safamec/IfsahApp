@@ -1,0 +1,26 @@
+<root>
+  <data name="ReviewDisclosureTitle"><value>مراجعة البلاغ</value></data>
+  <data name="CaseNotFound"><value>لم يتم العثور على البلاغ.</value></data>
+
+  <data name="DisclosureDetailsHeading"><value>تفاصيل البلاغ</value></data>
+  <data name="ReferenceLabel"><value>المرجع:</value></data>
+
+  <data name="Type"><value>النوع</value></data>
+  <data name="Date"><value>التاريخ</value></data>
+  <data name="Location"><value>الموقع</value></data>
+  <data name="Description"><value>الوصف</value></data>
+
+  <data name="ViewPeopleAndAttachments"><value>عرض الأشخاص والمرفقات</value></data>
+  <data name="RejectDisclosure"><value>رفض البلاغ</value></data>
+  <data name="ConfirmReject"><value>هل أنتِ متأكدة من رفض هذا البلاغ؟</value></data>
+
+  <data name="ModalTitleRelatedSuspectedAttachments"><value>ذوو الصلة / المشتبه بهم / المرفقات</value></data>
+  <data name="Close"><value>إغلاق</value></data>
+  <data name="Loading"><value>جاري التحميل…</value></data>
+
+  <data name="ReviewerNotes"><value>ملاحظات المراجع</value></data>
+  <data name="AddNotesPlaceholder"><value>أضيفي ملاحظاتك هنا…</value></data>
+  <data name="SubmitDisclosure"><value>إرسال البلاغ</value></data>
+
+  <data name="FailedToLoadExtras"><value>فشل تحميل التفاصيل الإضافية</value></data>
+</root>

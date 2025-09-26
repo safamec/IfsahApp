@@ -244,96 +244,105 @@ namespace IfsahApp.Web.Controllers
             return View(form);
         }
 
-        // Step 5 - POST (submit final)
-        [HttpPost, ActionName("ReviewForm")]
-        public async Task<IActionResult> ReviewFormPost()
+       // Step 5 - POST (submit final)
+[HttpPost, ActionName("ReviewForm")]
+public async Task<IActionResult> ReviewFormPost()
+{
+    var form = GetFormFromTempData();
+    if (form == null) return RedirectToAction(nameof(FormDetails));
+    if (!ModelState.IsValid) return RedirectToAction(nameof(ReviewForm));
+
+    // 1) Map & basic fields
+    var disclosure = _mapper.Map<Disclosure>(form);
+    disclosure.DisclosureNumber = DisclosureNumberGeneratorHelper.Generate();
+    disclosure.SubmittedById    = await CurrentDbUserIdAsync();
+
+    // 2) Save disclosure FIRST to get a real Id
+    _context.Disclosures.Add(disclosure);
+    await _context.SaveChangesAsync();                // <-- disclosure.Id is now available
+
+    // 3) Add people (if any) and save
+    AddPersonsToDisclosure(disclosure, form);        // adds to navigation collections
+    await _context.SaveChangesAsync();
+
+    // 4) Add attachments from temp and bind DisclosureId
+    await TryAddAttachmentsFromTempAsync(disclosure, form.SavedAttachmentPaths);
+    // TryAddAttachmentsFromTempAsync should create DisclosureAttachment rows with:
+    //   DisclosureId = disclosure.Id, FileName, FileType, FileSize, UploadedAt
+    // and call _context.DisclosureAttachments.AddRange(...) + SaveChangesAsync() inside
+    // OR you can add a SaveChangesAsync() here if that method does not save.
+    // await _context.SaveChangesAsync();
+
+    // -------------------------------
+    // Notifications
+    // -------------------------------
+
+    // 1) choose recipients (Admins)
+    var recipients = await _context.Users
+        .Where(u => u.IsActive && u.Role == Role.Admin)
+        .Select(u => new { u.Id, u.Email })
+        .ToListAsync();
+
+    // 2) create rows
+    var notes = recipients.Select(r => new Notification
+    {
+        RecipientId  = r.Id,
+        EventType    = "Disclosure",
+        Message      = $"New disclosure {disclosure.DisclosureNumber} created",
+        EmailAddress = r.Email,
+        IsRead       = false,
+        CreatedAt    = DateTime.UtcNow
+    }).ToList();
+
+    _context.Notifications.AddRange(notes);
+    await _context.SaveChangesAsync();
+
+    // 3) live push via SignalR (by numeric id group)
+    await Task.WhenAll(notes.Select(n =>
+        _hub.Clients.Group($"user-{n.RecipientId}")
+            .SendAsync("Notify", new
+            {
+                id        = n.Id,
+                eventType = n.EventType,
+                message   = n.Message,
+                createdAt = n.CreatedAt.ToString("u"),
+                url       = Url.Action("Details", "Dashboard", new { id = disclosure.Id })
+            })
+    ));
+
+    // also push to email and ADUserName groups
+    var recipientKeys = await _context.Users
+        .Where(u => recipients.Select(r => r.Id).Contains(u.Id))
+        .Select(u => new { u.Id, u.Email, u.ADUserName })
+        .ToListAsync();
+
+    await Task.WhenAll(notes.Select(async n =>
+    {
+        var r = recipientKeys.FirstOrDefault(x => x.Id == n.RecipientId);
+        if (r == null) return;
+
+        var payload = new
         {
-            var form = GetFormFromTempData();
-            if (form == null) return RedirectToAction(nameof(FormDetails));
-            if (!ModelState.IsValid) return RedirectToAction(nameof(ReviewForm));
+            id        = n.Id,
+            eventType = n.EventType,
+            message   = n.Message,
+            createdAt = n.CreatedAt.ToString("u"),
+            url       = Url.Action("Details", "Dashboard", new { id = disclosure.Id })
+        };
 
-            var disclosure = _mapper.Map<Disclosure>(form);
-            disclosure.DisclosureNumber = DisclosureNumberGeneratorHelper.Generate();
+        var tasks = new List<Task>();
+        if (!string.IsNullOrWhiteSpace(r.Email))
+            tasks.Add(_hub.Clients.Group($"user-{r.Email}").SendAsync("Notify", payload));
+        if (!string.IsNullOrWhiteSpace(r.ADUserName))
+            tasks.Add(_hub.Clients.Group($"user-{r.ADUserName}").SendAsync("Notify", payload));
 
-            var submitterId = await CurrentDbUserIdAsync();
-            disclosure.SubmittedById = submitterId;
+        await Task.WhenAll(tasks);
+    }));
 
-            AddPersonsToDisclosure(disclosure, form);
-            await TryAddAttachmentsFromTempAsync(disclosure, form.SavedAttachmentPaths);
+    // ✅ redirect after save
+    return RedirectToAction(nameof(SubmitDisclosure), new { reportNumber = disclosure.DisclosureNumber });
+}
 
-            // 1) Save disclosure first
-            _context.Disclosures.Add(disclosure);
-            await _context.SaveChangesAsync();
-
-            // -------------------------------
-            // Notifications
-            // -------------------------------
-
-            // 1) choose recipients (Admins)
-            var recipients = await _context.Users
-                .Where(u => u.IsActive && u.Role == Role.Admin)
-                .Select(u => new { u.Id, u.Email })
-                .ToListAsync();
-
-            // 2) create rows
-            var notes = recipients.Select(r => new Notification
-            {
-                RecipientId = r.Id,
-                EventType   = "Disclosure",
-                Message     = $"New disclosure {disclosure.DisclosureNumber} created",
-                EmailAddress = r.Email,
-                IsRead      = false,
-                CreatedAt   = DateTime.UtcNow
-            }).ToList();
-
-            _context.Notifications.AddRange(notes);
-            await _context.SaveChangesAsync();
-
-            // 3) live push via SignalR (by numeric id group)
-            await Task.WhenAll(notes.Select(n =>
-                _hub.Clients.Group($"user-{n.RecipientId}")
-                    .SendAsync("Notify", new
-                    {
-                        id        = n.Id,
-                        eventType = n.EventType,
-                        message   = n.Message,
-                        createdAt = n.CreatedAt.ToString("u"),
-                        url       = Url.Action("Details", "Dashboard", new { id = disclosure.Id })
-                    })
-            ));
-
-            // also push to email and ADUserName groups
-            var recipientKeys = await _context.Users
-                .Where(u => recipients.Select(r => r.Id).Contains(u.Id))
-                .Select(u => new { u.Id, u.Email, u.ADUserName })
-                .ToListAsync();
-
-            await Task.WhenAll(notes.Select(async n =>
-            {
-                var r = recipientKeys.FirstOrDefault(x => x.Id == n.RecipientId);
-                if (r == null) return;
-
-                var payload = new
-                {
-                    id        = n.Id,
-                    eventType = n.EventType,
-                    message   = n.Message,
-                    createdAt = n.CreatedAt.ToString("u"),
-                    url       = Url.Action("Details", "Dashboard", new { id = disclosure.Id })
-                };
-
-                var tasks = new List<Task>();
-                if (!string.IsNullOrWhiteSpace(r.Email))
-                    tasks.Add(_hub.Clients.Group($"user-{r.Email}").SendAsync("Notify", payload));
-                if (!string.IsNullOrWhiteSpace(r.ADUserName))
-                    tasks.Add(_hub.Clients.Group($"user-{r.ADUserName}").SendAsync("Notify", payload));
-
-                await Task.WhenAll(tasks);
-            }));
-
-            // ✅ بعد الحفظ: اذهبي لصفحة الاشتراك بالتحديثات وتمرير رقم البلاغ
-            return RedirectToAction(nameof(SubmitDisclosure), new { reportNumber = disclosure.DisclosureNumber });
-        }
 
         #endregion
 
@@ -387,42 +396,77 @@ namespace IfsahApp.Web.Controllers
             }
         }
 
-        private async Task TryAddAttachmentsFromTempAsync(Disclosure disclosure, List<string>? tempFileNames)
-        {
-            if (tempFileNames == null || tempFileNames.Count == 0)
-                return;
+    private async Task TryAddAttachmentsFromTempAsync(Disclosure disclosure, List<string>? tempFileNames)
+{
+    if (tempFileNames == null || tempFileNames.Count == 0)
+        return;
 
-            disclosure.Attachments ??= new List<DisclosureAttachment>();
+    var tempFolder      = Path.Combine(_env.WebRootPath, "tempUploads");
+    var permanentFolder = Path.Combine(_env.WebRootPath, "uploads");
+    if (!Directory.Exists(permanentFolder))
+        Directory.CreateDirectory(permanentFolder);
 
-            var tempFolder      = Path.Combine(_env.WebRootPath, TempUploadsFolderName);
-            var permanentFolder = Path.Combine(_env.WebRootPath, "uploads");
+    var newRows = new List<DisclosureAttachment>();
 
-            if (!Directory.Exists(permanentFolder))
-                Directory.CreateDirectory(permanentFolder);
-
-            foreach (var fileName in tempFileNames)
+            foreach (var entry in tempFileNames)
             {
-                var tempFilePath = Path.Combine(tempFolder, fileName);
-                if (!System.IO.File.Exists(tempFilePath))
+                // Normalize the source path:
+                // - If absolute: use as is.
+                // - If relative: look in /wwwroot/tempUploads.
+                string srcPath = Path.IsPathRooted(entry) ? entry : Path.Combine(tempFolder, entry);
+
+                // If it wasn't found in temp, also try uploads (user might have stored a full uploads path)
+                if (!System.IO.File.Exists(srcPath))
+                {
+                    var maybeUploads = Path.Combine(permanentFolder, Path.GetFileName(entry));
+                    if (System.IO.File.Exists(maybeUploads))
+                        srcPath = maybeUploads;
+                }
+
+                if (!System.IO.File.Exists(srcPath))
                     continue;
 
-                var newFileName       = $"{Guid.NewGuid()}{Path.GetExtension(fileName)}";
-                var permanentFilePath = Path.Combine(permanentFolder, newFileName);
+                // If already inside /uploads, don't move—just reuse name; otherwise move from temp to uploads.
+                string newFileName;
+                string destPath;
+                var isAlreadyInUploads = srcPath.Replace('\\', '/')
+                                                .Contains("/uploads/", StringComparison.OrdinalIgnoreCase);
 
-                System.IO.File.Move(tempFilePath, permanentFilePath);
-
-                var fileInfo = new FileInfo(permanentFilePath);
-
-                disclosure.Attachments.Add(new DisclosureAttachment
+                if (isAlreadyInUploads)
                 {
-                    FileName = newFileName,
-                    FileType = fileInfo.Extension.TrimStart('.'),
-                    FileSize = fileInfo.Length
-                });
-            }
+                    newFileName = Path.GetFileName(srcPath);
+                    destPath = srcPath;
+                }
+                else
+                {
+                    newFileName = $"{Guid.NewGuid()}{Path.GetExtension(srcPath)}";
+                    destPath = Path.Combine(permanentFolder, newFileName);
+                    System.IO.File.Move(srcPath, destPath);
+                }
 
-            await Task.CompletedTask;
-        }
+                var fi = new FileInfo(destPath);
+
+               newRows.Add(new DisclosureAttachment
+{
+    DisclosureId     = disclosure.Id,
+    FileName         = newFileName,                   // الاسم المخزن (GUID)
+    OriginalFileName = Path.GetFileName(entry),       // الاسم الأصلي
+    FileType         = fi.Extension.TrimStart('.'),
+    FileSize         = fi.Length,
+    UploadedAt       = DateTime.UtcNow
+});
+
+        
+    }
+    
+
+    if (newRows.Count > 0)
+            {
+                _context.DisclosureAttachments.AddRange(newRows);
+                await _context.SaveChangesAsync();
+            }
+}
+
 
         // Resolve current principal to Users.Id in DB
         private async Task<int> CurrentDbUserIdAsync()

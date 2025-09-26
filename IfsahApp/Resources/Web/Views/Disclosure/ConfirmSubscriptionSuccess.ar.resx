@@ -1,0 +1,11 @@
+<root>
+  <data name="SubscriptionConfirmedTitle"><value>تم تأكيد الاشتراك</value></data>
+  <data name="UpdatesSubscriptionBadge"><value>اشتراك التحديثات</value></data>
+  <data name="SubscriptionConfirmedHeading"><value>تم تأكيد اشتراكك بنجاح</value></data>
+  <data name="ForReportNumber"><value>لبلاغ رقم {0}</value></data>
+  <data name="YouWillReceiveUpdates"><value>سيصلك إشعار بأي تحديث يخص هذا البلاغ.</value></data>
+  <data name="SafeToClosePage"><value>يمكنك إغلاق هذه الصفحة بأمان.</value></data>
+  <data name="BackToHome"><value>العودة للرئيسية</value></data>
+  <data name="GoBack"><value>رجوع</value></data>
+  <data name="TipAddSenderToSafeList"><value>نصيحة: أضيفي بريد المرسل إلى قائمة الموثوق لديهم لتجنب وصول الرسائل إلى غير المرغوب.</value></data>
+</root>

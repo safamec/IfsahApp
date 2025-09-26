@@ -1,0 +1,25 @@
+<root>
+  <data name="UsersTitle"><value>Users</value></data>
+  <data name="UsersHeading"><value>Users</value></data>
+  <data name="AddExaminerLink"><value>+ Add User</value></data>
+
+  <data name="NameCol"><value>Name</value></data>
+  <data name="ADCol"><value>AD</value></data>
+  <data name="DepartmentCol"><value>Department</value></data>
+  <data name="EmailCol"><value>Email</value></data>
+  <data name="RoleCol"><value>Role</value></data>
+  <data name="TempCol"><value>Temp</value></data>
+  <data name="ActionsCol"><value>Actions</value></data>
+
+  <data name="ActiveBadge"><value>Active</value></data>
+
+  <data name="PromoteToAdmin"><value>Promote to Admin</value></data>
+  <data name="DemoteToExaminer"><value>Demote to Examiner</value></data>
+  <data name="TempAdminBtn"><value>Temporary Admin</value></data>
+
+  <data name="TempAdminModalTitle"><value>Grant Temporary Admin</value></data>
+  <data name="EndsAtLocalLabel"><value>Ends at (local date/time)</value></data>
+  <data name="ReasonOptionalLabel"><value>Reason (optional)</value></data>
+  <data name="SaveBtn"><value>Save</value></data>
+  <data name="CloseBtn"><value>Close</value></data>
+</root>

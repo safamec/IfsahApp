@@ -1,68 +1,60 @@
 @using IfsahApp.Core.ViewModels
+@using Microsoft.AspNetCore.Mvc.Rendering
 @model IEnumerable<DisclosureDashboardViewModel>
 
 @inject IfsahApp.Infrastructure.Services.IEnumLocalizer EnumLocalizer
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 
 @{
-    ViewBag.Title = "Review Dashboard";
+    ViewBag.Title = Localizer["ReviewDashboardTitle"];
     var sizes = new int[] { 5, 10, 20, 50 };
+    var statusList = (ViewBag.StatusList as List<SelectListItem>) ?? new List<SelectListItem>();
 }
 
 <div class="container-custom">
-    <h2>Review Admin Dashboard</h2>
+    <h2>@Localizer["ReviewAdminDashboardHeading"]</h2>
 
     <!-- Filter Box -->
     <form method="get" class="filter-box">
         <!-- Status Filter -->
         <div class="form-group">
-    <label for="status">Status</label>
-    <select name="status" id="status" class="filter-input">
-    @foreach (var item in ViewBag.StatusList as List<SelectListItem>)
-    {
-        if (item.Selected)
-        {
-            <option value="@item.Value" selected>@item.Text</option>
-        }
-        else
-        {
-            <option value="@item.Value">@item.Text</option>
-        }
-    }
-</select>
+            <label for="status">@Localizer["StatusLabel"]</label>
+            <select name="status" id="status" class="filter-input">
+                @foreach (var item in statusList)
+                {
+                    var val = item.Value ?? "";
+                    var ls  = val.Equals("All", StringComparison.OrdinalIgnoreCase)
+                        ? Localizer["Status_All"]
+                        : Localizer[$"Status_{val}"];
+                    var label = ls.IsResourceNotFound ? (item.Text ?? val) : ls.Value;
 
-</div>
-
+                    <option value="@val" selected="@(item.Selected ? "selected" : null)">@label</option>
+                }
+            </select>
+        </div>
 
         <!-- Reference Filter -->
         <div class="form-group">
-            <label for="reference">Reference</label>
+            <label for="reference">@Localizer["ReferenceLabel"]</label>
             <input type="text" name="reference" id="reference" class="filter-input"
-                   value="@ViewBag.SelectedReference" placeholder="Enter reference">
+                   value="@ViewBag.SelectedReference" placeholder="@Localizer["EnterReferencePlaceholder"]">
         </div>
 
         <!-- Page Size Filter -->
         <div class="form-group">
-    <label for="pageSize">Show</label>
-    <select name="pageSize" id="pageSize" class="filter-input">
-        @foreach (var size in new int[] { 5, 10, 20, 50 })
-        {
-            if (ViewBag.PageSize == size)
-            {
-                <option value="@size" selected>@size</option>
-            }
-            else
-            {
-                <option value="@size">@size</option>
-            }
-        }
-    </select>
-</div>
-
+            <label for="pageSize">@Localizer["ShowLabel"]</label>
+            <select name="pageSize" id="pageSize" class="filter-input">
+                @foreach (var size in sizes)
+                {
+                    <option value="@size" selected="@(ViewBag.PageSize == size ? "selected" : null)">@size</option>
+                }
+            </select>
+        </div>
 
         <!-- Filter Buttons -->
         <div class="button-group">
-            <button type="submit" class="filter-btn">Filter</button>
-            <a href="@Url.Action("Index", "Dashboard")" class="clear-btn">Clear</a>
+            <button type="submit" class="filter-btn">@Localizer["FilterBtn"]</button>
+            <a href="@Url.Action("Index", "Dashboard")" class="clear-btn">@Localizer["ClearBtn"]</a>
         </div>
     </form>
 
@@ -71,31 +63,35 @@
         <table class="table-custom">
             <thead>
                 <tr>
-                    <th>Action</th>
-                    <th>Status</th>
-                    <th>Location</th>
-                    <th>Date</th>
-                    <th>Type</th>
-                    <th>Reference</th>
+                    <th>@Localizer["ActionCol"]</th>
+                    <th>@Localizer["StatusCol"]</th>
+                    <th>@Localizer["LocationCol"]</th>
+                    <th>@Localizer["DateCol"]</th>
+                    <th>@Localizer["TypeCol"]</th>
+                    <th>@Localizer["ReferenceCol"]</th>
                 </tr>
             </thead>
             <tbody>
                 @if (Model == null || !Model.Any())
                 {
                     <tr>
-                        <td colspan="6">No data available.</td>
+                        <td colspan="6">@Localizer["NoData"]</td>
                     </tr>
                 }
                 else
                 {
-                    @foreach(var item in Model)
+                    @foreach (var item in Model)
                     {
+                        var rowKey = $"Status_{item.Status}";
+                        var rowLs  = Localizer[rowKey];
+                        var statusLabel = rowLs.IsResourceNotFound ? item.Status.ToString() : rowLs.Value;
+
                         <tr>
                             <td>
                                 <a href="@Url.Action("ReviewDisclosure","Review", new { reference = item.Reference })"
-                                   class="table-btn table-btn-sm">Review</a>
+                                   class="table-btn table-btn-sm">@Localizer["ReviewBtn"]</a>
                             </td>
-                            <td>@item.Status</td>
+                            <td>@statusLabel</td>
                             <td>@item.Location</td>
                             <td>@item.Date.ToString("yyyy-MM-dd")</td>
                             <td>@item.Type</td>
@@ -112,20 +108,35 @@
         <ul class="pagination-custom">
             <!-- Previous button -->
             <li class="@(ViewBag.CurrentPage == 1 ? "disabled" : "")">
-                <a href="@Url.Action("Index", new { status = (ViewBag.StatusList as List<SelectListItem>).FirstOrDefault(i => i.Selected)?.Value ?? "All", reference = ViewBag.SelectedReference, page = ViewBag.CurrentPage - 1, pageSize = ViewBag.PageSize })">Previous</a>
+                <a href="@Url.Action("Index", new {
+                    status = statusList.FirstOrDefault(i => i.Selected)?.Value ?? "All",
+                    reference = ViewBag.SelectedReference,
+                    page = ViewBag.CurrentPage - 1,
+                    pageSize = ViewBag.PageSize
+                })">@Localizer["Previous"]</a>
             </li>
 
             <!-- Page numbers -->
-            @for(int i = 1; i <= ViewBag.TotalPages; i++)
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
             {
                 <li class="@(ViewBag.CurrentPage == i ? "active" : "")">
-                    <a href="@Url.Action("Index", new { status = (ViewBag.StatusList as List<SelectListItem>).FirstOrDefault(s => s.Selected)?.Value ?? "All", reference = ViewBag.SelectedReference, page = i, pageSize = ViewBag.PageSize })">@i</a>
+                    <a href="@Url.Action("Index", new {
+                        status = statusList.FirstOrDefault(s => s.Selected)?.Value ?? "All",
+                        reference = ViewBag.SelectedReference,
+                        page = i,
+                        pageSize = ViewBag.PageSize
+                    })">@i</a>
                 </li>
             }
 
             <!-- Next button -->
             <li class="@(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
-                <a href="@Url.Action("Index", new { status = (ViewBag.StatusList as List<SelectListItem>).FirstOrDefault(i => i.Selected)?.Value ?? "All", reference = ViewBag.SelectedReference, page = ViewBag.CurrentPage + 1, pageSize = ViewBag.PageSize })">Next</a>
+                <a href="@Url.Action("Index", new {
+                    status = statusList.FirstOrDefault(i => i.Selected)?.Value ?? "All",
+                    reference = ViewBag.SelectedReference,
+                    page = ViewBag.CurrentPage + 1,
+                    pageSize = ViewBag.PageSize
+                })">@Localizer["Next"]</a>
             </li>
         </ul>
     </nav>

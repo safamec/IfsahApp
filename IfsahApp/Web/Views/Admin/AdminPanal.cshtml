@@ -1,9 +1,10 @@
 @using IfsahApp.Core.ViewModels
 @using IfsahApp.Web.Controllers
 @model IEnumerable<ExaminerRowVM>
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = "المسخدمين";
+    ViewData["Title"] = Localizer["UsersTitle"];
 }
 
 @* Sidebar section *@
@@ -20,8 +21,8 @@
 @if (TempData["err"] is not null){ <div class="alert alert-danger">@TempData["err"]</div> }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h5 class="mb-0">الممتحنون</h5>
-  <a asp-action="AddExaminer" class="btn btn-primary">+ إضافة ممتحن</a>
+  <h5 class="mb-0">@Localizer["UsersHeading"]</h5>
+  <a asp-action="AddExaminer" class="btn btn-primary">@Localizer["AddExaminerLink"]</a>
 </div>
 
 <div class="card shadow-sm">
@@ -29,13 +30,13 @@
     <table class="table table-hover align-middle mb-0">
       <thead class="table-light">
         <tr>
-          <th>الاسم</th>
-          <th>AD</th>
-          <th>القسم</th>
-          <th>البريد</th>
-          <th>الدور</th>
-          <th>مؤقت</th>
-          <th style="width:320px">إجراءات</th>
+          <th>@Localizer["NameCol"]</th>
+          <th>@Localizer["ADCol"]</th>
+          <th>@Localizer["DepartmentCol"]</th>
+          <th>@Localizer["EmailCol"]</th>
+          <th>@Localizer["RoleCol"]</th>
+          <th>@Localizer["TempCol"]</th>
+          <th style="width:320px">@Localizer["ActionsCol"]</th>
         </tr>
       </thead>
       <tbody>
@@ -49,7 +50,7 @@
           <td><span class="badge bg-@(x.Role=="Admin"?"primary":"secondary")">@x.Role</span></td>
           <td>
             @if (x.HasActiveTempAdmin)
-            { <span class="badge bg-success">نشِط</span> }
+            { <span class="badge bg-success">@Localizer["ActiveBadge"]</span> }
             else { <span class="text-muted">—</span> }
           </td>
           <td>
@@ -59,7 +60,7 @@
                 <form asp-action="PromoteToAdmin" method="post" class="d-inline">
                   @Html.AntiForgeryToken()
                   <input type="hidden" name="id" value="@x.Id" />
-                  <button class="btn btn-sm btn-outline-primary">ترقية إلى Admin</button>
+                  <button class="btn btn-sm btn-outline-primary">@Localizer["PromoteToAdmin"]</button>
                 </form>
               }
               else
@@ -67,14 +68,14 @@
                 <form asp-action="DemoteToExaminer" method="post" class="d-inline">
                   @Html.AntiForgeryToken()
                   <input type="hidden" name="id" value="@x.Id" />
-                  <button class="btn btn-sm btn-outline-warning">إرجاع Examiner</button>
+                  <button class="btn btn-sm btn-outline-warning">@Localizer["DemoteToExaminer"]</button>
                 </form>
               }
 
               <!-- Temp Admin -->
               <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal"
                       data-bs-target="#tempAdminModal" data-id="@x.Id" data-name="@x.FullName">
-                مشرف مؤقت
+                @Localizer["TempAdminBtn"]
               </button>
             </div>
           </td>
@@ -92,24 +93,24 @@
       <form method="post" asp-action="GrantTempAdmin">
         @Html.AntiForgeryToken()
         <div class="modal-header">
-          <h6 class="modal-title">منح مشرف مؤقت</h6>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          <h6 class="modal-title">@Localizer["TempAdminModalTitle"]</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="@Localizer["CloseBtn"]"></button>
         </div>
         <div class="modal-body">
           <input type="hidden" name="id" id="tempUserId" />
           <div class="mb-2"><strong id="tempUserName"></strong></div>
           <div class="mb-3">
-            <label class="form-label">ينتهي في (تاريخ/وقت محلي)</label>
+            <label class="form-label">@Localizer["EndsAtLocalLabel"]</label>
             <input type="datetime-local" name="endLocal" class="form-control" required />
           </div>
           <div class="mb-3">
-            <label class="form-label">سبب (اختياري)</label>
+            <label class="form-label">@Localizer["ReasonOptionalLabel"]</label>
             <input name="reason" class="form-control" />
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-primary" type="submit">حفظ</button>
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">إغلاق</button>
+          <button class="btn btn-primary" type="submit">@Localizer["SaveBtn"]</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">@Localizer["CloseBtn"]</button>
         </div>
       </form>
     </div>

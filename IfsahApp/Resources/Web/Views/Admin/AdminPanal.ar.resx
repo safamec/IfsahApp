@@ -1,0 +1,25 @@
+<root>
+  <data name="UsersTitle"><value>المستخدمين</value></data>
+  <data name="UsersHeading"><value>المستخدمين</value></data>
+  <data name="AddExaminerLink"><value>+ إضافة مستخدم</value></data>
+
+  <data name="NameCol"><value>الاسم</value></data>
+  <data name="ADCol"><value>AD</value></data>
+  <data name="DepartmentCol"><value>القسم</value></data>
+  <data name="EmailCol"><value>البريد</value></data>
+  <data name="RoleCol"><value>الدور</value></data>
+  <data name="TempCol"><value>مؤقت</value></data>
+  <data name="ActionsCol"><value>إجراءات</value></data>
+
+  <data name="ActiveBadge"><value>نشط</value></data>
+
+  <data name="PromoteToAdmin"><value>ترقية إلى Admin</value></data>
+  <data name="DemoteToExaminer"><value>إرجاع Examiner</value></data>
+  <data name="TempAdminBtn"><value>مشرف مؤقت</value></data>
+
+  <data name="TempAdminModalTitle"><value>منح مشرف مؤقت</value></data>
+  <data name="EndsAtLocalLabel"><value>ينتهي في (تاريخ/وقت محلي)</value></data>
+  <data name="ReasonOptionalLabel"><value>سبب (اختياري)</value></data>
+  <data name="SaveBtn"><value>حفظ</value></data>
+  <data name="CloseBtn"><value>إغلاق</value></data>
+</root>

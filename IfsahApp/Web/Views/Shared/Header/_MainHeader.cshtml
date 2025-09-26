@@ -1,17 +1,18 @@
 @inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 
-<header class="main-header">
+<header class="main-header" aria-label="@Localizer["HeaderRegion"]">
     <div class="container">
         <div class="header-content d-flex justify-content-between align-items-center">
             <div class="logo-section d-flex align-items-center">
-                <div class="ministry-logo me-3">
-                    <svg class="logo-icon">
+                <div class="ministry-logo me-3" aria-label="@Localizer["MinistryLogoLabel"]">
+                    <svg class="logo-icon" role="img" focusable="false" aria-hidden="true" title="@Localizer["MinistryLogoTitle"]">
                         <use xlink:href="images/sprite.svg#logo"></use>
                     </svg>
+                    <span class="visually-hidden">@Localizer["MinistryLogoLabel"]</span>
                 </div>
             </div>
-            <div class="system-title fw-bold fs-5">
-                <i class="bi bi-file-earmark-lock me-2"></i>
+            <div class="system-title fw-bold fs-5" aria-label="@Localizer["SystemNameLabel"]">
+                <i class="bi bi-file-earmark-lock me-2" aria-hidden="true"></i>
                 @Localizer["system_name"]
             </div>
         </div>

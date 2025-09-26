@@ -1,0 +1,16 @@
+<root>
+  <data name="AddExaminerTitle"><value>إضافة مستخدم</value></data>
+  <data name="GoToExaminersPageLink"><value>الذهاب إلى صفحة المستخدمين</value></data>
+
+  <data name="SearchUserLabel"><value>ابحث عن مستخدم</value></data>
+  <data name="SearchUserPlaceholder"><value>اكتب الاسم أو اسم مستخدم AD</value></data>
+  <data name="SelectedUserHeading"><value>المستخدم المحدد</value></data>
+
+  <data name="FullNameColon"><value>الاسم الكامل:</value></data>
+  <data name="ADUserColon"><value>مستخدم AD:</value></data>
+  <data name="EmailColon"><value>البريد:</value></data>
+  <data name="DepartmentColon"><value>القسم:</value></data>
+
+  <data name="AddAsExaminerAndNotifyBtn"><value>إضافة كمستخدم وإشعار</value></data>
+  <data name="CancelBtn"><value>إلغاء</value></data>
+</root>

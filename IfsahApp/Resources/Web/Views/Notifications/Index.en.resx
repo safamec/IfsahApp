@@ -1,0 +1,11 @@
+<root>
+  <data name="NotificationsTitle"><value>Notifications</value></data>
+  <data name="MarkAllAsRead"><value>Mark all as read</value></data>
+  <data name="Type"><value>Type</value></data>
+  <data name="Message"><value>Message</value></data>
+  <data name="Created"><value>Created</value></data>
+  <data name="Status"><value>Status</value></data>
+  <data name="Read"><value>Read</value></data>
+  <data name="Unread"><value>Unread</value></data>
+  <data name="MarkAsRead"><value>Mark as read</value></data>
+</root>

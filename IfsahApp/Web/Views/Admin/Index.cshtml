@@ -1,29 +1,33 @@
 @using Microsoft.AspNetCore.Antiforgery
 @inject IAntiforgery Antiforgery
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @{
-    ViewData["Title"] = "Add Examiner";
+    ViewData["Title"] = Localizer["AddExaminerTitle"];
     var tokens = Antiforgery.GetAndStoreTokens(Context);
     var requestToken = tokens?.RequestToken ?? string.Empty;
 }
 
 <div class="card shadow-sm p-4" style="max-width:800px;margin:auto;">
     <div class="d-flex align-items-center justify-content-between mb-2">
-        <h3 class="mb-0">Add Examiner</h3>
-        <a href="~/Admin/ExaminersPage" class="btn btn-outline-secondary btn-sm">Go to Examiners Page</a>
+        <h3 class="mb-0">@Localizer["AddExaminerTitle"]</h3>
+        <a href="~/Admin/ExaminersPage" class="btn btn-outline-secondary btn-sm">
+            @Localizer["GoToExaminersPageLink"]
+        </a>
     </div>
 
     <div class="mb-3 position-relative">
-        <label for="adSearch" class="form-label">Search User</label>
-        <input id="adSearch" type="text" class="form-control" placeholder="Type name or AD username" autocomplete="off" />
+        <label for="adSearch" class="form-label">@Localizer["SearchUserLabel"]</label>
+        <input id="adSearch" type="text" class="form-control"
+               placeholder="@Localizer["SearchUserPlaceholder"]" autocomplete="off" />
         <ul id="adResults" class="list-group position-absolute w-100" style="z-index:1000;"></ul>
     </div>
 
-    <h5 class="mt-2">Selected User</h5>
+    <h5 class="mt-2">@Localizer["SelectedUserHeading"]</h5>
     <div class="row g-3">
-        <div class="col-md-6"><strong>Full Name:</strong> <span id="uiFullName"></span></div>
-        <div class="col-md-6"><strong>AD User:</strong> <span id="uiAdUser"></span></div>
-        <div class="col-md-6"><strong>Email:</strong> <span id="uiEmail"></span></div>
-        <div class="col-md-6"><strong>Department:</strong> <span id="uiDept"></span></div>
+        <div class="col-md-6"><strong>@Localizer["FullNameColon"]</strong> <span id="uiFullName"></span></div>
+        <div class="col-md-6"><strong>@Localizer["ADUserColon"]</strong> <span id="uiAdUser"></span></div>
+        <div class="col-md-6"><strong>@Localizer["EmailColon"]</strong> <span id="uiEmail"></span></div>
+        <div class="col-md-6"><strong>@Localizer["DepartmentColon"]</strong> <span id="uiDept"></span></div>
     </div>
 
     <!-- hidden fields bound for POST -->
@@ -32,10 +36,13 @@
     <input type="hidden" id="hiEmail" />
     <input type="hidden" id="hiDept" />
 
-
     <div class="mt-4 d-flex gap-2">
-        <button id="btnAddExaminer" class="btn btn-success">Add as Examiner & Notify</button>
-        <a class="btn btn-outline-secondary" href="~/Admin/ExaminersPage">Cancel</a>
+        <button id="btnAddExaminer" class="btn btn-success">
+            @Localizer["AddAsExaminerAndNotifyBtn"]
+        </button>
+        <a class="btn btn-outline-secondary" href="~/Admin/ExaminersPage">
+            @Localizer["CancelBtn"]
+        </a>
     </div>
 
     <div id="msgBox" class="alert mt-3 d-none" role="alert"></div>

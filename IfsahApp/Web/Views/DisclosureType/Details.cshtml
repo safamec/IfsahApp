@@ -1,38 +1,67 @@
 @model DisclosureType
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@using System.Globalization
 
 @{
-    ViewData["Title"] = "Disclosure Type Details";
+    ViewData["Title"] = Localizer["DisclosureTypeDetailsTitle"];
+    var isAr = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
 }
 
-<div class="container mt-4">
-    <h2>@ViewData["Title"]</h2>
+<div class="container mt-4" dir="@(isAr ? "rtl" : "ltr")">
+    <div class="card shadow border-0 rounded-4 overflow-hidden">
 
-    <dl class="row">
-        <dt class="col-sm-3">Id</dt>
-        <dd class="col-sm-9">@Model.Id</dd>
+        <!-- شريط علوي -->
+        <div class="d-flex justify-content-between align-items-center p-3 text-white"
+             style="background-color: var(--navbar-bg);">
+            <h2 class="h5 m-0 d-flex align-items-center gap-2">
+                <i class="bi bi-info-circle-fill"></i>
+                @ViewData["Title"]
+            </h2>
+            <div>
+                @if (Model.IsActive)
+                {
+                    <span class="badge bg-success px-3 py-2">@Localizer["ActiveLabel"]</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary px-3 py-2">@Localizer["InactiveLabel"]</span>
+                }
+            </div>
+        </div>
 
-        <dt class="col-sm-3">Arabic Name</dt>
-        <dd class="col-sm-9">@Model.ArabicName</dd>
+        <!-- جسم الكارد -->
+        <div class="card-body p-4">
+            <dl class="row g-3 align-items-center">
+                <dt class="col-12 col-sm-3 text-secondary text-sm-end">@Localizer["Id"]</dt>
+                <dd class="col-12 col-sm-9 fw-semibold">@Model.Id</dd>
 
-        <dt class="col-sm-3">English Name</dt>
-        <dd class="col-sm-9">@Model.EnglishName</dd>
+                <dt class="col-12 col-sm-3 text-secondary text-sm-end">@Localizer["ArabicName"]</dt>
+                <dd class="col-12 col-sm-9">@Model.ArabicName</dd>
 
-        <dt class="col-sm-3">Is Active</dt>
-        <dd class="col-sm-9">
-            @if (Model.IsActive)
-            {
-                <span class="badge bg-success">Active</span>
-            }
-            else
-            {
-                <span class="badge bg-secondary">Inactive</span>
-            }
-        </dd>
+                <dt class="col-12 col-sm-3 text-secondary text-sm-end">@Localizer["EnglishName"]</dt>
+                <dd class="col-12 col-sm-9">@Model.EnglishName</dd>
 
-        <dt class="col-sm-3">Created At</dt>
-        <dd class="col-sm-9">@Model.CreatedAt.ToLocalTime().ToString("g")</dd>
-    </dl>
+                <dt class="col-12 col-sm-3 text-secondary text-sm-end">@Localizer["IsActive"]</dt>
+                <dd class="col-12 col-sm-9">
+                    @if (Model.IsActive)
+                    {
+                        <span class="badge bg-success">@Localizer["ActiveLabel"]</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">@Localizer["InactiveLabel"]</span>
+                    }
+                </dd>
 
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
-    <a asp-action="Index" class="btn btn-secondary ms-2">Back to List</a>
+                <dt class="col-12 col-sm-3 text-secondary text-sm-end">@Localizer["CreatedAt"]</dt>
+                <dd class="col-12 col-sm-9">@Model.CreatedAt.ToLocalTime().ToString("g")</dd>
+            </dl>
+        </div>
+
+        <!-- الفوتر -->
+        <div class="card-footer bg-light d-flex justify-content-end gap-2">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">@Localizer["Edit"]</a>
+            <a asp-action="Index" class="btn btn-secondary">@Localizer["BackToList"]</a>
+        </div>
+    </div>
 </div>

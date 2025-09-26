@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- الصفحة -->
+  <data name="Review Disclosure"><value>مراجعة البلاغ</value></data>
+
+  <!-- الأقسام -->
+  <data name="Disclosure Details"><value>تفاصيل البلاغ</value></data>
+  <data name="Suspected People"><value>الأشخاص المشتبه بهم</value></data>
+  <data name="Related People"><value>الأشخاص المرتبطون</value></data>
+  <data name="Attachments"><value>المرفقات</value></data>
+
+  <!-- عناوين جدول التفاصيل -->
+  <data name="Disclosure Type"><value>نوع البلاغ</value></data>
+  <data name="Description"><value>الوصف</value></data>
+  <data name="Location"><value>موقع المخالفة</value></data>
+  <data name="Incident Start Date"><value>تاريخ بداية الواقعة</value></data>
+  <data name="Incident End Date"><value>تاريخ نهاية الواقعة</value></data>
+
+  <!-- عناوين جدول الأشخاص -->
+  <data name="Name"><value>الاسم</value></data>
+  <data name="Email"><value>البريد الإلكتروني</value></data>
+  <data name="Phone"><value>رقم الجوال</value></data>
+  <data name="Organization"><value>الجهة</value></data>
+
+  <!-- الحالات الفارغة -->
+  <data name="No suspected people"><value>لا يوجد أشخاص مشتبه بهم</value></data>
+  <data name="No related people"><value>لا يوجد أشخاص مرتبطون</value></data>
+  <data name="No attachments"><value>لا توجد مرفقات</value></data>
+
+  <!-- الأزرار -->
+  <data name="Back"><value>رجوع</value></data>
+  <data name="Submit Disclosure"><value>إرسال البلاغ</value></data>
+</root>

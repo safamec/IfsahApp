@@ -1,0 +1,12 @@
+<root>
+  <data name="AddUsersTitle"><value>Add Users</value></data>
+  <data name="AddUserHeading"><value>Add User</value></data>
+  <data name="ADUserNameLabel"><value>AD Username</value></data>
+  <data name="FullNameLabel"><value>Full Name</value></data>
+  <data name="EmailLabel"><value>Email</value></data>
+  <data name="DepartmentOptionalLabel"><value>Department (Optional)</value></data>
+  <data name="TypeToSearchHelp"><value>Type part of the name and suggestions will appear automatically.</value></data>
+  <data name="SaveBtn"><value>Save</value></data>
+  <data name="BackBtn"><value>Back</value></data>
+  <data name="NoResults"><value>No results</value></data>
+</root>

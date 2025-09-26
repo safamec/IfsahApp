@@ -1,0 +1,12 @@
+<root>
+  <data name="DisclosureTypesTitle"><value>Disclosure Types</value></data>
+  <data name="CreateNewDisclosureType"><value>Create New Disclosure Type</value></data>
+  <data name="ArabicName"><value>Arabic Name</value></data>
+  <data name="EnglishName"><value>English Name</value></data>
+  <data name="Active"><value>Active</value></data>
+  <data name="Actions"><value>Actions</value></data>
+  <data name="ActiveLabel"><value>✓ Active</value></data>
+  <data name="InactiveLabel"><value>✗ Inactive</value></data>
+  <data name="Edit"><value>Edit</value></data>
+  <data name="Details"><value>Details</value></data>
+</root>

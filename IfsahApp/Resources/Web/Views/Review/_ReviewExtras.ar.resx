@@ -1,0 +1,17 @@
+<root>
+  <data name="SuspectedPeople"><value>الأشخاص المشتبه بهم</value></data>
+  <data name="RelatedPeople"><value>الأشخاص ذوو الصلة</value></data>
+  <data name="Attachments"><value>المرفقات</value></data>
+
+  <data name="Name"><value>الاسم</value></data>
+  <data name="Email"><value>البريد الإلكتروني</value></data>
+  <data name="Phone"><value>الهاتف</value></data>
+  <data name="Organization"><value>المنظمة</value></data>
+
+  <data name="NoSuspectedPeople"><value>لا يوجد أشخاص مشتبه بهم.</value></data>
+  <data name="NoRelatedPeople"><value>لا يوجد أشخاص ذوو صلة.</value></data>
+  <data name="NoAttachments"><value>لا توجد مرفقات.</value></data>
+
+  <data name="Review"><value>مراجعة</value></data>
+  <data name="Bytes"><value>بايت</value></data>
+</root>

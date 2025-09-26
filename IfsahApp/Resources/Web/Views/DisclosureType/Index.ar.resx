@@ -1,0 +1,12 @@
+<root>
+  <data name="DisclosureTypesTitle"><value>أنواع البلاغات</value></data>
+  <data name="CreateNewDisclosureType"><value>إنشاء نوع بلاغ جديد</value></data>
+  <data name="ArabicName"><value>الاسم بالعربية</value></data>
+  <data name="EnglishName"><value>الاسم بالإنجليزية</value></data>
+  <data name="Active"><value>الحالة</value></data>
+  <data name="Actions"><value>الإجراءات</value></data>
+  <data name="ActiveLabel"><value>✓ نشط</value></data>
+  <data name="InactiveLabel"><value>✗ غير نشط</value></data>
+  <data name="Edit"><value>تعديل</value></data>
+  <data name="Details"><value>تفاصيل</value></data>
+</root>

@@ -8,6 +8,7 @@
         string.Equals(currentController, ctrl, StringComparison.OrdinalIgnoreCase) &&
         string.Equals(currentAction, act, StringComparison.OrdinalIgnoreCase);
 }
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 
 <!-- Sidebar (Desktop) -->
 <aside class="admin-sidebar d-none d-lg-block">
@@ -17,7 +18,7 @@
      asp-controller="Dashboard"
      asp-action="Index">
      <i class="bi bi-speedometer2"></i>
-     <span>لوحة التحكم</span>
+     <span>@Localizer["Dashboard"]</span>
   </a>
 
   <nav class="nav flex-column gap-1">
@@ -26,7 +27,7 @@
        asp-controller="Admin"
        asp-action="AdminPanal"
        aria-current="@(isActive("Admin","AdminPanal") ? "page" : null)">
-       <i class="bi bi-people"></i> الممتحنون
+       <i class="bi bi-people"></i> @Localizer["UsersNav"]
     </a>
 
     <a class="nav-link @(isActive("Admin","AddExaminer") ? "active" : "")"
@@ -34,17 +35,17 @@
        asp-controller="Admin"
        asp-action="AddExaminer"
        aria-current="@(isActive("Admin","AddExaminer") ? "page" : null)">
-       <i class="bi bi-person-plus"></i> إضافة ممتحن
+       <i class="bi bi-person-plus"></i> @Localizer["AddUserNav"]
     </a>
 
-    <div class="mt-2 small text-white-50 px-2">أخرى</div>
+    <div class="mt-2 small text-white-50 px-2">@Localizer["OtherSection"]</div>
 
     <a class="nav-link @(isActive("Disclosure","Index") ? "active" : "")"
        asp-area=""
        asp-controller="Disclosure"
        asp-action="Index"
        aria-current="@(isActive("Disclosure","Index") ? "page" : null)">
-       <i class="bi bi-file-earmark-text"></i> البلاغات
+       <i class="bi bi-file-earmark-text"></i> @Localizer["DisclosuresNav"]
     </a>
 
     <a class="nav-link @(isActive("Notifications","Index") ? "active" : "")"
@@ -52,7 +53,7 @@
        asp-controller="Notifications"
        asp-action="Index"
        aria-current="@(isActive("Notifications","Index") ? "page" : null)">
-       <i class="bi bi-bell"></i> الإشعارات
+       <i class="bi bi-bell"></i> @Localizer["NotificationsNav"]
     </a>
 
     <a class="nav-link @(isActive("Home","Index") ? "active" : "")"
@@ -60,7 +61,7 @@
        asp-controller="Home"
        asp-action="Index"
        aria-current="@(isActive("Home","Index") ? "page" : null)">
-       <i class="bi bi-house"></i> الواجهة
+       <i class="bi bi-house"></i> @Localizer["HomeNav"]
     </a>
   </nav>
 </aside>
@@ -68,8 +69,8 @@
 <!-- Offcanvas (Mobile) -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="adminAside">
   <div class="offcanvas-header">
-    <h6 class="offcanvas-title">القائمة</h6>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="إغلاق"></button>
+    <h6 class="offcanvas-title">@Localizer["MenuTitle"]</h6>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="@Localizer["Close"]"></button>
   </div>
 
   <div class="offcanvas-body p-0">
@@ -81,7 +82,7 @@
          asp-action="Index"
          data-bs-dismiss="offcanvas">
          <i class="bi bi-speedometer2"></i>
-         <span>لوحة التحكم</span>
+         <span>@Localizer["Dashboard"]</span>
       </a>
 
       <nav class="nav flex-column gap-1">
@@ -91,7 +92,7 @@
            asp-action="AdminPanal"
            data-bs-dismiss="offcanvas"
            aria-current="@(isActive("Admin","AdminPanal") ? "page" : null)">
-           <i class="bi bi-people"></i> الممتحنون
+           <i class="bi bi-people"></i> @Localizer["UsersNav"]
         </a>
 
         <a class="nav-link @(isActive("Admin","AddExaminer") ? "active" : "")"
@@ -100,10 +101,10 @@
            asp-action="AddExaminer"
            data-bs-dismiss="offcanvas"
            aria-current="@(isActive("Admin","AddExaminer") ? "page" : null)">
-           <i class="bi bi-person-plus"></i> إضافة ممتحن
+           <i class="bi bi-person-plus"></i> @Localizer["AddUserNav"]
         </a>
 
-        <div class="mt-2 small text-white-50 px-2">أخرى</div>
+        <div class="mt-2 small text-white-50 px-2">@Localizer["OtherSection"]</div>
 
         <a class="nav-link @(isActive("Disclosure","Index") ? "active" : "")"
            asp-area=""
@@ -111,7 +112,7 @@
            asp-action="Index"
            data-bs-dismiss="offcanvas"
            aria-current="@(isActive("Disclosure","Index") ? "page" : null)">
-           <i class="bi bi-file-earmark-text"></i> البلاغات
+           <i class="bi bi-file-earmark-text"></i> @Localizer["DisclosuresNav"]
         </a>
 
         <a class="nav-link @(isActive("Notifications","Index") ? "active" : "")"
@@ -120,7 +121,7 @@
            asp-action="Index"
            data-bs-dismiss="offcanvas"
            aria-current="@(isActive("Notifications","Index") ? "page" : null)">
-           <i class="bi bi-bell"></i> الإشعارات
+           <i class="bi bi-bell"></i> @Localizer["NotificationsNav"]
         </a>
 
         <a class="nav-link @(isActive("Home","Index") ? "active" : "")"
@@ -129,7 +130,7 @@
            asp-action="Index"
            data-bs-dismiss="offcanvas"
            aria-current="@(isActive("Home","Index") ? "page" : null)">
-           <i class="bi bi-house"></i> الواجهة
+           <i class="bi bi-house"></i> @Localizer["HomeNav"]
         </a>
       </nav>
     </div>

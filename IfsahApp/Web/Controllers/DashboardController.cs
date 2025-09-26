@@ -129,24 +129,25 @@ public class DashboardController(ApplicationDbContext context) : Controller
 
     // POST: Dashboard/AddComment
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddComment(int disclosureId, string commentText, int? assignToDiscloserId)
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> AddComment(int disclosureId, string? commentText, int? assignToDiscloserId)
+{
+    // اسم المستخدم من AD
+    var adUserName = User.Identity?.Name?.Split('\\').Last();
+    if (string.IsNullOrEmpty(adUserName))
+        return RedirectToAction("AccessDenied", "Account");
+
+    var currentUser = await _context.Users
+        .FirstOrDefaultAsync(u => u.ADUserName.ToLower() == adUserName.ToLower());
+    if (currentUser == null)
+        return RedirectToAction("AccessDenied", "Account");
+
+    var disclosure = await _context.Disclosures.FindAsync(disclosureId);
+    if (disclosure == null) return NotFound();
+
+    // أضف تعليق فقط إذا موجود
+    if (!string.IsNullOrWhiteSpace(commentText))
     {
-        if (string.IsNullOrWhiteSpace(commentText))
-            return RedirectToAction(nameof(Details), new { id = disclosureId });
-
-        // Get logged-in AD username
-        var adUserName = User.Identity?.Name?.Split('\\').Last();
-        if (string.IsNullOrEmpty(adUserName))
-            return RedirectToAction("AccessDenied", "Account");
-
-        // Find user in DB
-        var currentUser = await _context.Users
-            .FirstOrDefaultAsync(u => u.ADUserName.ToLower() == adUserName.ToLower());
-        if (currentUser == null)
-            return RedirectToAction("AccessDenied", "Account");
-
-        // Add comment
         _context.Comments.Add(new Comment
         {
             DisclosureId = disclosureId,
@@ -154,18 +155,25 @@ public class DashboardController(ApplicationDbContext context) : Controller
             AuthorId = currentUser.Id,
             CreatedAt = DateTime.UtcNow
         });
-
-        // Assign disclosure if needed
-        if (assignToDiscloserId.HasValue)
-        {
-            var disclosure = await _context.Disclosures.FindAsync(disclosureId);
-            if (disclosure != null)
-            {
-                disclosure.AssignedToUserId = assignToDiscloserId.Value;
-            }
-        }
-
-        await _context.SaveChangesAsync();
-        return RedirectToAction(nameof(Details), new { id = disclosureId });
     }
+
+    // التعيين (اختياري)
+    if (assignToDiscloserId.HasValue)
+    {
+        var validAssignee = await _context.Users
+            .AnyAsync(u => u.Id == assignToDiscloserId.Value && u.IsActive && u.Role == Role.Examiner);
+
+        if (validAssignee)
+        {
+            disclosure.AssignedToUserId = assignToDiscloserId.Value;
+            // (اختياري) غيّري الحالة ووقت التعيين إذا عندك الحقول
+            disclosure.Status = DisclosureStatus.Assigned;
+            // disclosure.AssignedAt = DateTime.UtcNow; // إن وُجد
+        }
+    }
+
+    await _context.SaveChangesAsync();
+    TempData["Success"] = "تم حفظ التعيين/التعليق.";
+    return RedirectToAction(nameof(Details), new { id = disclosureId });
+}
 }

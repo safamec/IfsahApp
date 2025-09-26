@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- Page -->
+  <data name="Suspected People" xml:space="preserve"><value>Suspected People</value></data>
+
+  <!-- Buttons -->
+  <data name="AddSuspectedPersonButton" xml:space="preserve"><value>+ Add suspected person</value></data>
+  <data name="SaveButton" xml:space="preserve"><value>Save</value></data>
+  <data name="CancelButton" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Back" xml:space="preserve"><value>Back</value></data>
+  <data name="Next" xml:space="preserve"><value>Next</value></data>
+
+  <!-- Table Headers -->
+  <data name="Name" xml:space="preserve"><value>Name</value></data>
+  <data name="Email" xml:space="preserve"><value>Email</value></data>
+  <data name="Phone" xml:space="preserve"><value>Phone</value></data>
+  <data name="Organization" xml:space="preserve"><value>Organization</value></data>
+  <data name="Actions" xml:space="preserve"><value>Actions</value></data>
+  <data name="DeleteRow" xml:space="preserve"><value>Delete</value></data>
+
+  <!-- Empty state -->
+  <data name="NoPeopleYet" xml:space="preserve"><value>No suspected people added yet</value></data>
+</root>

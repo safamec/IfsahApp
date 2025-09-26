@@ -1,0 +1,27 @@
+<root>
+  <data name="DisclosureDetailsTitle"><value>Disclosure Details</value></data>
+  <data name="Description"><value>Description</value></data>
+  <data name="Location"><value>Location</value></data>
+  <data name="Status"><value>Status</value></data>
+  <data name="SubmittedAt"><value>Submitted At</value></data>
+  <data name="SubmittedBy"><value>Submitted By</value></data>
+  <data name="AssignedTo"><value>Assigned To</value></data>
+  <data name="Unassigned"><value>Unassigned</value></data>
+  <data name="NA"><value>N/A</value></data>
+
+  <data name="Notes"><value>Notes</value></data>
+  <data name="NoNotesAvailable"><value>No notes available.</value></data>
+
+  <data name="Attachments"><value>Attachments</value></data>
+  <data name="Attachment"><value>Attachment</value></data>
+  <data name="NoAttachments"><value>No attachments.</value></data>
+
+  <data name="AdminCommentsAssignment"><value>Admin Comments &amp; Assignment</value></data>
+  <data name="NoCommentsYet"><value>No comments yet.</value></data>
+
+  <data name="AddCommentLabel"><value>Add Comment</value></data>
+  <data name="EnterCommentPlaceholder"><value>Enter comment</value></data>
+  <data name="AssignToDiscloserLabel"><value>Assign to Discloser</value></data>
+  <data name="SelectDiscloserOption"><value>-- Select Discloser --</value></data>
+  <data name="SubmitBtn"><value>Submit</value></data>
+</root>

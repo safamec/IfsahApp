@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <!-- تسميات الخطوات -->
+  <data name="Step.BasicInfo" xml:space="preserve"><value>المعلومات الأساسية</value></data>
+  <data name="Step.SuspectedPeople" xml:space="preserve"><value>الأشخاص المشتبه بهم</value></data>
+  <data name="Step.RelatedPeople" xml:space="preserve"><value>الأشخاص المرتبطون</value></data>
+  <data name="Step.Attachments" xml:space="preserve"><value>المرفقات</value></data>
+  <data name="Step.Review" xml:space="preserve"><value>المراجعة</value></data>
+</root>

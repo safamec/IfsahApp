@@ -1,20 +1,24 @@
 @model IEnumerable<IfsahApp.Core.Models.DisclosureType>
 
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
 @{
-    ViewData["Title"] = "Disclosure Types";
+    ViewData["Title"] = Localizer["DisclosureTypesTitle"];
 }
 
 <h2>@ViewData["Title"]</h2>
 
-<a asp-action="Create" class="btn btn-primary mb-3">Create New Disclosure Type</a>
+<a asp-action="Create" class="btn btn-primary mb-3">
+    @Localizer["CreateNewDisclosureType"]
+</a>
 
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Arabic Name</th>
-            <th>English Name</th>
-            <th class="text-center">Active</th>
-            <th>Actions</th>
+            <th>@Localizer["ArabicName"]</th>
+            <th>@Localizer["EnglishName"]</th>
+            <th class="text-center">@Localizer["Active"]</th>
+            <th>@Localizer["Actions"]</th>
         </tr>
     </thead>
     <tbody>
@@ -26,13 +30,13 @@
             <td class="text-center">
                 <form asp-action="ToggleActive" asp-route-id="@item.Id" method="post" class="d-inline">
                     <button type="submit" class="btn btn-sm @(item.IsActive ? "btn-success" : "btn-secondary") px-2 py-0">
-                        @(item.IsActive ? "✓ Active" : "✗ Inactive")
+                        @(item.IsActive ? Localizer["ActiveLabel"] : Localizer["InactiveLabel"])
                     </button>
                 </form>
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
-                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">@Localizer["Edit"]</a>
+                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">@Localizer["Details"]</a>
             </td>
         </tr>
     }

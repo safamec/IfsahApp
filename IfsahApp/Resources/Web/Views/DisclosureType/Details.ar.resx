@@ -1,0 +1,12 @@
+<root>
+  <data name="DisclosureTypeDetailsTitle"><value>تفاصيل نوع البلاغ</value></data>
+  <data name="Id"><value>المعرّف</value></data>
+  <data name="ArabicName"><value>الاسم بالعربية</value></data>
+  <data name="EnglishName"><value>الاسم بالإنجليزية</value></data>
+  <data name="IsActive"><value>الحالة</value></data>
+  <data name="ActiveLabel"><value>نشط</value></data>
+  <data name="InactiveLabel"><value>غير نشط</value></data>
+  <data name="CreatedAt"><value>تاريخ الإنشاء</value></data>
+  <data name="Edit"><value>تعديل</value></data>
+  <data name="BackToList"><value>رجوع إلى القائمة</value></data>
+</root>

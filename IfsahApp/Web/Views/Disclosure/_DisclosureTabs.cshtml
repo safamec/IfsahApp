@@ -1,3 +1,5 @@
+
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @{
     var currentStep = ViewData["Step"] as int? ?? 1;
 }
@@ -58,11 +60,22 @@
 <body>
     <div class="container">
         <ul class="steps">
-            <li class="@(currentStep > 1 ? "completed" : (currentStep == 1 ? "active" : ""))">1. Basic Info</li>
-            <li class="@(currentStep > 2 ? "completed" : (currentStep == 2 ? "active" : ""))">2. Suspected People</li>
-            <li class="@(currentStep > 3 ? "completed" : (currentStep == 3 ? "active" : ""))">3. Related People</li>
-            <li class="@(currentStep > 4 ? "completed" : (currentStep == 4 ? "active" : ""))">4. Attachments</li>
-            <li class="@(currentStep == 5 ? "active" : "")">5. Review</li>
+<li class="@(currentStep > 1 ? "completed" : (currentStep == 1 ? "active" : ""))">
+  1. @Localizer["Step.BasicInfo"]
+</li>
+<li class="@(currentStep > 2 ? "completed" : (currentStep == 2 ? "active" : ""))">
+  2. @Localizer["Step.SuspectedPeople"]
+</li>
+<li class="@(currentStep > 3 ? "completed" : (currentStep == 3 ? "active" : ""))">
+  3. @Localizer["Step.RelatedPeople"]
+</li>
+<li class="@(currentStep > 4 ? "completed" : (currentStep == 4 ? "active" : ""))">
+  4. @Localizer["Step.Attachments"]
+</li>
+<li class="@(currentStep == 5 ? "active" : "")">
+  5. @Localizer["Step.Review"]
+</li>
+
         </ul>
 
 

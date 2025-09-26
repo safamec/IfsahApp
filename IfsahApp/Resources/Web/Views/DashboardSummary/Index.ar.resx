@@ -1,0 +1,22 @@
+<root>
+  <data name="DashboardSummaryTitle"><value>ملخص اللوحة</value></data>
+
+  <data name="Chart_EvolutionByStatus"><value>تطوّر البلاغات حسب الحالة</value></data>
+  <data name="Chart_DisclosuresTrend"><value>اتجاه البلاغات</value></data>
+  <data name="Chart_MonthlyComparison"><value>مقارنة شهرية لحالات البلاغات</value></data>
+
+  <data name="TableCard_DisclosureDetails"><value>تفاصيل البلاغات</value></data>
+  <data name="Table_Month"><value>الشهر</value></data>
+  <data name="Table_NumberOfDisclosures"><value>عدد البلاغات</value></data>
+  <data name="Table_DisclosuresUnderReview"><value>البلاغات قيد المراجعة</value></data>
+  <data name="Table_DisclosuresInProcess"><value>البلاغات قيد المعالجة</value></data>
+  <data name="Table_CancelledDisclosures"><value>البلاغات الملغاة</value></data>
+
+  <data name="NoData"><value>لا توجد بيانات</value></data>
+
+  <data name="Legend_TotalDisclosures"><value>إجمالي البلاغات</value></data>
+  <data name="Legend_UnderReview"><value>قيد المراجعة</value></data>
+  <data name="Legend_InProcess"><value>قيد المعالجة</value></data>
+  <data name="Legend_Cancelled"><value>ملغاة</value></data>
+  <data name="Legend_Total"><value>الإجمالي</value></data>
+</root>

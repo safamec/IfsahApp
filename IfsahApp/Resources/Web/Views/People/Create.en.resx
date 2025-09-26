@@ -1,0 +1,8 @@
+<root>
+  <data name="NameLabel"><value>Name</value></data>
+  <data name="EmailLabel"><value>Email</value></data>
+  <data name="PhoneLabel"><value>Phone</value></data>
+  <data name="OrganizationLabel"><value>Organization</value></data>
+  <data name="SaveBtn"><value>Save</value></data>
+  <data name="CancelBtn"><value>Cancel</value></data>
+</root>

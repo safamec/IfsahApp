@@ -1,0 +1,11 @@
+<root>
+  <data name="CreateDisclosureTypeTitle"><value>إنشاء نوع بلاغ جديد</value></data>
+  <data name="EditDisclosureTypeTitle"><value>تعديل نوع البلاغ</value></data>
+  <data name="ArabicNameLabel"><value>الاسم بالعربية</value></data>
+  <data name="EnglishNameLabel"><value>الاسم بالإنجليزية</value></data>
+  <data name="IsActiveLabel"><value>نشط</value></data>
+  <data name="ArabicNamePh"><value>أدخلي الاسم باللغة العربية…</value></data>
+  <data name="EnglishNamePh"><value>أدخلي الاسم باللغة الإنجليزية…</value></data>
+  <data name="Save"><value>حفظ</value></data>
+  <data name="Cancel"><value>إلغاء</value></data>
+</root>

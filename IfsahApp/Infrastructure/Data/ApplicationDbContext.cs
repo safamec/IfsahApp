@@ -1,174 +1,179 @@
 using IfsahApp.Core.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace IfsahApp.Infrastructure.Data;
-
-public class ApplicationDbContext : DbContext
+namespace IfsahApp.Infrastructure.Data
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options) { }
-
-    // System Users
-    public DbSet<User> Users { get; set; }
-
-    // Lookup
-    public DbSet<DisclosureType> DisclosureTypes { get; set; }
-
-    // Core Disclosure Workflow
-    public DbSet<Disclosure> Disclosures { get; set; }
-    public DbSet<DisclosurePerson> DisclosurePeople { get; set; }
-    public DbSet<DisclosureAttachment> DisclosureAttachments { get; set; }
-    public DbSet<DisclosureNote> DisclosureNotes { get; set; }
-    public DbSet<DisclosureAssignment> DisclosureAssignments { get; set; }
-    public DbSet<DisclosureReview> DisclosureReviews { get; set; }
-
-    // Comments for admin
-    public DbSet<Comment> Comments { get; set; }
-
-    // Role Delegation
-    public DbSet<RoleDelegation> RoleDelegations { get; set; }
-
-    // Notification System
-    public DbSet<Notification> Notifications { get; set; }
-    public DbSet<UserNotificationPreference> UserNotificationPreferences { get; set; }
-// IfsahApp.Infrastructure/Data/ApplicationDbContext.cs
-public DbSet<EmailVerification> EmailVerifications { get; set; } = null!;
-
-    // Logs
-    public DbSet<AuditLog> AuditLogs { get; set; }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    public class ApplicationDbContext : DbContext
     {
-        base.OnModelCreating(modelBuilder);
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options) { }
 
-        // Unique indexes
-        modelBuilder.Entity<DisclosureType>()
-            .HasIndex(t => t.EnglishName)
-            .IsUnique();
-        modelBuilder.Entity<DisclosureType>()
-  .HasIndex(t => t.ArabicName)
-  .IsUnique();
+        // System Users
+        public DbSet<User> Users { get; set; } = null!;
 
-        modelBuilder.Entity<User>()
-            .HasIndex(u => u.ADUserName)
-            .IsUnique();
+        // Lookup
+        public DbSet<DisclosureType> DisclosureTypes { get; set; } = null!;
 
-        // Notification
-        modelBuilder.Entity<Notification>()
-            .HasOne(n => n.Recipient)
-            .WithMany()
-            .HasForeignKey(n => n.RecipientId)
-            .OnDelete(DeleteBehavior.Restrict);
+        // Core Disclosure Workflow
+        public DbSet<Disclosure> Disclosures { get; set; } = null!;
+        public DbSet<DisclosurePerson> DisclosurePeople { get; set; } = null!;
+        public DbSet<DisclosureAttachment> DisclosureAttachments { get; set; } = null!;
+        public DbSet<DisclosureNote> DisclosureNotes { get; set; } = null!;
+        public DbSet<DisclosureAssignment> DisclosureAssignments { get; set; } = null!;
+        public DbSet<DisclosureReview> DisclosureReviews { get; set; } = null!;
 
-        // One-to-one: DisclosureReview
-        modelBuilder.Entity<DisclosureReview>()
-            .HasOne(dr => dr.Disclosure)
-            .WithOne(d => d.FinalReview)
-            .HasForeignKey<DisclosureReview>(dr => dr.DisclosureId)
-            .OnDelete(DeleteBehavior.Cascade);
+        // Comments for admin
+        public DbSet<Comment> Comments { get; set; } = null!;
 
-        modelBuilder.Entity<DisclosureReview>()
-            .HasOne(dr => dr.Reviewer)
-            .WithMany()
-            .HasForeignKey(dr => dr.ReviewerId)
-            .OnDelete(DeleteBehavior.Restrict);
+        // Role Delegation
+        public DbSet<RoleDelegation> RoleDelegations { get; set; } = null!;
 
-        // RoleDelegation
-        modelBuilder.Entity<RoleDelegation>()
-            .HasOne(d => d.FromUser)
-            .WithMany()
-            .HasForeignKey(d => d.FromUserId)
-            .OnDelete(DeleteBehavior.Restrict);
+        // Notification System
+        public DbSet<Notification> Notifications { get; set; } = null!;
+        public DbSet<UserNotificationPreference> UserNotificationPreferences { get; set; } = null!;
+        public DbSet<EmailVerification> EmailVerifications { get; set; } = null!;
 
-        modelBuilder.Entity<RoleDelegation>()
-            .HasOne(d => d.ToUser)
-            .WithMany()
-            .HasForeignKey(d => d.ToUserId)
-            .OnDelete(DeleteBehavior.Restrict);
+        // Logs
+        public DbSet<AuditLog> AuditLogs { get; set; } = null!;
 
-        // Configure DisclosurePerson base + TPH
-        modelBuilder.Entity<DisclosurePerson>().HasKey(p => p.Id);
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<DisclosurePerson>()
-            .HasOne(p => p.Disclosure)
-            .WithMany()
-            .HasForeignKey(p => p.DisclosureId)
-            .OnDelete(DeleteBehavior.Cascade);
+            // ---------- Unique indexes ----------
+            modelBuilder.Entity<DisclosureType>()
+                .HasIndex(t => t.EnglishName)
+                .IsUnique();
 
-        modelBuilder.Entity<DisclosurePerson>()
-            .ToTable("DisclosurePersons")
-            .HasDiscriminator<string>("PersonType")
-            .HasValue<SuspectedPerson>("Suspected")
-            .HasValue<RelatedPerson>("Related");
+            modelBuilder.Entity<DisclosureType>()
+                .HasIndex(t => t.ArabicName)
+                .IsUnique();
 
-        modelBuilder.Entity<Disclosure>()
-            .HasMany(d => d.SuspectedPeople)
-            .WithOne(p => p.Disclosure)
-            .HasForeignKey(p => p.DisclosureId);
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.ADUserName)
+                .IsUnique();
 
-        modelBuilder.Entity<Disclosure>()
-            .HasMany(d => d.RelatedPeople)
-            .WithOne(p => p.Disclosure)
-            .HasForeignKey(p => p.DisclosureId);
+            // ---------- Notifications ----------
+            modelBuilder.Entity<Notification>()
+                .HasOne(n => n.Recipient)
+                .WithMany()
+                .HasForeignKey(n => n.RecipientId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-        // DisclosureAssignments
-        modelBuilder.Entity<DisclosureAssignment>()
-            .HasOne(a => a.Disclosure)
-            .WithMany(d => d.Assignments)
-            .HasForeignKey(a => a.DisclosureId)
-            .OnDelete(DeleteBehavior.Cascade);
+            // ---------- Final Review (1:1) ----------
+            modelBuilder.Entity<DisclosureReview>()
+                .HasOne(dr => dr.Disclosure)
+                .WithOne(d => d.FinalReview)
+                .HasForeignKey<DisclosureReview>(dr => dr.DisclosureId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<DisclosureAssignment>()
-            .HasOne(a => a.Examiner)
-            .WithMany()
-            .HasForeignKey(a => a.ExaminerId)
-            .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<DisclosureReview>()
+                .HasOne(dr => dr.Reviewer)
+                .WithMany()
+                .HasForeignKey(dr => dr.ReviewerId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-        // DisclosureNotes
-        modelBuilder.Entity<DisclosureNote>()
-            .HasOne(n => n.Disclosure)
-            .WithMany(d => d.Notes)
-            .HasForeignKey(n => n.DisclosureId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<DisclosureNote>()
-            .HasOne(n => n.Author)
-            .WithMany()
-            .HasForeignKey(n => n.AuthorId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        // Comments
-        modelBuilder.Entity<Comment>()
-            .HasOne(c => c.Disclosure)
-            .WithMany(d => d.Comments)
-            .HasForeignKey(c => c.DisclosureId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        // ✅ Explicitly configure multiple User relationships
-        modelBuilder.Entity<Disclosure>()
-            .HasOne(d => d.SubmittedBy)
-            .WithMany(u => u.SubmittedDisclosures)
-            .HasForeignKey(d => d.SubmittedById)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        modelBuilder.Entity<Disclosure>()
-            .HasOne(d => d.AssignedToUser)
-            .WithMany(u => u.AssignedDisclosures)
-            .HasForeignKey(d => d.AssignedToUserId)
-            .OnDelete(DeleteBehavior.Restrict);
+            // ---------- Role Delegation ----------
             modelBuilder.Entity<RoleDelegation>(e =>
-{
-    e.HasOne(d => d.FromUser)
-     .WithMany()
-     .HasForeignKey(d => d.FromUserId)
-     .OnDelete(DeleteBehavior.Restrict);
+            {
+                e.HasOne(d => d.FromUser)
+                 .WithMany()
+                 .HasForeignKey(d => d.FromUserId)
+                 .OnDelete(DeleteBehavior.Restrict);
 
-    e.HasOne(d => d.ToUser)
-     .WithMany()
-     .HasForeignKey(d => d.ToUserId)
-     .OnDelete(DeleteBehavior.Restrict);
+                e.HasOne(d => d.ToUser)
+                 .WithMany()
+                 .HasForeignKey(d => d.ToUserId)
+                 .OnDelete(DeleteBehavior.Restrict);
 
-    e.Property(d => d.Role).HasMaxLength(32);
-});
+                e.Property(d => d.Role).HasMaxLength(32);
+            });
+
+            // ---------- People (TPH) ----------
+            modelBuilder.Entity<DisclosurePerson>().HasKey(p => p.Id);
+
+            modelBuilder.Entity<DisclosurePerson>()
+                .HasOne(p => p.Disclosure)
+                .WithMany()
+                .HasForeignKey(p => p.DisclosureId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<DisclosurePerson>()
+                .ToTable("DisclosurePersons")
+                .HasDiscriminator<string>("PersonType")
+                .HasValue<SuspectedPerson>("Suspected")
+                .HasValue<RelatedPerson>("Related");
+
+            modelBuilder.Entity<Disclosure>()
+                .HasMany(d => d.SuspectedPeople)
+                .WithOne(p => p.Disclosure)
+                .HasForeignKey(p => p.DisclosureId);
+
+            modelBuilder.Entity<Disclosure>()
+                .HasMany(d => d.RelatedPeople)
+                .WithOne(p => p.Disclosure)
+                .HasForeignKey(p => p.DisclosureId);
+
+            // ---------- Attachments (explicit mapping) ----------
+            modelBuilder.Entity<DisclosureAttachment>(a =>
+            {
+                a.HasKey(x => x.Id);
+                a.Property(x => x.FileName).IsRequired();
+
+                a.HasOne(x => x.Disclosure)
+                 .WithMany(d => d.Attachments)
+                 .HasForeignKey(x => x.DisclosureId)
+                 .OnDelete(DeleteBehavior.Cascade);
+
+                a.HasIndex(x => x.DisclosureId);
+                a.HasIndex(x => new { x.DisclosureId, x.UploadedAt });
+            });
+
+            // ---------- Assignments ----------
+            modelBuilder.Entity<DisclosureAssignment>()
+                .HasOne(a => a.Disclosure)
+                .WithMany(d => d.Assignments)
+                .HasForeignKey(a => a.DisclosureId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<DisclosureAssignment>()
+                .HasOne(a => a.Examiner)
+                .WithMany()
+                .HasForeignKey(a => a.ExaminerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ---------- Notes ----------
+            modelBuilder.Entity<DisclosureNote>()
+                .HasOne(n => n.Disclosure)
+                .WithMany(d => d.Notes)
+                .HasForeignKey(n => n.DisclosureId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<DisclosureNote>()
+                .HasOne(n => n.Author)
+                .WithMany()
+                .HasForeignKey(n => n.AuthorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ---------- Comments ----------
+            modelBuilder.Entity<Comment>()
+                .HasOne(c => c.Disclosure)
+                .WithMany(d => d.Comments)
+                .HasForeignKey(c => c.DisclosureId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ---------- User relationships on Disclosure ----------
+            modelBuilder.Entity<Disclosure>()
+                .HasOne(d => d.SubmittedBy)
+                .WithMany(u => u.SubmittedDisclosures)
+                .HasForeignKey(d => d.SubmittedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Disclosure>()
+                .HasOne(d => d.AssignedToUser)
+                .WithMany(u => u.AssignedDisclosures)
+                .HasForeignKey(d => d.AssignedToUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+        }
     }
 }

@@ -1,0 +1,8 @@
+<root>
+  <data name="NameLabel"><value>الاسم</value></data>
+  <data name="EmailLabel"><value>البريد الإلكتروني</value></data>
+  <data name="PhoneLabel"><value>رقم الجوال</value></data>
+  <data name="OrganizationLabel"><value>المنظمة</value></data>
+  <data name="SaveBtn"><value>حفظ</value></data>
+  <data name="CancelBtn"><value>إلغاء</value></data>
+</root>

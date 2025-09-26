@@ -176,12 +176,17 @@ namespace IfsahApp.Migrations
                     b.Property<string>("FileType")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("OriginalFileName")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("UploadedAt")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.HasIndex("DisclosureId");
+
+                    b.HasIndex("DisclosureId", "UploadedAt");
 
                     b.ToTable("DisclosureAttachments");
                 });

@@ -1,0 +1,11 @@
+<root>
+  <data name="Dashboard"><value>لوحة التحكم</value></data>
+  <data name="UsersNav"><value>المستخدمين</value></data>
+  <data name="AddUserNav"><value>إضافة مستخدم</value></data>
+  <data name="OtherSection"><value>أخرى</value></data>
+  <data name="DisclosuresNav"><value>البلاغات</value></data>
+  <data name="NotificationsNav"><value>الإشعارات</value></data>
+  <data name="HomeNav"><value>الواجهة</value></data>
+  <data name="MenuTitle"><value>القائمة</value></data>
+  <data name="Close"><value>إغلاق</value></data>
+</root>

@@ -15,7 +15,7 @@
           <path d="M15.854 8.146a.5.5 0 0 1 0 .708l-3.5 3.5a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L12 11.293l3.146-3.147a.5.5 0 0 1 .708 0"/>
         </svg>
       </span>
-      <div class="fw-bold">الاشتراك بتحديثات البلاغ (اختياري)</div>
+      <div class="fw-bold">تفعيل التنبيهات لتحديثات البلاغ (اختياري)</div>
     </div>
 
     <div class="input-group input-group-lg">
@@ -23,11 +23,10 @@
              placeholder="name&#64;example.com" autocomplete="email" />
       <button id="btnVerify" type="button"
               class="btn btn-primary d-inline-flex align-items-center gap-2 px-4">
-        <span class="btn-text">تحقّق</span>
+        <span class="btn-text">إرسال رابط التفعيل</span>
         <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
       </button>
     </div>
-
 
     <div id="verifyStatus" class="small mt-3"></div>
   </div>
@@ -50,12 +49,12 @@
       btn.disabled = true;
       emailInput.disabled = true;
       spinner.classList.remove('d-none');
-      btnText.textContent = 'جاري الإرسال...';
+      btnText.textContent = 'جارٍ الإرسال...';
     } else {
       btn.disabled = false;
       emailInput.disabled = false;
       spinner.classList.add('d-none');
-      btnText.textContent = 'تحقّق';
+      btnText.textContent = 'إرسال رابط التفعيل';
     }
   }
 
@@ -68,13 +67,11 @@
     return /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(v);
   }
 
-  // إزالة رسالة الخطأ أثناء الكتابة
   emailInput.addEventListener('input', () => {
     emailInput.classList.remove('is-invalid');
     status.textContent = '';
   });
 
-  // السماح بضغط Enter
   emailInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') btn.click();
   });
@@ -85,7 +82,7 @@
 
     if (!validEmail(email)) {
       emailInput.classList.add('is-invalid');
-      showMsg('رجاءً أدخلي بريدًا إلكترونيًا صحيحًا.', 'text-danger');
+      showMsg('رجاءً أدخل بريدًا إلكترونيًا صحيحًا.', 'text-danger');
       return;
     }
 
@@ -100,10 +97,10 @@
         body: JSON.stringify({ reportNumber, email })
       });
 
-      // نفس الرسالة دائمًا حفاظًا على الخصوصية
-      showMsg('تم استلام الطلب. ستصل رسالة تأكيد لبريدك خلال دقائق. ✅', 'text-success');
+      // رسالة محايدة تحافظ على الخصوصية
+      showMsg('تم استلام الطلب. ستصلك رسالة لتأكيد تفعيل التنبيهات خلال دقائق. ✅', 'text-success');
     } catch (e) {
-      showMsg('تعذّر إرسال الطلب الآن، جرّبي لاحقًا.', 'text-warning');
+      showMsg('تعذّر إرسال الطلب الآن، يُرجى المحاولة لاحقًا.', 'text-warning');
     } finally {
       setLoading(false);
     }

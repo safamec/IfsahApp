@@ -1,10 +1,9 @@
 <root>
-  <data name="InvalidLinkTitle"><value>الرابط غير صالح</value></data>
-  <data name="ConfirmSubscriptionBadge"><value>تأكيد الاشتراك</value></data>
-  <data name="InvalidOrExpiredLinkHeading"><value>الرابط غير صالح أو منتهي</value></data>
-  <data name="InvalidLinkMessage"><value>يبدو أن رابط التأكيد غير صحيح أو انتهت صلاحيته.</value></data>
-  <data name="RequestNewLinkMessage"><value>اطلبي رابطًا جديدًا من صفحة البلاغ ثم افتحيه خلال 24 ساعة.</value></data>
-  <data name="BackToHome"><value>العودة للرئيسية</value></data>
-  <data name="GoBack"><value>رجوع</value></data>
-  <data name="RepeatedErrorHint"><value>لو تكرر الخطأ، تحققي من أن الرابط لم يُفتح من قبل (يُستخدم مرة واحدة).</value></data>
+ <data name="AlertsHeaderBadge"><value>تنبيهات التحديثات</value></data>
+<data name="AlertsActivationFailedTitle"><value>تعذّر تفعيل التنبيهات</value></data>
+<data name="AlertsActivationFailedLead"><value>الرابط غير صالح أو منتهي الصلاحية.</value></data>
+<data name="AlertsActivationFailedHint"><value>اطلبي رابطًا جديدًا من نفس الصفحة التي أرسلتِ منها الطلب.</value></data>
+<data name="HomeButton"><value>العودة للرئيسية</value></data>
+<data name="BackButton"><value>رجوع</value></data>
+
 </root>

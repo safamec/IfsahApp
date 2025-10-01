@@ -1,0 +1,92 @@
+@{
+    var suspected = (IEnumerable<dynamic>)ViewBag.Suspected ?? Enumerable.Empty<dynamic>();
+    var related   = (IEnumerable<dynamic>)ViewBag.Related   ?? Enumerable.Empty<dynamic>();
+    var files     = (IEnumerable<dynamic>)ViewBag.Attachments ?? Enumerable.Empty<dynamic>();
+}
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
+<div class="mb-4">
+  <h5>@Localizer["SuspectedPeople"]</h5>
+  <div class="table-responsive">
+    <table class="table table-sm table-bordered align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>@Localizer["Name"]</th>
+          <th>@Localizer["Email"]</th>
+          <th>@Localizer["Phone"]</th>
+          <th>@Localizer["Organization"]</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (!suspected.Any())
+        { <tr><td colspan="4" class="text-muted">@Localizer["NoSuspectedPeople"]</td></tr> }
+        else
+        {
+            foreach (var p in suspected)
+            {
+                <tr>
+                  <td>@p.Name</td><td>@p.Email</td><td>@p.Phone</td><td>@p.Organization</td>
+                </tr>
+            }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="mb-4">
+  <h5>@Localizer["RelatedPeople"]</h5>
+  <div class="table-responsive">
+    <table class="table table-sm table-bordered align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>@Localizer["Name"]</th>
+          <th>@Localizer["Email"]</th>
+          <th>@Localizer["Phone"]</th>
+          <th>@Localizer["Organization"]</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (!related.Any())
+        { <tr><td colspan="4" class="text-muted">@Localizer["NoRelatedPeople"]</td></tr> }
+        else
+        {
+            foreach (var p in related)
+            {
+                <tr>
+                  <td>@p.Name</td><td>@p.Email</td><td>@p.Phone</td><td>@p.Organization</td>
+                </tr>
+            }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div>
+  <h5>@Localizer["Attachments"]</h5>
+  <ul class="list-group">
+    @if (!files.Any())
+    { <li class="list-group-item text-muted">@Localizer["NoAttachments"]</li> }
+    else
+    {
+        foreach (var f in files)
+        {
+            var isReview = (string)f.Kind == "review";
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <a href="@f.Url" target="_blank" rel="noopener">@f.FileName</a>
+                @if (f.FileType != null) { <small class="text-muted ms-2">(@f.FileType)</small> }
+                @if (f.FileSize != null && f.FileSize > 0) {
+                  <small class="text-muted ms-2">
+                    (@String.Format("{0:N0} ", f.FileSize)@Localizer["Bytes"])
+                  </small>
+                }
+                @if (isReview) { <span class="badge bg-info ms-2">@Localizer["Review"]</span> }
+              </div>
+              <i class="bi bi-box-arrow-down"></i>
+            </li>
+        }
+    }
+  </ul>
+</div>

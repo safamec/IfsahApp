@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting; // IWebHostEnvironment
+using Microsoft.AspNetCore.Http;    // IFormFile
 using IfsahApp.Core.Enums;
 using IfsahApp.Core.Models;
 using IfsahApp.Infrastructure.Data;
@@ -31,32 +32,63 @@ public class ReviewController : Controller
     // ============================
     // REVIEW DASHBOARD (Index)
     // ============================
-    public IActionResult Index(string? reference, int page = 1, int pageSize = 10)
+    public async Task<IActionResult> Index(string? reference, int page = 1, int pageSize = 10)
     {
-        var disclosures = _context.Disclosures
+        // Resolve current DB user robustly
+        var dbUser = await CurrentDbUserAsync();
+        var currentDbUserId = dbUser?.Id ?? 0;
+
+        // Can see all if: identity role Admin OR DB role Admin OR custom claim perm=ReviewAll
+        var canSeeAll = User.IsInRole("Admin")
+                        || (dbUser?.Role == Role.Admin)
+                        || User.HasClaim("perm", "ReviewAll");
+
+        var query = _context.Disclosures
             .Include(d => d.DisclosureType)
+            .Include(d => d.AssignedToUser)
             .OrderByDescending(d => d.SubmittedAt)
-            .AsEnumerable()
-            .ToList();
+            .AsQueryable();
 
-        var cases = disclosures.Select(d => new CaseItem
+        if (!canSeeAll)
         {
-            Type        = d.DisclosureType?.EnglishName ?? "N/A",
-            Reference   = d.DisclosureNumber,
-            Date        = d.SubmittedAt,
-            Location    = d.Location ?? string.Empty,
-            Status      = _enumLocalizer.LocalizeEnum(d.Status),
-            Description = d.Description ?? string.Empty
-        });
+            // Examiner-only view: only items assigned to them and in Assigned status
+            if (currentDbUserId == 0)
+            {
+                // No DB user resolved -> nothing would match; return empty safely
+                ViewBag.SelectedReference = reference;
+                ViewBag.PageSize = pageSize;
+                ViewBag.CurrentPage = page;
+                ViewBag.TotalPages = 0;
+                ViewBag.Message = TempData["Message"];
+                return View(Enumerable.Empty<CaseItem>().ToList());
+            }
 
-        cases = cases.Where(c => c.Status == "Assigned");
+            query = query.Where(d =>
+                d.AssignedToUserId == currentDbUserId &&
+                d.Status == DisclosureStatus.Assigned);
+        }
 
-        if (!string.IsNullOrEmpty(reference))
-            cases = cases.Where(c => c.Reference.Contains(reference));
+        if (!string.IsNullOrWhiteSpace(reference))
+        {
+            query = query.Where(d => d.DisclosureNumber.Contains(reference));
+        }
 
-        var totalItems = cases.Count();
+        var totalItems = await query.CountAsync();
         var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
-        var pagedCases = cases.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(d => new CaseItem
+            {
+                Type        = d.DisclosureType != null ? d.DisclosureType.EnglishName : "N/A",
+                Reference   = d.DisclosureNumber,
+                Date        = d.SubmittedAt,
+                Location    = d.Location ?? string.Empty,
+                Status      = _enumLocalizer.LocalizeEnum(d.Status),
+                Description = d.Description ?? string.Empty
+            })
+            .ToListAsync();
 
         ViewBag.SelectedReference = reference;
         ViewBag.PageSize = pageSize;
@@ -64,20 +96,33 @@ public class ReviewController : Controller
         ViewBag.TotalPages = totalPages;
         ViewBag.Message = TempData["Message"];
 
-        return View(pagedCases);
+        return View(items);
     }
 
     // ============================
     // REVIEW DISCLOSURE
     // ============================
-    public IActionResult ReviewDisclosure(string reference)
+    public async Task<IActionResult> ReviewDisclosure(string reference)
     {
-        var disclosure = _context.Disclosures
+        if (string.IsNullOrWhiteSpace(reference))
+            return NotFound();
+
+        var disclosure = await _context.Disclosures
             .Include(d => d.DisclosureType)
-            .FirstOrDefault(d => d.DisclosureNumber == reference);
+            .FirstOrDefaultAsync(d => d.DisclosureNumber == reference);
 
         if (disclosure == null)
             return NotFound();
+
+        // If user is Examiner (no Admin claim), enforce assignment ownership
+        var isExaminerOnly = User.IsInRole("Examiner") && !User.IsInRole("Admin");
+        if (isExaminerOnly)
+        {
+            var dbUser = await CurrentDbUserAsync();
+            var currentDbUserId = dbUser?.Id ?? 0;
+            if (disclosure.AssignedToUserId != currentDbUserId || disclosure.Status != DisclosureStatus.Assigned)
+                return Forbid();
+        }
 
         var caseItem = new CaseItem
         {
@@ -95,67 +140,69 @@ public class ReviewController : Controller
     // ============================
     // EXTRA POPUP (Suspected / Related / Attachments)
     // ============================
-[HttpGet]
-public IActionResult Extras(string reference)
-{
-    var d = _context.Disclosures
-        .AsNoTracking()
-        .Include(x => x.SuspectedPeople)
-        .Include(x => x.RelatedPeople)
-        .FirstOrDefault(x => x.DisclosureNumber == reference);
-
-    if (d == null) return NotFound();
-
-    // People
-    ViewBag.Suspected = d.SuspectedPeople
-        .Select(p => new { p.Name, p.Email, p.Phone, p.Organization })
-        .ToList();
-
-    ViewBag.Related = d.RelatedPeople
-        .Select(p => new { p.Name, p.Email, p.Phone, p.Organization })
-        .ToList();
-
-    // DB attachments for this disclosure
-    var attachments = _context.DisclosureAttachments
-        .AsNoTracking()
-        .Where(a => a.DisclosureId == d.Id)
-        .OrderByDescending(a => a.UploadedAt)
-        .Select(a => new
-        {
-            Kind = "attachment",            // tag it
-            a.Id,
-            FileName = a.FileName,
-            a.FileType,
-            a.FileSize,
-            Url = Url.Action("Download", "Files", new { id = a.Id })
-        })
-        .ToList();
-
-    // Include the latest review report, if any
-    var review = _context.Set<DisclosureReview>()
-        .AsNoTracking()
-        .Where(r => r.DisclosureId == d.Id && !string.IsNullOrWhiteSpace(r.ReportFilePath))
-        .OrderByDescending(r => r.ReviewedAt)
-        .FirstOrDefault();
-
-    if (review != null)
+    [HttpGet]
+    public IActionResult Extras(string reference)
     {
-        // ReportFilePath should be a web path like /uploads/reviews/<guid>.<ext>
-        var fileName = System.IO.Path.GetFileName(review.ReportFilePath);
-        attachments.Add(new
-        {
-            Kind = "review",                // tag it for the view
-            Id = 0,                         // not used
-            FileName = fileName,
-            FileType = "review",
-            FileSize = 0L,
-            Url = review.ReportFilePath     // direct link to static file
-        });
-    }
+        if (string.IsNullOrWhiteSpace(reference))
+            return NotFound();
 
-    ViewBag.Attachments = attachments;
-    return PartialView("_ReviewExtras");
-}
+        var d = _context.Disclosures
+            .AsNoTracking()
+            .Include(x => x.SuspectedPeople)
+            .Include(x => x.RelatedPeople)
+            .FirstOrDefault(x => x.DisclosureNumber == reference);
+
+        if (d == null) return NotFound();
+
+        // People
+        ViewBag.Suspected = d.SuspectedPeople
+            .Select(p => new { p.Name, p.Email, p.Phone, p.Organization })
+            .ToList();
+
+        ViewBag.Related = d.RelatedPeople
+            .Select(p => new { p.Name, p.Email, p.Phone, p.Organization })
+            .ToList();
+
+        // DB attachments for this disclosure
+        var attachments = _context.DisclosureAttachments
+            .AsNoTracking()
+            .Where(a => a.DisclosureId == d.Id)
+            .OrderByDescending(a => a.UploadedAt)
+            .Select(a => new
+            {
+                Kind = "attachment",
+                a.Id,
+                FileName = a.FileName,
+                a.FileType,
+                a.FileSize,
+                Url = Url.Action("Download", "Files", new { id = a.Id })
+            })
+            .ToList();
+
+        // Include the latest review report, if any
+        var review = _context.Set<DisclosureReview>()
+            .AsNoTracking()
+            .Where(r => r.DisclosureId == d.Id && !string.IsNullOrWhiteSpace(r.ReportFilePath))
+            .OrderByDescending(r => r.ReviewedAt)
+            .FirstOrDefault();
+
+        if (review != null)
+        {
+            var fileName = System.IO.Path.GetFileName(review.ReportFilePath);
+            attachments.Add(new
+            {
+                Kind = "review",
+                Id = 0,
+                FileName = fileName,
+                FileType = "review",
+                FileSize = 0L,
+                Url = review.ReportFilePath
+            });
+        }
+
+        ViewBag.Attachments = attachments;
+        return PartialView("_ReviewExtras");
+    }
 
     // ============================
     // SUBMIT REVIEW (saves DisclosureReview)
@@ -178,6 +225,16 @@ public IActionResult Extras(string reference)
         if (disclosure == null)
             return NotFound("Disclosure not found.");
 
+        // Examiner-only restriction
+        var isExaminerOnly = User.IsInRole("Examiner") && !User.IsInRole("Admin");
+        if (isExaminerOnly)
+        {
+            var dbUser = await CurrentDbUserAsync();
+            var currentDbUserId = dbUser?.Id ?? 0;
+            if (disclosure.AssignedToUserId != currentDbUserId || disclosure.Status != DisclosureStatus.Assigned)
+                return Forbid();
+        }
+
         // Save report (optional)
         string? reportRelativePath = null;
         if (reportFile != null && reportFile.Length > 0)
@@ -192,12 +249,13 @@ public IActionResult Extras(string reference)
             await using (var fs = new FileStream(physical, FileMode.Create))
                 await reportFile.CopyToAsync(fs);
 
-            // store as web-relative path so you can link it later
             reportRelativePath = $"/uploads/reviews/{newName}";
         }
 
         // Upsert review row
-        var reviewerId = await CurrentDbUserIdAsync();
+        var reviewer = await CurrentDbUserAsync();
+        var reviewerId = reviewer?.Id ?? 0;
+
         var review = await _context.Set<DisclosureReview>()
             .FirstOrDefaultAsync(r => r.DisclosureId == disclosure.Id);
 
@@ -229,7 +287,7 @@ public IActionResult Extras(string reference)
         await _context.SaveChangesAsync();
 
         TempData["Message"] = $"Review for disclosure {reference} saved.";
-        return RedirectToAction("Index", "Dashboard");
+        return RedirectToAction("Index", "Review");
     }
 
     // ============================
@@ -237,43 +295,58 @@ public IActionResult Extras(string reference)
     // ============================
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult CancelDisclosure(string reference)
+    public async Task<IActionResult> CancelDisclosure(string reference)
     {
         if (string.IsNullOrEmpty(reference))
             return BadRequest();
 
-        var disclosure = _context.Disclosures.FirstOrDefault(d => d.DisclosureNumber == reference);
+        var disclosure = await _context.Disclosures.FirstOrDefaultAsync(d => d.DisclosureNumber == reference);
         if (disclosure == null)
             return NotFound();
 
+        // Examiner-only restriction
+        var isExaminerOnly = User.IsInRole("Examiner") && !User.IsInRole("Admin");
+        if (isExaminerOnly)
+        {
+            var dbUser = await CurrentDbUserAsync();
+            var currentDbUserId = dbUser?.Id ?? 0;
+            if (disclosure.AssignedToUserId != currentDbUserId || disclosure.Status != DisclosureStatus.Assigned)
+                return Forbid();
+        }
+
         disclosure.Status = DisclosureStatus.Rejected;
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
 
         TempData["Message"] = $"Disclosure {reference} has been successfully Rejected.";
-        return RedirectToAction("Index", "Dashboard");
+        return RedirectToAction("Index", "Review");
     }
 
     // ============================
     // Helpers
     // ============================
-    private async Task<int> CurrentDbUserIdAsync()
+    private async Task<User?> CurrentDbUserAsync()
     {
+        // 1) Try NameIdentifier as int (DB Id)
         var idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (int.TryParse(idStr, out var id))
         {
-            if (await _context.Users.AnyAsync(u => u.Id == id)) return id;
+            var byId = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (byId != null) return byId;
         }
 
-        var email = User.FindFirstValue(ClaimTypes.Email) ?? User.Identity?.Name;
-        if (!string.IsNullOrWhiteSpace(email))
-        {
-            var found = await _context.Users
-                .Where(u => u.Email == email)
-                .Select(u => u.Id)
-                .FirstOrDefaultAsync();
-            if (found != 0) return found;
-        }
+        // 2) Try Email claim
+        var email = User.FindFirstValue(ClaimTypes.Email);
 
-        return 0;
+        // 3) Try ADUserName via DOMAIN\username or plain username
+        var rawName = User.Identity?.Name;
+        string? adUser = null;
+        if (!string.IsNullOrWhiteSpace(rawName))
+            adUser = rawName.Contains('\\') ? rawName.Split('\\').Last() : rawName;
+
+        // Single DB roundtrip that checks both
+        return await _context.Users
+            .FirstOrDefaultAsync(u =>
+                (!string.IsNullOrWhiteSpace(email) && u.Email == email) ||
+                (!string.IsNullOrWhiteSpace(adUser) && u.ADUserName != null && u.ADUserName.ToLower() == adUser.ToLower()));
     }
 }

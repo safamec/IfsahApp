@@ -1,11 +1,14 @@
 <root>
-  <data name="SubscriptionConfirmedTitle"><value>Subscription Confirmed</value></data>
-  <data name="UpdatesSubscriptionBadge"><value>Updates Subscription</value></data>
-  <data name="SubscriptionConfirmedHeading"><value>Your subscription is confirmed</value></data>
-  <data name="ForReportNumber"><value>For report no. {0}</value></data>
-  <data name="YouWillReceiveUpdates"><value>You’ll be notified of any updates for this report.</value></data>
-  <data name="SafeToClosePage"><value>You can safely close this page.</value></data>
-  <data name="BackToHome"><value>Back to Home</value></data>
-  <data name="GoBack"><value>Go Back</value></data>
-  <data name="TipAddSenderToSafeList"><value>Tip: add the sender to your safe list to avoid spam.</value></data>
+<data name="AlertsHeaderBadge"><value>Update Alerts</value></data>
+<data name="AlertsActivationSuccessTitle"><value>Alerts activated successfully</value></data>
+<data name="ForReport"><value>For report</value></data>
+<data name="AlertsActivationSuccessLead">
+  <value>You will receive notifications about updates to this report. You can safely close this page.</value>
+</data>
+<data name="HomeButton"><value>Home</value></data>
+<data name="BackButton"><value>Back</value></data>
+<data name="WhitelistHint">
+  <value>Tip: add the sender to your safe senders list to avoid going to spam.</value>
+</data>
+
 </root>

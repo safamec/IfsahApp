@@ -1,50 +1,40 @@
-@{
-    Layout = "_Layout"; // أو "_AdminLayout"
-}
 @inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @{
-    ViewData["Title"] = Localizer["InvalidLinkTitle"];
+    Layout = "_Layout";
+    ViewData["Title"] = Localizer["AlertsActivationFailedTitle"];
 }
-<div class="container py-5" dir="rtl">
-  <style>
-    :root{
-      --brandDark:#0d3b66; --brandBlue:#0d6efd; --brandAccent:#f26522; --muted:#6c757d;
-    }
-    .cs-card{border:0;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.08);}
-    .cs-hero{background:linear-gradient(135deg,#7f1d1d,#ef4444);color:#fff;}
-    .cs-badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);padding:.25rem .6rem;border-radius:999px;font-size:.85rem}
-    .cs-icon{width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-             background:#fff;color:#b91c1c;box-shadow:0 6px 16px rgba(0,0,0,.12);margin:-42px auto 12px;border:4px solid #fff;}
-    .cs-actions .btn{min-width:200px}
-  </style>
 
-  <div class="row justify-content-center">
-    <div class="col-lg-7">
-      <div class="cs-card">
-        <div class="p-4 cs-hero text-center">
-          <div class="cs-badge mb-2">@Localizer["ConfirmSubscriptionBadge"]</div>
-          <h2 class="m-0">@Localizer["InvalidOrExpiredLinkHeading"]</h2>
+@section Styles {
+    <link rel="stylesheet" href="~/css/alerts.css" asp-append-version="true" />
+}
+
+<div class="container py-5 alerts" dir="rtl">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card alerts-card shadow-sm">
+                <div class="alerts-hero text-center p-4">
+                    <span class="badge alerts-badge mb-2">@Localizer["AlertsHeaderBadge"]</span>
+                    <h2 class="m-0">@Localizer["AlertsActivationFailedTitle"]</h2>
+                </div>
+
+                <div class="card-body text-center p-4 p-md-5">
+                    <div class="alerts-icon mb-3" aria-hidden="true">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </div>
+
+                    <p class="lead mb-2">@Localizer["AlertsActivationFailedLead"]</p>
+                    <p class="text-muted mb-4">@Localizer["AlertsActivationFailedHint"]</p>
+
+                    <div class="d-flex gap-2 justify-content-center">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">
+                            @Localizer["HomeButton"]
+                        </a>
+                        <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                            @Localizer["BackButton"]
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <div class="bg-white text-center p-4 p-md-5">
-          <div class="cs-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
-              <path d="M8.982 1.566a1.13 1.13 0 0 0-1.964 0L.165 13.233c-.457.778.091 1.767.982 1.767h13.706c.89 0 1.438-.99.982-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
-            </svg>
-          </div>
-          <p class="lead mb-2">@Localizer["InvalidLinkMessage"]</p>
-          <p class="text-muted mb-4">@Localizer["RequestNewLinkMessage"]</p>
-
-          <div class="cs-actions d-grid gap-2 d-sm-flex justify-content-center">
-            <a class="btn btn-primary btn-lg" href="/">@Localizer["BackToHome"]</a>
-            <a class="btn btn-outline-secondary btn-lg" href="javascript:history.back()">@Localizer["GoBack"]</a>
-          </div>
-
-          <div class="mt-4 small text-muted">
-            @Localizer["RepeatedErrorHint"]
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
 </div>

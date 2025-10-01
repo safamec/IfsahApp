@@ -1,10 +1,8 @@
 <root>
-  <data name="InvalidLinkTitle"><value>Invalid Link</value></data>
-  <data name="ConfirmSubscriptionBadge"><value>Subscription Confirmation</value></data>
-  <data name="InvalidOrExpiredLinkHeading"><value>The link is invalid or expired</value></data>
-  <data name="InvalidLinkMessage"><value>The confirmation link seems to be incorrect or has expired.</value></data>
-  <data name="RequestNewLinkMessage"><value>Please request a new link from the report page and open it within 24 hours.</value></data>
-  <data name="BackToHome"><value>Back to Home</value></data>
-  <data name="GoBack"><value>Go Back</value></data>
-  <data name="RepeatedErrorHint"><value>If the error persists, check that the link hasn’t already been used (it’s valid only once).</value></data>
+ <data name="AlertsHeaderBadge"><value>Update Alerts</value></data>
+<data name="AlertsActivationFailedTitle"><value>Alerts activation failed</value></data>
+<data name="AlertsActivationFailedLead"><value>The link is invalid or has expired.</value></data>
+<data name="AlertsActivationFailedHint"><value>Please request a new link from the same page you initiated the request.</value></data>
+<data name="HomeButton"><value>Home</value></data>
+<data name="BackButton"><value>Back</value></data>
 </root>

@@ -580,17 +580,17 @@ public async Task<IActionResult> ReviewFormPost()
                 ) ?? "#";
 
                 // رسالة التأكيد
-                var html = $@"
-<p>لتأكيد الاشتراك لتحديثات البلاغ رقم <strong>{dto.ReportNumber}</strong>، اضغطي الرابط التالي:</p>
-<p><a href=""{confirmUrl}"">تأكيد الاشتراك</a></p>
+               // --- بدّلي النصوص هنا ---
+// رسالة التأكيد (Subject + Body)
+var subject = $"تأكيد تفعيل التنبيهات لتحديثات البلاغ {dto.ReportNumber}";
+var html = $@"
+<p>لتفعيل التنبيهات لتحديثات البلاغ رقم <strong>{dto.ReportNumber}</strong>، يُرجى الضغط على الرابط التالي:</p>
+<p><a href=""{confirmUrl}"">تأكيد التفعيل</a></p>
 <p>صلاحية الرابط 24 ساعة ويُستخدم مرة واحدة.</p>";
 
-                await _email.SendAsync(
-                    dto.Email,
-                    $"تأكيد الاشتراك لتحديثات البلاغ {dto.ReportNumber}",
-                    html,
-                    isHtml: true
-                );
+await _email.SendAsync(dto.Email, subject, html, isHtml: true);
+
+
             }
             catch (Exception ex)
             {
@@ -625,32 +625,33 @@ public async Task<IActionResult> ReviewFormPost()
 
             try
             {
-                var note = new Notification
-                {
-                    RecipientId = ev.UserId,
-                    EventType   = "SubscribeReport",
-                    Message     = $"تم تأكيد الاشتراك لتحديثات البلاغ {report}."
-                };
-                _context.Add(note);
-                await _context.SaveChangesAsync();
+               var note = new Notification
+{
+    RecipientId = ev.UserId,
+    EventType   = "SubscribeReport",
+    Message     = $"تم تفعيل التنبيهات لتحديثات البلاغ {report}."
+};
+_context.Add(note);
+await _context.SaveChangesAsync();
 
-                // بث إلى مجموعة user-{DbId}
-                await _hub.Clients.Group($"user-{ev.UserId}").SendAsync("Notify", new
-                {
-                    id        = note.Id,
-                    eventType = note.EventType,
-                    message   = note.Message,
-                    createdAt = note.CreatedAt
-                });
+// بث إلى مجموعة user-{DbId}
+await _hub.Clients.Group($"user-{ev.UserId}").SendAsync("Notify", new
+{
+    id        = note.Id,
+    eventType = note.EventType,
+    message   = note.Message,
+    createdAt = note.CreatedAt
+});
 
-                // (اختياري) إشعار مجموعة الإداريين
-                await _hub.Clients.Group("admins").SendAsync("Notify", new
-                {
-                    id        = note.Id,
-                    eventType = "SubscribeReport",
-                    message   = $"تم تأكيد اشتراك مستخدم لتحديثات البلاغ {report}.",
-                    createdAt = note.CreatedAt
-                });
+// (اختياري) إشعار مجموعة الإداريين
+await _hub.Clients.Group("admins").SendAsync("Notify", new
+{
+    id        = note.Id,
+    eventType = "SubscribeReport",
+    message   = $"تم تفعيل التنبيهات لتحديثات البلاغ {report}.",
+    createdAt = note.CreatedAt
+});
+
             }
             catch (Exception ex)
             {

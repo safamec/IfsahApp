@@ -1,5 +1,6 @@
 @model CaseItem
 @inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Mvc.Rendering
 
 @{
     ViewBag.Title = Localizer["ReviewDisclosureTitle"];
@@ -28,15 +29,26 @@ else
 
                 <hr />
 
-                <!-- صف الإجراءات العلوي: إبقاء زر "People & Attachments" فقط -->
+                <!-- Top action row -->
                 <div class="row g-2 mb-3 align-items-stretch">
-                    <div class="col-12">
+                    <div class="col-12 col-md-6">
                         <button id="btnExtras"
                                 type="button"
                                 class="btn btn-outline-secondary w-100"
-                                data-url="@Url.Action("Extras","Review", new { reference = Model.Reference })">
+                                data-url="@Url.Action("Extras","Dashboard", new { reference = Model.Reference })">
                             @Localizer["ViewPeopleAndAttachments"]
                         </button>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <form asp-action="CancelDisclosure"
+                              asp-controller="Dashboard"
+                              method="post"
+                              class="d-grid"
+                              onsubmit="return confirm('@Localizer["ConfirmReject"]');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="reference" value="@Model.Reference" />
+                            <button type="submit" class="btn btn-danger w-100">@Localizer["RejectDisclosure"]</button>
+                        </form>
                     </div>
                 </div>
 
@@ -55,11 +67,10 @@ else
                   </div>
                 </div>
 
-                <!-- Submit Review (notes + upload + outcome) -->
+                <!-- Submit Review (notes + assign examiner) -->
                 <form asp-action="SubmitReview"
-                      asp-controller="Review"
+                      asp-controller="Dashboard"
                       method="post"
-                      enctype="multipart/form-data"
                       class="mt-2">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="reference" value="@Model.Reference" />
@@ -73,20 +84,17 @@ else
                                   placeholder="@Localizer["AddNotesPlaceholder"]"></textarea>
                     </div>
 
-                    <!-- رفع ملف التقرير (مرتبط بـ reportFile في الأكشن) -->
+                    <!-- Assign to Examiner -->
                     <div class="mb-3">
-                        <label for="reportFile" class="form-label">@Localizer["UploadReportFile"]</label>
-                        <input id="reportFile"
-                               name="reportFile"
-                               type="file"
-                               class="form-control"
-                               accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.mp4,.mov,.avi,.wmv,.mkv" />
-                        <small class="text-muted">@Localizer["OptionalReportFileHint"]</small>
+                        <label class="form-label">@Localizer["Assign to Examiner"]</label>
+                        <select name="assignToDiscloserId" class="form-select">
+                            <option value="">@Localizer["-- Select Examiner --"]</option>
+                            @foreach (var ex in (IEnumerable<SelectListItem>)ViewBag.Examiners)
+                            {
+                                <option value="@ex.Value">@ex.Text</option>
+                            }
+                        </select>
                     </div>
-
-                   
-
-                    <!-- لا تعيين للممتحّن / لا زر Reject (حسب طلبك) -->
 
                     <button type="submit" class="btn btn-primary w-100">@Localizer["SubmitDisclosure"]</button>
                 </form>
@@ -107,7 +115,10 @@ else
 
       btn?.addEventListener('click', function () {
         container.textContent = LOADING_TXT;
-        fetch(this.dataset.url, { credentials: 'same-origin' })
+        fetch(this.dataset.url, {
+            credentials: 'same-origin',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
           .then(r => { if (!r.ok) throw new Error(LOAD_ERR_TXT); return r.text(); })
           .then(html => { container.innerHTML = html; })
           .catch(err => { container.innerHTML = '<div class="text-danger">' + err.message + '</div>'; });

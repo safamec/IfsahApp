@@ -30,4 +30,9 @@
   <!-- Actions -->
   <data name="Back"><value>Back</value></data>
   <data name="Submit Disclosure"><value>Submit Disclosure</value></data>
+  <data name="Declarations"><value>Declarations</value></data>
+<data name="ConfirmAccuracyLabel"><value>I confirm that all information I provided is true and accurate.</value></data>
+<data name="AcceptLiabilityLabel"><value>I understand I may be held legally accountable if any information is misleading or incorrect.</value></data>
+<data name="SubmitDisclosure"><value>Submit Disclosure</value></data>
+
 </root>

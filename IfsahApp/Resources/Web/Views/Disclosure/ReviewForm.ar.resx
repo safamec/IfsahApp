@@ -30,4 +30,9 @@
   <!-- الأزرار -->
   <data name="Back"><value>رجوع</value></data>
   <data name="Submit Disclosure"><value>إرسال البلاغ</value></data>
+  <data name="Declarations"><value>التصريحات</value></data>
+<data name="ConfirmAccuracyLabel"><value>أقرّ بأن جميع المعلومات التي قدمتها صحيحة ودقيقة</value></data>
+<data name="AcceptLiabilityLabel"><value>أفهم أنني قد أتحمّل المسؤولية القانونية في حال تقديم معلومات مضللة أو غير صحيحة</value></data>
+<data name="SubmitDisclosure"><value>إرسال الإفصاح</value></data>
+
 </root>

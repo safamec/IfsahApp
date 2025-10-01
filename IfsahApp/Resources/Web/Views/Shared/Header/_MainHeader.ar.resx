@@ -6,4 +6,5 @@
 
   <!-- عنوان النظام الظاهر -->
   <data name="system_name"><value>نظام الإفصاح</value></data>
+  <data name="SystemTagline"><value>رسالتك أمانة — نحافظ على سريّتها</value></data>
 </root>

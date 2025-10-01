@@ -6,4 +6,5 @@
 
   <!-- عنوان النظام الظاهر -->
   <data name="system_name"><value>Disclosure System</value></data>
+  <data name="SystemTagline"><value>Your report is a trust — we keep it confidential.</value></data>
 </root>

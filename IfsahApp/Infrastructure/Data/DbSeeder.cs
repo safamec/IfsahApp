@@ -32,7 +32,7 @@ public static class DbSeeder
                     Id = 2,
                     ADUserName = "fatima.harthy",
                     FullName = "Fatima Al Harthy",
-                    Email = "safaa3568@gmail.com",
+                    Email = "umaryusfi@gmail.com",
                     Department = "Audit",
                     Role = Role.Examiner,
                     IsActive = true
@@ -42,7 +42,7 @@ public static class DbSeeder
                     Id = 3,
                     ADUserName = "mohammed.said",
                     FullName = "Mohammed Al Said",
-                    Email = "safaa3568@gmail.com",
+                    Email = "umaryusfi@gmail.com",
                     Department = "Finance",
                     Role = Role.User,
                     IsActive = true

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, ...</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, ...</value>
+  </resheader>
+
+  <data name="DescriptionRequired" xml:space="preserve">
+    <value>Description is required.</value>
+  </data>
+  <data name="DescriptionMaxLength" xml:space="preserve">
+    <value>Description cannot exceed 300 characters.</value>
+  </data>
+  <data name="LocationMaxLength" xml:space="preserve">
+    <value>Location cannot exceed 100 characters.</value>
+  </data>
+  <data name="IncidentStartDateRequired" xml:space="preserve">
+    <value>Incident start date is required.</value>
+  </data>
+  <data name="IncidentEndDateRequired" xml:space="preserve">
+    <value>Incident end date is required.</value>
+  </data>
+  <data name="FileMaxSize" xml:space="preserve">
+    <value>File {0} exceeds the maximum allowed size of {1} MB.</value>
+  </data>
+  <data name="FileInvalidExtension" xml:space="preserve">
+    <value>File {0} has an invalid extension. Allowed extensions: {1}.</value>
+  </data>
+  <data name="IncidentStartDateLabel" xml:space="preserve">
+    <value>Incident Start Date</value>
+  </data>
+  <data name="IncidentEndDateLabel" xml:space="preserve">
+    <value>Incident End Date</value>
+  </data>
+</root>

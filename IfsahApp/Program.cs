@@ -67,6 +67,9 @@ else
 builder.Services.AddScoped<IEnumLocalizer, EnumLocalizer>();
 builder.Services.AddScoped<ViewRenderService>();
 
+builder.Services.AddScoped<IEnumERLocalizer, EnumERLocalizer>();
+
+
 // 6) Authentication & Authorization
 builder.Services.AddAppAuthentication(builder.Environment); // must set Cookie LoginPath/AccessDeniedPath
 

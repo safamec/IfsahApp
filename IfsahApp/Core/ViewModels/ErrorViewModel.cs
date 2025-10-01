@@ -1,11 +1,12 @@
-namespace IfsahApp.Core.ViewModels;
-
-/// <summary>
-/// View model used to display error information, such as the current request ID.
-/// </summary>
-public class ErrorViewModel
+namespace IfsahApp.Core.ViewModels
 {
-    public string? RequestId { get; set; }
+    public class ErrorViewModel
+    {
+        public string RequestId { get; set; }
+        public int StatusCode { get; set; }
+        public string ErrorTitle { get; set; } = string.Empty;
+        public string ErrorDescription { get; set; } = string.Empty;
 
-    public bool ShowRequestId => !string.IsNullOrWhiteSpace(RequestId);
+        public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+    }
 }

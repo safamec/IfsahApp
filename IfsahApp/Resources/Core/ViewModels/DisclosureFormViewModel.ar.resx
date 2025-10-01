@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, ...</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, ...</value>
+  </resheader>
+
+  <data name="DescriptionRequired" xml:space="preserve">
+    <value>الوصف مطلوب.</value>
+  </data>
+  <data name="DescriptionMaxLength" xml:space="preserve">
+    <value>لا يمكن أن يتجاوز الوصف 300 حرف.</value>
+  </data>
+  <data name="LocationMaxLength" xml:space="preserve">
+    <value>لا يمكن أن يتجاوز الموقع 100 حرف.</value>
+  </data>
+  <data name="IncidentStartDateRequired" xml:space="preserve">
+    <value>تاريخ بدء الحادث مطلوب.</value>
+  </data>
+  <data name="IncidentEndDateRequired" xml:space="preserve">
+    <value>تاريخ انتهاء الحادث مطلوب.</value>
+  </data>
+  <data name="FileMaxSize" xml:space="preserve">
+    <value>الملف {0} يتجاوز الحد الأقصى المسموح به {1} ميغابايت.</value>
+  </data>
+  <data name="FileInvalidExtension" xml:space="preserve">
+    <value>الملف {0} يحتوي على امتداد غير صالح. الامتدادات المسموح بها: {1}.</value>
+  </data>
+  <data name="IncidentStartDateLabel" xml:space="preserve">
+    <value>تاريخ بدء الحادث</value>
+  </data>
+  <data name="IncidentEndDateLabel" xml:space="preserve">
+    <value>تاريخ انتهاء الحادث</value>
+  </data>
+</root>

@@ -1,34 +1,31 @@
+using IfsahApp.Core.Enums;
 using IfsahApp.Core.ViewModels;
+using IfsahApp.Infrastructure.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 
+[AllowAnonymous]
 public class ErrorController : Controller
 {
+    private readonly IEnumERLocalizer _enumLocalizer;
+
+    public ErrorController(IEnumERLocalizer enumLocalizer)
+    {
+        _enumLocalizer = enumLocalizer;
+    }
+
     [Route("Error/{statusCode}")]
     public IActionResult HttpStatusCodeHandler(int statusCode)
     {
-        switch (statusCode)
-        {
-            case 401:
-                return View("401"); 
-            case 403:
-                return View("403"); 
-            case 404:
-                return View("404");
-            default:
-                return View("Error", new ErrorViewModel
-                {
-                    RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
-                });
-        }
-    }
+        var code = (HttpStatusCode)statusCode;
 
-    [Route("Error")]
-    public IActionResult Error()
-    {
-        return View("Error", new ErrorViewModel
+        var model = new ErrorViewModel
         {
-            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
-        });
+            StatusCode = statusCode,
+            ErrorTitle = _enumLocalizer.LocalizeEnumTitle(code),
+            ErrorDescription = _enumLocalizer.LocalizeEnumDescription(code)
+        };
+
+        return View("Error", model);
     }
 }

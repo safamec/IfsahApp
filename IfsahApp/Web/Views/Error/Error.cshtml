@@ -1,0 +1,31 @@
+@model IfsahApp.Core.ViewModels.ErrorViewModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "خطأ " + Model.StatusCode;
+}
+
+<div class="error-card">
+    <div class="error-code">@Model.StatusCode</div>
+    <div class="error-message">@Model.ErrorTitle</div>
+    <div class="error-description">@Model.ErrorDescription</div>
+
+    <div class="error-actions">
+        <a asp-action="Index" asp-controller="Home" class="btn-home">@Localizer["Home"]</a>
+        
+        @if (Model.StatusCode == 401 || Model.StatusCode == 403)
+        {
+            <a asp-area="Identity" asp-page="/Account/Login" class="btn-home secondary">@Localizer["Log"]</a>
+        }
+        else if (Model.StatusCode == 404)
+        {
+            <a href="javascript:history.back()" class="btn-home secondary">@Localizer["Back"]</a>
+        }
+        
+        @if (Model.StatusCode >= 500)
+        {
+            <a href="mailto:support@ifsahapp.com" class="btn-home secondary">@Localizer["Support"]</a>
+        }
+    </div>
+</div>

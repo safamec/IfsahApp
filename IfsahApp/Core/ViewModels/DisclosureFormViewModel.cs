@@ -30,23 +30,24 @@ namespace IfsahApp.Core.ViewModels
 
         public string DisclosureNumber { get; set; } = string.Empty;
 
-        [Required, MaxLength(300)]
+       [Required(ErrorMessage = "DescriptionRequired")]
+        [MaxLength(300, ErrorMessage = "DescriptionMaxLength")]
         public string Description { get; set; } = string.Empty;
 
-        [MaxLength(100)]
+        [MaxLength(100, ErrorMessage = "LocationMaxLength")]
         public string? Location { get; set; }
 
         [Required]
         public int DisclosureTypeId { get; set; }
 
-        [Display(Name = "Incident Start Date")]
+         [Display(Name = "IncidentStartDateLabel")]
         [DataType(DataType.Date)]
-        [Required(ErrorMessage = "Incident start date is required.")]
+        [Required(ErrorMessage = "IncidentStartDateRequired")]
         public DateTime? IncidentStartDate { get; set; }
 
-        [Display(Name = "Incident End Date")]
+        [Display(Name = "IncidentEndDateLabel")]
         [DataType(DataType.Date)]
-        [Required(ErrorMessage = "Incident end date is required.")]
+        [Required(ErrorMessage = "IncidentEndDateRequired")]
         public DateTime? IncidentEndDate { get; set; }
 
         [Required]

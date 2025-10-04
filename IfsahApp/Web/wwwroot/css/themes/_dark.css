@@ -48,4 +48,21 @@
   --notif-hover-bg:     rgba(255,255,255,.08);
   --notif-toast-bg:     #0d6efd;
   --notif-toast-text:   #ffffff;
+
+.declarations-strip {
+    width: 100%;
+    margin-top: 20px;
+    padding: 24px;
+    background: #2a1515;        /* أحمر داكن باهت */
+    color: #f8d7da;
+    border: 1px solid #ff6b6b;
+    border-radius: 6px;
+}
+.declarations-strip h6 {
+    color: #ff6b6b;
+    font-weight: bold;
+}
+
+
+
 }

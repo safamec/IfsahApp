@@ -5,4 +5,25 @@
     var(--bs-body-font-family-ar);
 }
 
+[lang="ar"] .declarations-strip .form-check {
+    display: flex;
+    flex-direction: row-reverse; /* يخلي checkbox يمين والنص يسار */
+    gap: .5rem;
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* يبعد العنوان عن زر الإغلاق */
+  padding: .5rem 1rem;
+}
 
+.modal-header .modal-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.modal-header .btn-close {
+  margin: 0;
+  padding: .5rem;
+}

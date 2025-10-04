@@ -2,3 +2,8 @@
     --bs-body-font-family:
     var(--bs-body-font-family-en);
 }
+[lang="en"] .declarations-strip .form-check {
+    display: flex;
+    flex-direction: row; /* checkbox يسار والنص يمين */
+    gap: .5rem;
+}

@@ -84,7 +84,11 @@
                 }
                 @if (isReview) { <span class="badge bg-info ms-2">@Localizer["Review"]</span> }
               </div>
-              <i class="bi bi-box-arrow-down"></i>
+
+              <!-- أيقونة التنزيل بشكل زر -->
+              <a href="@f.Url" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary ms-2" title="@Localizer["Download"]">
+                <i class="bi bi-download"></i>
+              </a>
             </li>
         }
     }

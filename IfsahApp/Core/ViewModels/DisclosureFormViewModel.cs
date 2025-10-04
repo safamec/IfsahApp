@@ -38,7 +38,7 @@ namespace IfsahApp.Core.ViewModels
 
         public string DisclosureNumber { get; set; } = string.Empty;
 
-       [Required(ErrorMessage = "DescriptionRequired")]
+        [Required(ErrorMessage = "DescriptionRequired")]
         [MaxLength(300, ErrorMessage = "DescriptionMaxLength")]
         public string Description { get; set; } = string.Empty;
 
@@ -48,7 +48,7 @@ namespace IfsahApp.Core.ViewModels
         [Required]
         public int DisclosureTypeId { get; set; }
 
-         [Display(Name = "IncidentStartDateLabel")]
+        [Display(Name = "IncidentStartDateLabel")]
         [DataType(DataType.Date)]
         [Required(ErrorMessage = "IncidentStartDateRequired")]
         public DateTime? IncidentStartDate { get; set; }
@@ -63,6 +63,13 @@ namespace IfsahApp.Core.ViewModels
 
         public List<SuspectedPerson> SuspectedPersons { get; set; }
         public List<RelatedPerson> RelatedPersons { get; set; }
+
+        // ✅ خصائص التصريحات (المطلوبة في الصفحة)
+        [Display(Name = "I confirm that all information I provided is correct and accurate.")]
+        public bool AgreeAll { get; set; }
+
+        [Display(Name = "I understand I may bear legal responsibility if any false or misleading information is provided.")]
+        public bool LegalLiability { get; set; }
 
         // تحقق المدى: يعمل فقط إذا أُدخِل التاريخان
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

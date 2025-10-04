@@ -1,0 +1,17 @@
+<root>
+  <data name="SuspectedPeople"><value>Suspected People</value></data>
+  <data name="RelatedPeople"><value>Related People</value></data>
+  <data name="Attachments"><value>Attachments</value></data>
+
+  <data name="Name"><value>Name</value></data>
+  <data name="Email"><value>Email</value></data>
+  <data name="Phone"><value>Phone</value></data>
+  <data name="Organization"><value>Organization</value></data>
+
+  <data name="NoSuspectedPeople"><value>No suspected people.</value></data>
+  <data name="NoRelatedPeople"><value>No related people.</value></data>
+  <data name="NoAttachments"><value>No attachments.</value></data>
+
+  <data name="Review"><value>Review</value></data>
+  <data name="Bytes"><value>bytes</value></data>
+</root>

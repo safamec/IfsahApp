@@ -138,35 +138,33 @@
 <form asp-action="ReviewForm" method="post" novalidate>
     @Html.AntiForgeryToken()
 
-    <!-- Declarations -->
-<div class="card mt-3 no-flex-card declarations-card">
-  <div class="card-body">
-    <h6 class="mb-2">@Localizer["Declarations"]</h6>
+   <!-- === Declarations (خارج شريط الأزرار) === -->
+<div class="declarations-strip mb-3"
+     lang="@System.Threading.Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName">
 
-    <div class="form-check">
+  <h6 class="mb-3">@Localizer["Declarations"]</h6>
+
+  <div class="declarations-list">
+    <label class="declaration-row">
       <input class="form-check-input" type="checkbox" id="ConfirmAccuracy" name="ConfirmAccuracy" required />
-      <label class="form-check-label" for="ConfirmAccuracy">
-        @Localizer["ConfirmAccuracyLabel"]
-      </label>
-    </div>
-
-    <div class="form-check mt-2">
+      <span class="check-text">@Localizer["ConfirmAccuracyLabel"]</span>
+    </label>
+<br/>
+    <label class="declaration-row">
       <input class="form-check-input" type="checkbox" id="AcceptLiability" name="AcceptLiability" required />
-      <label class="form-check-label" for="AcceptLiability">
-        @Localizer["AcceptLiabilityLabel"]
-      </label>
-    </div>
-
-    @if (TempData["ReviewError"] is string err && !string.IsNullOrWhiteSpace(err))
-    {
-      <div class="alert alert-danger mt-3 mb-0 py-2 px-3 small">@err</div>
-    }
+      <span class="check-text">@Localizer["AcceptLiabilityLabel"]</span>
+    </label>
   </div>
+
+  @if (TempData["ReviewError"] is string err && !string.IsNullOrWhiteSpace(err))
+  {
+    <div class="alert alert-danger mt-3 mb-0 py-2 px-3 small">@err</div>
+  }
 </div>
 
 
-    <!-- Actions -->
-    <div class="d-flex justify-content-between mt-3">
+    <!-- === Actions bar (الأزرار فقط) === -->
+    <div class="form-actions-bar">
         <a asp-action="Attachments" class="btn btn-secondary">
             @Localizer["Back"]
         </a>
@@ -183,14 +181,8 @@
   const c1  = document.getElementById('ConfirmAccuracy');
   const c2  = document.getElementById('AcceptLiability');
   const btn = document.getElementById('btnSubmit');
-
-  function toggle() { btn.disabled = !(c1?.checked && c2?.checked); }
-
-  if (c1 && c2 && btn) {
-    c1.addEventListener('change', toggle);
-    c2.addEventListener('change', toggle);
-    toggle(); // عند التحميل
-  }
+  function toggle(){ btn.disabled = !(c1?.checked && c2?.checked); }
+  if (c1 && c2 && btn){ c1.addEventListener('change', toggle); c2.addEventListener('change', toggle); toggle(); }
 })();
 </script>
 }

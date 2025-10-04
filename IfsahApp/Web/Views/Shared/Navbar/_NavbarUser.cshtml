@@ -34,13 +34,8 @@
         </ul>
     </li>
 
-    <!-- Help -->
-    <li class="nav-item">
-        <a class="nav-link" href="#">
-            <i class="bi bi-question-circle me-1"></i>
-            <span>@Localizer["help"]</span>
-        </a>
-    </li>
+
+
 @* Inject antiforgery and expose a meta tag for JS *@
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @{
@@ -53,14 +48,11 @@
   <span id="notifStatus" class="d-inline-block rounded-circle bg-secondary"
         title="Offline" style="width:10px;height:10px"></span>
 
-  <!-- 🔔 زر الجرس بلون من الثيم -->
-  <button id="notifBtn" type="button" 
-          class="btn position-relative"
-          style="background:transparent; color:var(--notif-icon);">
-    <span>🔔</span>
-    <span id="notifBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
-  </button>
-
+  <!-- الجرس مع النقطة الخضراء -->
+<button id="notifBtn" type="button" class="btn-notify" aria-label="@Localizer["Notifications"]" title="@Localizer["Notifications"]">
+  <i class="bi bi-bell i-bell"></i>
+  <span id="notifBadge" class="btn-notify__badge is-hidden">0</span>
+</button>
   <!-- بانل الإشعارات بلون الثيم -->
   <div id="notifPanel" class="card shadow position-absolute"
        style="right:0; top:48px; width:340px; display:none; z-index:1080;
@@ -200,6 +192,36 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  const badge = document.getElementById("notifBadge");
+  if (!badge) return;
+
+  async function refreshUnread(){
+    try{
+      const res = await fetch("/Notifications/UnreadCount", { credentials: "same-origin" });
+      const data = await res.json();
+      const count = Number(data?.count ?? 0);
+
+      if (count > 0){
+        badge.textContent = count > 99 ? "99+" : String(count);
+        badge.classList.remove("is-hidden");
+      }else{
+        badge.classList.add("is-hidden");
+      }
+    }catch{
+      badge.classList.add("is-hidden");
+    }
+  }
+
+  await refreshUnread();
+  // (اختياري) حدّث كل دقيقة
+  setInterval(refreshUnread, 60000);
+
+  // (اختياري) مع SignalR
+  // if (window.signalRConnection) window.signalRConnection.on("Notify", refreshUnread);
+});
+</script>
 
 
     <!-- Theme toggle -->

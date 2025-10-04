@@ -56,10 +56,15 @@ else
                 <div class="modal fade" id="extrasModal" tabindex="-1" aria-hidden="true">
                   <div class="modal-dialog modal-lg modal-dialog-scrollable">
                     <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title">@Localizer["ModalTitleRelatedSuspectedAttachments"]</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="@Localizer["Close"]"></button>
-                      </div>
+                      <div class="modal-header d-flex align-items-center">
+    <h5 class="modal-title flex-grow-1 text-truncate">
+        @Localizer["ModalTitleRelatedSuspectedAttachments"]
+    </h5>
+    <button type="button"
+            class="btn-close ms-2"
+            data-bs-dismiss="modal"
+            aria-label='@Localizer["Close"]'></button>
+                    </div>
                       <div class="modal-body">
                         <div id="extrasContainer" class="py-2 text-center text-muted">@Localizer["Loading"]</div>
                       </div>

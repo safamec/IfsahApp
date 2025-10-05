@@ -11,7 +11,7 @@ using IfsahApp.Core.ViewModels;
 using IfsahApp.Infrastructure.Services; // IEnumLocalizer
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http; // IFormFile
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -37,33 +37,28 @@ public class DashboardController(
         int page = 1,
         int pageSize = 5)
     {
-        // Set ViewBags for filter and pagination
         ViewBag.PageSize = pageSize;
         ViewBag.CurrentPage = page;
         ViewBag.SelectedReference = reference;
         ViewBag.SelectedStatus = status;
 
-        // Base query
         var query = _context.Disclosures
             .Include(d => d.DisclosureType)
             .Include(d => d.AssignedToUser)
             .Include(d => d.SubmittedBy)
             .AsQueryable();
 
-        // Filter by status
         if (!string.Equals(status, "All", StringComparison.OrdinalIgnoreCase) &&
             Enum.TryParse<DisclosureStatus>(status, true, out var enumStatus))
         {
             query = query.Where(d => d.Status == enumStatus);
         }
 
-        // Filter by reference
         if (!string.IsNullOrWhiteSpace(reference))
         {
             query = query.Where(d => d.DisclosureNumber.Contains(reference));
         }
 
-        // Materialize data
         var raw = await query
             .OrderByDescending(d => d.SubmittedAt)
             .Select(d => new
@@ -80,7 +75,6 @@ public class DashboardController(
             .AsNoTracking()
             .ToListAsync();
 
-        // Map to ViewModel
         var useArabic = CultureInfo.CurrentCulture.TwoLetterISOLanguageName == "ar";
         var model = raw.Select(d => new DisclosureDashboardViewModel
         {
@@ -93,13 +87,9 @@ public class DashboardController(
             Description = d.Description ?? string.Empty
         }).ToList();
 
-        // Calculate total pages for pagination
         ViewBag.TotalPages = (int)Math.Ceiling((double)model.Count / pageSize);
-
-        // Apply pagination
         model = model.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
-        // Prepare status dropdown
         var statusList = Enum.GetValues<DisclosureStatus>()
             .Select(s => new SelectListItem
             {
@@ -121,7 +111,6 @@ public class DashboardController(
         return View(model);
     }
 
-    // GET: Dashboard/Details/5
     public async Task<IActionResult> Details(int id)
     {
         var disclosure = await _context.Disclosures
@@ -141,25 +130,17 @@ public class DashboardController(
         return View(disclosure);
     }
 
-    // POST: Dashboard/AddComment
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddComment(int disclosureId, string? commentText, int? assignToDiscloserId)
     {
-        // اسم المستخدم من AD
-        var adUserName = User.Identity?.Name?.Split('\\').Last();
-        if (string.IsNullOrEmpty(adUserName))
-            return RedirectToAction("AccessDenied", "Account");
-
-        var currentUser = await _context.Users
-            .FirstOrDefaultAsync(u => u.ADUserName.ToLower() == adUserName.ToLower());
+        var currentUser = await GetCurrentUserAsync();
         if (currentUser == null)
             return RedirectToAction("AccessDenied", "Account");
 
         var disclosure = await _context.Disclosures.FindAsync(disclosureId);
         if (disclosure == null) return NotFound();
 
-        // أضف تعليق فقط إذا موجود
         if (!string.IsNullOrWhiteSpace(commentText))
         {
             _context.Comments.Add(new Comment
@@ -171,7 +152,6 @@ public class DashboardController(
             });
         }
 
-        // التعيين (اختياري)
         if (assignToDiscloserId.HasValue)
         {
             var validAssignee = await _context.Users
@@ -189,9 +169,6 @@ public class DashboardController(
         return RedirectToAction(nameof(Details), new { id = disclosureId });
     }
 
-    // ============================
-    // REVIEW DISCLOSURE
-    // ============================
     [HttpGet]
     public IActionResult ReviewDisclosure(string reference)
     {
@@ -202,20 +179,18 @@ public class DashboardController(
             .Include(d => d.DisclosureType)
             .FirstOrDefault(d => d.DisclosureNumber == reference);
 
-        if (disclosure == null)
-            return NotFound();
+        if (disclosure == null) return NotFound();
 
         var caseItem = new CaseItem
         {
-            Type        = disclosure.DisclosureType?.EnglishName ?? "N/A",
-            Reference   = disclosure.DisclosureNumber,
-            Date        = disclosure.SubmittedAt,
-            Location    = disclosure.Location ?? string.Empty,
-            Status      = _enumLocalizer.LocalizeEnum(disclosure.Status),
+            Type = disclosure.DisclosureType?.EnglishName ?? "N/A",
+            Reference = disclosure.DisclosureNumber,
+            Date = disclosure.SubmittedAt,
+            Location = disclosure.Location ?? string.Empty,
+            Status = _enumLocalizer.LocalizeEnum(disclosure.Status),
             Description = disclosure.Description ?? string.Empty
         };
 
-        // قائمة الممتحنين لواجهة ReviewDisclosure
         ViewBag.Examiners = _context.Users
             .Where(u => u.IsActive && u.Role == Role.Examiner)
             .Select(u => new SelectListItem
@@ -225,12 +200,9 @@ public class DashboardController(
             })
             .ToList();
 
-        return View(caseItem); // Views/Dashboard/ReviewDisclosure.cshtml
+        return View(caseItem);
     }
 
-    // ============================
-    // EXTRA POPUP (Suspected / Related / Attachments)
-    // ============================
     [HttpGet]
     public IActionResult Extras(string reference)
     {
@@ -245,7 +217,6 @@ public class DashboardController(
 
         if (d == null) return NotFound();
 
-        // People
         ViewBag.Suspected = d.SuspectedPeople
             .Select(p => new { p.Name, p.Email, p.Phone, p.Organization })
             .ToList();
@@ -254,7 +225,6 @@ public class DashboardController(
             .Select(p => new { p.Name, p.Email, p.Phone, p.Organization })
             .ToList();
 
-        // DB attachments for this disclosure
         var attachments = _context.DisclosureAttachments
             .AsNoTracking()
             .Where(a => a.DisclosureId == d.Id)
@@ -263,14 +233,13 @@ public class DashboardController(
             {
                 Kind = "attachment",
                 a.Id,
-                FileName = a.FileName,
+                a.FileName,
                 a.FileType,
                 a.FileSize,
                 Url = Url.Action("Download", "Files", new { id = a.Id })
             })
             .ToList();
 
-        // Include the latest review report, if any
         var review = _context.Set<DisclosureReview>()
             .AsNoTracking()
             .Where(r => r.DisclosureId == d.Id && !string.IsNullOrWhiteSpace(r.ReportFilePath))
@@ -292,12 +261,9 @@ public class DashboardController(
         }
 
         ViewBag.Attachments = attachments;
-        return PartialView("_ReviewExtras"); // Views/Dashboard/_ReviewExtras.cshtml
+        return PartialView("_ReviewExtras");
     }
 
-    // ============================
-    // SUBMIT REVIEW (saves DisclosureReview)
-    // ============================
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SubmitReview(
@@ -305,7 +271,7 @@ public class DashboardController(
         string? reviewerNotes,
         IFormFile? reportFile,
         string? outcome,
-        int? assignToDiscloserId // <--- تمت إضافتها لتمكين التعيين من شاشة المراجعة
+        int? assignToDiscloserId
     )
     {
         if (string.IsNullOrWhiteSpace(reference))
@@ -317,7 +283,6 @@ public class DashboardController(
         if (disclosure == null)
             return NotFound("Disclosure not found.");
 
-        // Save report (optional)
         string? reportRelativePath = null;
         if (reportFile != null && reportFile.Length > 0)
         {
@@ -331,12 +296,12 @@ public class DashboardController(
             await using (var fs = new FileStream(physical, FileMode.Create))
                 await reportFile.CopyToAsync(fs);
 
-            // store as web-relative path so you can link it later
             reportRelativePath = $"/uploads/reviews/{newName}";
         }
 
-        // Upsert review row
-        var reviewerId = await CurrentDbUserIdAsync();
+        var reviewer = await GetCurrentUserAsync();
+        if (reviewer == null) return RedirectToAction("AccessDenied", "Account");
+
         var review = await _context.Set<DisclosureReview>()
             .FirstOrDefaultAsync(r => r.DisclosureId == disclosure.Id);
 
@@ -344,28 +309,25 @@ public class DashboardController(
         {
             review = new DisclosureReview
             {
-                DisclosureId  = disclosure.Id,
-                ReviewerId    = reviewerId,
+                DisclosureId = disclosure.Id,
+                ReviewerId = reviewer.Id,
                 ReviewSummary = string.IsNullOrWhiteSpace(reviewerNotes) ? null : reviewerNotes.Trim(),
-                ReportFilePath= reportRelativePath,
-                Outcome       = string.IsNullOrWhiteSpace(outcome) ? null : outcome.Trim(),
-                ReviewedAt    = DateTime.UtcNow
+                ReportFilePath = reportRelativePath,
+                Outcome = string.IsNullOrWhiteSpace(outcome) ? null : outcome.Trim(),
+                ReviewedAt = DateTime.UtcNow
             };
             _context.Add(review);
         }
         else
         {
-            review.ReviewerId    = reviewerId;
+            review.ReviewerId = reviewer.Id;
             review.ReviewSummary = string.IsNullOrWhiteSpace(reviewerNotes) ? review.ReviewSummary : reviewerNotes.Trim();
-            if (!string.IsNullOrWhiteSpace(reportRelativePath))
-                review.ReportFilePath = reportRelativePath;
-            if (!string.IsNullOrWhiteSpace(outcome))
-                review.Outcome = outcome.Trim();
+            if (!string.IsNullOrWhiteSpace(reportRelativePath)) review.ReportFilePath = reportRelativePath;
+            if (!string.IsNullOrWhiteSpace(outcome)) review.Outcome = outcome.Trim();
             review.ReviewedAt = DateTime.UtcNow;
             _context.Update(review);
         }
 
-        // ---- التعيين للممتحّن (اختياري من نفس النموذج) ----
         if (assignToDiscloserId.HasValue)
         {
             var validAssignee = await _context.Users
@@ -384,9 +346,6 @@ public class DashboardController(
         return RedirectToAction("ReviewDisclosure", new { reference });
     }
 
-    // ============================
-    // CANCEL / REJECT
-    // ============================
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult CancelDisclosure(string reference)
@@ -405,27 +364,12 @@ public class DashboardController(
         return RedirectToAction("Index", "Dashboard");
     }
 
-    // ============================
-    // Helpers
-    // ============================
-    private async Task<int> CurrentDbUserIdAsync()
+    // Helper to get current user from AD
+    private async Task<User?> GetCurrentUserAsync()
     {
-        var idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (int.TryParse(idStr, out var id))
-        {
-            if (await _context.Users.AnyAsync(u => u.Id == id)) return id;
-        }
+        var adUserName = User.Identity?.Name?.Split('\\').Last();
+        if (string.IsNullOrEmpty(adUserName)) return null;
 
-        var email = User.FindFirstValue(ClaimTypes.Email) ?? User.Identity?.Name;
-        if (!string.IsNullOrWhiteSpace(email))
-        {
-            var found = await _context.Users
-                .Where(u => u.Email == email)
-                .Select(u => u.Id)
-                .FirstOrDefaultAsync();
-            if (found != 0) return found;
-        }
-
-        return 0;
+        return await _context.Users.FirstOrDefaultAsync(u => u.ADUserName.ToLower() == adUserName.ToLower());
     }
 }

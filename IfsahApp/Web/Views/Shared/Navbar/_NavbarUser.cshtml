@@ -7,7 +7,7 @@
     <li class="nav-item">
         <a class="nav-link" asp-controller="DevLogin" asp-action="Index">
             <i class="bi bi-box-arrow-in-right me-1"></i>
-              <span>@Localizer["Login"]</span>
+            <span>@Localizer["Login"]</span>
         </a>
     </li>
 
@@ -34,8 +34,6 @@
         </ul>
     </li>
 
-
-
 @* Inject antiforgery and expose a meta tag for JS *@
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @{
@@ -43,16 +41,14 @@
 }
 <meta name="csrf-token" content="@tokens.RequestToken" />
 
-<!-- Notifications Bell -->
+<!-- Notifications Bell (removed the small status dot) -->
 <div class="d-flex justify-content-end mb-3 position-relative align-items-center gap-2">
-  <span id="notifStatus" class="d-inline-block rounded-circle bg-secondary"
-        title="Offline" style="width:10px;height:10px"></span>
 
-  <!-- الجرس مع النقطة الخضراء -->
-<button id="notifBtn" type="button" class="btn-notify" aria-label="@Localizer["Notifications"]" title="@Localizer["Notifications"]">
-  <i class="bi bi-bell i-bell"></i>
-  <span id="notifBadge" class="btn-notify__badge is-hidden">0</span>
-</button>
+  <button id="notifBtn" type="button" class="btn-notify" aria-label="@Localizer["Notifications"]" title="@Localizer["Notifications"]">
+    <i class="bi bi-bell i-bell"></i>
+    <span id="notifBadge" class="btn-notify__badge is-hidden">0</span>
+  </button>
+
   <!-- بانل الإشعارات بلون الثيم -->
   <div id="notifPanel" class="card shadow position-absolute"
        style="right:0; top:48px; width:340px; display:none; z-index:1080;
@@ -99,10 +95,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const panel = document.getElementById("notifPanel");
   const badge = document.getElementById("notifBadge");
   const list = document.getElementById("notifList");
-  const status = document.getElementById("notifStatus");
   const csrf = window.NOTIF_OPTS.csrfToken;
 
-  // Toggle
+  // Toggle panel
   btn.addEventListener("click", () => {
     panel.style.display = panel.style.display === "none" ? "block" : "none";
   });
@@ -112,8 +107,12 @@ document.addEventListener("DOMContentLoaded", function () {
     try {
       const res = await fetch("/Notifications/UnreadCount", { credentials: "same-origin" });
       const data = await res.json();
-      if (data.count > 0) { badge.textContent = data.count; badge.classList.remove("d-none"); }
-      else { badge.classList.add("d-none"); }
+      if (data.count > 0) {
+        badge.textContent = data.count > 99 ? "99+" : String(data.count);
+        badge.classList.remove("is-hidden");
+      } else {
+        badge.classList.add("is-hidden");
+      }
     } catch (e) { console.error(e); }
   }
 
@@ -162,13 +161,10 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   conn.start().then(() => {
-    status.classList.replace("bg-secondary", "bg-success");
-    status.title = "Online";
+    // No status dot anymore—just refresh data on connect
     refreshCount();
     refreshList();
   }).catch(err => {
-    status.classList.replace("bg-secondary", "bg-danger");
-    status.title = "Error";
     console.error(err);
   });
 
@@ -215,14 +211,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   await refreshUnread();
-  // (اختياري) حدّث كل دقيقة
+  // تحديث كل دقيقة (اختياري)
   setInterval(refreshUnread, 60000);
-
-  // (اختياري) مع SignalR
-  // if (window.signalRConnection) window.signalRConnection.on("Notify", refreshUnread);
 });
 </script>
-
 
     <!-- Theme toggle -->
     <li class="nav-item p-2">
@@ -256,5 +248,3 @@ document.addEventListener("DOMContentLoaded", async () => {
         </div>
     </li>
 </ul>
-
-

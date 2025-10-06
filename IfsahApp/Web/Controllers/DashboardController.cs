@@ -265,86 +265,103 @@ public class DashboardController(
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> SubmitReview(
-        string reference,
-        string? reviewerNotes,
-        IFormFile? reportFile,
-        string? outcome,
-        int? assignToDiscloserId
-    )
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> SubmitReview(
+    string reference,
+    string? reviewerNotes,
+    IFormFile? reportFile,
+    string? outcome,
+    int? assignToDiscloserId
+)
+{
+    if (string.IsNullOrWhiteSpace(reference))
+        return BadRequest("Missing reference.");
+
+    var disclosure = await _context.Disclosures
+        .FirstOrDefaultAsync(d => d.DisclosureNumber == reference);
+
+    if (disclosure == null)
+        return NotFound("Disclosure not found.");
+
+    string? reportRelativePath = null;
+
+    if (reportFile is { Length: > 0 })
     {
-        if (string.IsNullOrWhiteSpace(reference))
-            return BadRequest("Missing reference.");
+        var folder = Path.Combine(_env.WebRootPath, "uploads", "reviews");
+        if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
 
-        var disclosure = await _context.Disclosures
-            .FirstOrDefaultAsync(d => d.DisclosureNumber == reference);
+        var safeName = Path.GetFileName(reportFile.FileName);
+        var newName = $"{Guid.NewGuid()}{Path.GetExtension(safeName)}";
+        var physical = Path.Combine(folder, newName);
 
-        if (disclosure == null)
-            return NotFound("Disclosure not found.");
-
-        string? reportRelativePath = null;
-        if (reportFile != null && reportFile.Length > 0)
+        await using (var fs = new FileStream(physical, FileMode.Create))
         {
-            var folder = Path.Combine(_env.WebRootPath, "uploads", "reviews");
-            if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
-
-            var safeName = Path.GetFileName(reportFile.FileName);
-            var newName = $"{Guid.NewGuid()}{Path.GetExtension(safeName)}";
-            var physical = Path.Combine(folder, newName);
-
-            await using (var fs = new FileStream(physical, FileMode.Create))
-                await reportFile.CopyToAsync(fs);
-
-            reportRelativePath = $"/uploads/reviews/{newName}";
+            await reportFile.CopyToAsync(fs);
         }
 
-        var reviewer = await GetCurrentUserAsync();
-        if (reviewer == null) return RedirectToAction("AccessDenied", "Account");
-
-        var review = await _context.Set<DisclosureReview>()
-            .FirstOrDefaultAsync(r => r.DisclosureId == disclosure.Id);
-
-        if (review == null)
-        {
-            review = new DisclosureReview
-            {
-                DisclosureId = disclosure.Id,
-                ReviewerId = reviewer.Id,
-                ReviewSummary = string.IsNullOrWhiteSpace(reviewerNotes) ? null : reviewerNotes.Trim(),
-                ReportFilePath = reportRelativePath,
-                Outcome = string.IsNullOrWhiteSpace(outcome) ? null : outcome.Trim(),
-                ReviewedAt = DateTime.UtcNow
-            };
-            _context.Add(review);
-        }
-        else
-        {
-            review.ReviewerId = reviewer.Id;
-            review.ReviewSummary = string.IsNullOrWhiteSpace(reviewerNotes) ? review.ReviewSummary : reviewerNotes.Trim();
-            if (!string.IsNullOrWhiteSpace(reportRelativePath)) review.ReportFilePath = reportRelativePath;
-            if (!string.IsNullOrWhiteSpace(outcome)) review.Outcome = outcome.Trim();
-            review.ReviewedAt = DateTime.UtcNow;
-            _context.Update(review);
-        }
-
-        if (assignToDiscloserId.HasValue)
-        {
-            var validAssignee = await _context.Users
-                .AnyAsync(u => u.Id == assignToDiscloserId.Value && u.IsActive && u.Role == Role.Examiner);
-
-            if (validAssignee)
-            {
-                disclosure.AssignedToUserId = assignToDiscloserId.Value;
-                disclosure.Status = DisclosureStatus.Assigned;
-            }
-        }
-
-        await _context.SaveChangesAsync();
-
-        TempData["Message"] = $"Review for disclosure {reference} saved.";
-        return RedirectToAction("ReviewDisclosure", new { reference });
+        reportRelativePath = $"/uploads/reviews/{newName}";
     }
+
+    var reviewer = await GetCurrentUserAsync();
+    if (reviewer == null)
+        return RedirectToAction("AccessDenied", "Account");
+
+    var review = await _context.Set<DisclosureReview>()
+        .FirstOrDefaultAsync(r => r.DisclosureId == disclosure.Id);
+
+    if (review == null)
+    {
+        review = new DisclosureReview
+        {
+            DisclosureId   = disclosure.Id,
+            ReviewerId     = reviewer.Id, // FIX: use actual reviewer.Id
+            ReviewSummary  = string.IsNullOrWhiteSpace(reviewerNotes) ? null : reviewerNotes.Trim(),
+            ReportFilePath = reportRelativePath,
+            Outcome        = string.IsNullOrWhiteSpace(outcome) ? null : outcome.Trim(),
+            ReviewedAt     = DateTime.UtcNow
+        };
+
+        _context.Add(review);
+    }
+    else
+    {
+        review.ReviewerId = reviewer.Id; // FIX: remove non-existent reviewerId
+        if (!string.IsNullOrWhiteSpace(reviewerNotes))
+            review.ReviewSummary = reviewerNotes.Trim();
+
+        if (!string.IsNullOrWhiteSpace(reportRelativePath))
+            review.ReportFilePath = reportRelativePath;
+
+        if (!string.IsNullOrWhiteSpace(outcome))
+            review.Outcome = outcome.Trim();
+
+        review.ReviewedAt = DateTime.UtcNow;
+        // No need to call Update() if the entity is tracked, but it's harmless:
+        _context.Update(review);
+    }
+
+    if (assignToDiscloserId.HasValue)
+    {
+        var assigneeId = assignToDiscloserId.Value;
+
+        var validAssignee = await _context.Users.AnyAsync(u =>
+            u.Id == assigneeId &&
+            u.IsActive &&
+            u.Role == Role.Examiner);
+
+        if (validAssignee)
+        {
+            disclosure.AssignedToUserId = assigneeId;
+            disclosure.Status = DisclosureStatus.Assigned;
+        }
+    }
+
+    await _context.SaveChangesAsync();
+
+    TempData["Message"] = $"Review for disclosure {reference} saved.";
+    return RedirectToAction("ReviewDisclosure", new { reference });
+}
+
 
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -372,4 +389,33 @@ public class DashboardController(
 
         return await _context.Users.FirstOrDefaultAsync(u => u.ADUserName.ToLower() == adUserName.ToLower());
     }
+    // ============================
+// DASHBOARD SUMMARY
+// ============================
+[AllowAnonymous]
+public IActionResult DashboardSummary()
+{
+    // Group disclosures by month (based on IncidentStartDate) and aggregate counts
+    var summaryData = _context.Disclosures
+        .Where(d => d.IncidentStartDate.HasValue)
+        .AsEnumerable()
+        .GroupBy(d => new
+        {
+            Year = d.IncidentStartDate.Value.Year,
+            Month = d.IncidentStartDate.Value.Month
+        })
+        .Select(g => new DashboardSummaryViewModel
+        {
+            Month = new DateTime(g.Key.Year, g.Key.Month, 1).ToString("MMMM yyyy"),
+            NumberOfDisclosures = g.Count(),
+            DisclosuresUnderReview = g.Count(d => d.Status == DisclosureStatus.InReview),
+            DisclosuresInProcess = g.Count(d => d.Status == DisclosureStatus.Assigned),
+            CancelledDisclosures = g.Count(d => d.Status == DisclosureStatus.Completed)
+        })
+        .OrderBy(vm => DateTime.ParseExact(vm.Month, "MMMM yyyy", null))
+        .ToList();
+
+    return View(summaryData);
+}
+
 }

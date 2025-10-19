@@ -25,6 +25,8 @@ using IfsahApp.Infrastructure.Data;
 using IfsahApp.Infrastructure.Services;
 using IfsahApp.Utils;
 using IfsahApp.Utils.Helpers;
+using System.Resources;
+using System.Globalization;
 
 namespace IfsahApp.Web.Controllers
 {
@@ -169,44 +171,135 @@ namespace IfsahApp.Web.Controllers
             return View(form);
         }
 
-        // Step 4 - POST
-        [HttpPost]
-        public async Task<IActionResult> Attachments(DisclosureFormViewModel model, [FromForm] string? submitDir)
+       // Step 4 - POST - معدل بشكل كامل
+[HttpPost]
+public async Task<IActionResult> Attachments(DisclosureFormViewModel model, [FromForm] string? submitDir)
+{
+    var form = GetFormFromTempData() ?? new DisclosureFormViewModel();
+    form.Step = 4;
+
+    // الحصول على الملفات المحفوظة مسبقاً
+    form.SavedAttachmentPaths = TempDataExtensions.Get<List<string>>(TempData, "TempAttachmentPaths") ?? new List<string>();
+
+    bool hasUploadErrors = false;
+
+    // إذا كان هناك ملفات مرفوعة، التحقق منها وحفظها
+    if (model.Attachments != null && model.Attachments.Any(f => f?.Length > 0))
+    {
+        // تنظيف ModelState للملفات فقط - هذا مهم جداً
+        var attachmentKeys = ModelState.Keys.Where(k => k.Contains("Attachments")).ToList();
+        foreach (var key in attachmentKeys)
         {
-            var form = GetFormFromTempData() ?? new DisclosureFormViewModel();
-            form.Step = 4;
+            ModelState.Remove(key);
+        }
 
-            var files = TempDataExtensions.Get<List<string>>(TempData, "TempAttachmentPaths") ?? new List<string>();
+        foreach (var file in model.Attachments)
+        {
+            if (file == null || file.Length == 0) continue;
 
-            if (model.Attachments != null && model.Attachments.Any())
+            // التحقق من الامتداد
+            var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".mp4", ".mov", ".avi", ".wmv", ".mkv", ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx" };
+            
+            if (!allowedExtensions.Contains(ext))
             {
-                foreach (var file in model.Attachments)
+                string allowedList = string.Join(", ", allowedExtensions);
+                var resourceManager = new ResourceManager("IfsahApp.Resources.Core.ViewModels.DisclosureFormViewModel", 
+                    typeof(DisclosureFormViewModel).Assembly);
+                
+                string ErrorMessage;
+                try
                 {
-                    var (savedFileName, error) = await FilePathHelper.SaveFileAsync(file, _env);
-                    if (!string.IsNullOrEmpty(error))
-                    {
-                        ModelState.AddModelError("Attachments", error);
-                        continue;
-                    }
-                    if (!string.IsNullOrEmpty(savedFileName))
-                        files.Add(savedFileName);
+                    ErrorMessage = resourceManager.GetString("FileInvalidExtension", CultureInfo.CurrentUICulture) 
+                        ?? "File {0} has an invalid extension. Allowed extensions: {1}.";
                 }
+                catch
+                {
+                    ErrorMessage = "File {0} has an invalid extension. Allowed extensions: {1}.";
+                }
+                
+                ModelState.AddModelError("Attachments", string.Format(ErrorMessage, file.FileName, allowedList));
+                hasUploadErrors = true;
+                continue;
             }
 
-            TempDataExtensions.Set(TempData, "TempAttachmentPaths", files);
-            form.SavedAttachmentPaths = files;
+            // التحقق من الحجم
+            if (file.Length > 10 * 1024 * 1024) // 10MB
+            {
+                var resourceManager = new ResourceManager("IfsahApp.Resources.Core.ViewModels.DisclosureFormViewModel", 
+                    typeof(DisclosureFormViewModel).Assembly);
+                
+                string ErrorMessage;
+                try
+                {
+                    ErrorMessage = resourceManager.GetString("FileMaxSize", CultureInfo.CurrentUICulture) 
+                        ?? "File {0} exceeds the maximum allowed size of {1} MB.";
+                }
+                catch
+                {
+                    ErrorMessage = "File {0} exceeds the maximum allowed size of {1} MB.";
+                }
+                
+                ModelState.AddModelError("Attachments", string.Format(ErrorMessage, file.FileName, 10));
+                hasUploadErrors = true;
+                continue;
+            }
 
-            SaveFormToTempData(form);
-            TempData.Keep(TempDataKey);
-            TempData.Keep("TempAttachmentPaths");
-
-            if (string.Equals(submitDir, "upload", StringComparison.OrdinalIgnoreCase))
-                return RedirectToAction(nameof(Attachments));
-            if (string.Equals(submitDir, "back", StringComparison.OrdinalIgnoreCase))
-                return RedirectToAction(nameof(RelatedPeople));
-
-            return RedirectToAction(nameof(ReviewForm));
+            // حفظ الملف إذا كان صالحاً
+            try
+            {
+                var (savedFileName, error) = await FilePathHelper.SaveFileAsync(file, _env);
+                if (!string.IsNullOrEmpty(error))
+                {
+                    ModelState.AddModelError("Attachments", error);
+                    hasUploadErrors = true;
+                    continue;
+                }
+                if (!string.IsNullOrEmpty(savedFileName))
+                {
+                    form.SavedAttachmentPaths.Add(savedFileName);
+                    // إضافة رسالة نجاح (اختياري)
+                    TempData["UploadSuccess"] = $"تم رفع الملف {file.FileName} بنجاح";
+                }
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("Attachments", $"خطأ في رفع الملف {file.FileName}: {ex.Message}");
+                hasUploadErrors = true;
+            }
         }
+    }
+
+    // حفظ الملفات في TempData دائماً (حتى إذا كان هناك أخطاء في الرفع الجديد)
+    TempDataExtensions.Set(TempData, "TempAttachmentPaths", form.SavedAttachmentPaths);
+    SaveFormToTempData(form);
+    
+    TempData.Keep(TempDataKey);
+    TempData.Keep("TempAttachmentPaths");
+
+    // إذا كان الزر "رفع" فقط، ابقى في الصفحة حتى مع الأخطاء
+    if (string.Equals(submitDir, "upload", StringComparison.OrdinalIgnoreCase))
+    {
+        return RedirectToAction(nameof(Attachments));
+    }
+
+    // إذا كان هناك أخطاء في الرفع وليس زر "رفع"، امنع الانتقال
+    if (hasUploadErrors && !string.Equals(submitDir, "upload", StringComparison.OrdinalIgnoreCase))
+    {
+        TempData.Keep(TempDataKey);
+        TempData.Keep("TempAttachmentPaths");
+        return View(form);
+    }
+
+    // إذا كان الزر "رجوع"
+    if (string.Equals(submitDir, "back", StringComparison.OrdinalIgnoreCase))
+    {
+        return RedirectToAction(nameof(RelatedPeople));
+    }
+
+    // إذا كان الزر "التالي" ولا توجد أخطاء، انتقل
+    return RedirectToAction(nameof(ReviewForm));
+}
 
         // Step 5 - GET
         [HttpGet]

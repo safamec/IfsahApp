@@ -18,15 +18,15 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "stag": {
-      "commandName": "Project",
-      "dotnetRunMessages": true,
-      "launchBrowser": true,
-      "applicationUrl": "https://localhost:6001;http://localhost:6000",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Staging"
-      }
-    },
+  "stag": {
+    "commandName": "Project",
+    "dotnetRunMessages": true,
+    "launchBrowser": true,
+    "applicationUrl": "https://localhost:6001;http://localhost:6100",
+    "environmentVariables": {
+      "ASPNETCORE_ENVIRONMENT": "Staging"
+    }
+  },
     "prod": {
       "commandName": "Project",
       "dotnetRunMessages": true,

@@ -61,17 +61,6 @@ public static class ServiceCollectionExtensions
 
             services.AddSingleton<IAdUserService, FakeAdUserService>();
         }
-        else if (isStaging)
-        {
-            services
-                .AddAuthentication(NegotiateDefaults.AuthenticationScheme)
-                .AddNegotiate(options =>
-                {
-                    options.TimeProvider = TimeProvider.System;
-                });
-
-            services.AddSingleton<IAdUserService, FakeAdUserService>();
-        }
         else
         {
             services

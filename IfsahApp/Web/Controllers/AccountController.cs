@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace IfsahApp.Web.Controllers;
 
-[Authorize]
+// [Authorize]
 public class AccountController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -94,7 +94,7 @@ public class AccountController : Controller
     // =============================
     // Login (GET) — supports AD; falls back to seeded Admin when AD is absent
     // =============================
-    [AllowAnonymous]
+    // [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> Login(CancellationToken ct)
     {
@@ -203,7 +203,7 @@ public class AccountController : Controller
     // =============================
     // Confirm Email (GET)
     // =============================
-    [AllowAnonymous]
+    // [AllowAnonymous]
     [HttpGet]
     [IgnoreAntiforgeryToken] // GET shouldn't need CSRF
     public async Task<IActionResult> ConfirmEmail(int uid, string token, CancellationToken ct)
@@ -287,7 +287,7 @@ public class AccountController : Controller
     // =============================
     // Resend Confirmation (POST)
     // =============================
-    [AllowAnonymous]
+    // [AllowAnonymous]
     [HttpPost]
     [ValidateAntiForgeryToken] // keep CSRF on POST
     public async Task<IActionResult> ResendConfirmation(int uid, CancellationToken ct)
@@ -307,7 +307,7 @@ public class AccountController : Controller
     // =============================
     // Access Denied & Logout
     // =============================
-    [AllowAnonymous]
+    // [AllowAnonymous]
     public IActionResult AccessDenied() => View();
 
     [HttpPost]

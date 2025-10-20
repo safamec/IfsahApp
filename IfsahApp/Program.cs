@@ -1,4 +1,3 @@
-using System.IO;
 using System.Reflection;
 using IfsahApp.Core.Mapping;
 using IfsahApp.Hubs;
@@ -6,9 +5,9 @@ using IfsahApp.Infrastructure.Data;
 using IfsahApp.Infrastructure.Services;
 using IfsahApp.Infrastructure.Services.AdUser;
 using IfsahApp.Infrastructure.Services.Email;
+using IfsahApp.Infrastructure.Settings;
 using IfsahApp.Utils;
 using IfsahApp.Web.Middleware.Auth;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,24 +19,46 @@ var options = new WebApplicationOptions
 
 var builder = WebApplication.CreateBuilder(options);
 
+// ---------- Configuration Loading ----------
+// ASP.NET Core automatically loads:
+// - appsettings.json
+// - appsettings.{Environment}.json (e.g., Development / Staging / Production)
+//
+// Example:
+//   Development → appsettings.Development.json
+//   Staging     → appsettings.Staging.json
+//   Production  → appsettings.Production.json
+//
+// So you don't need to manually handle them here.
+
 // Load user-secrets in Development (Smtp:UserName / Smtp:Password)
 if (builder.Environment.IsDevelopment())
 {
     builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), optional: true);
 }
 
-// 1) Database
+// ---------- 1) Database ----------
 builder.Services.AddDbContext<ApplicationDbContext>(dbOptions =>
     dbOptions.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// 2) AutoMapper
+// ---------- 2) AutoMapper ----------
 builder.Services.AddAutoMapper(typeof(DisclosureMappingProfile));
 
-// 3) Email settings + service
+// ---------- 3) Email settings + service ----------
+// Read Smtp settings from the environment-specific appsettings file
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
-builder.Services.AddTransient<IEmailService, GmailEmailService>();
 
-// 4) Localization + MVC + Antiforgery (single, consolidated chain) + TempData in Session
+// Use Gmail in Development; use company SMTP in Staging/Production
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddTransient<IEmailService, GmailEmailService>();
+}
+else
+{
+    builder.Services.AddTransient<IEmailService, SmtpEmailService>(); // Generic SMTP
+}
+
+// ---------- 4) Localization + MVC + Antiforgery + TempData in Session ----------
 builder.Services.AddLocalization(opts => opts.ResourcesPath = "Resources");
 builder.Services
     .AddControllersWithViews(o =>
@@ -58,19 +79,21 @@ builder.Services
 
 builder.Services.AddSession();
 
-// 5) Custom Services (AD user: fake in Dev, LDAP in Prod)
+// ---------- 5) Custom Services (AD user: fake in Dev, LDAP in Staging/Prod) ----------
 if (builder.Environment.IsDevelopment())
+{
     builder.Services.AddSingleton<IAdUserService, FakeAdUserService>();
+}
 else
+{
     builder.Services.AddSingleton<IAdUserService, LdapAdUserService>();
+}
 
-builder.Services.AddScoped<IEnumLocalizer, EnumLocalizer>();
 builder.Services.AddScoped<ViewRenderService>();
-
+builder.Services.AddScoped<IEnumLocalizer, EnumLocalizer>();
 builder.Services.AddScoped<IEnumERLocalizer, EnumERLocalizer>();
 
-
-// 6) Authentication & Authorization
+// ---------- 6) Authentication & Authorization ----------
 builder.Services.AddAppAuthentication(builder.Environment); // must set Cookie LoginPath/AccessDeniedPath
 
 builder.Services.AddAuthorization(options =>
@@ -81,23 +104,23 @@ builder.Services.AddAuthorization(options =>
         .Build();
 });
 
-// 7) Antiforgery header name (matches your JS)
+// ---------- 7) Antiforgery header name ----------
 builder.Services.AddAntiforgery(o => o.HeaderName = "RequestVerificationToken");
 
-// 8) SignalR
+// ---------- 8) SignalR ----------
 builder.Services.AddSignalR();
 
-// ---------- Build ----------
+// ---------- Build Application ----------
 var app = builder.Build();
 
-// (Optional) seed (idempotent)
+// ---------- 9) Optional: Seed database (idempotent) ----------
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     DbSeeder.Seed(db);
 }
 
-// 10) Localization middleware (early)
+// ---------- 10) Localization middleware (early in pipeline) ----------
 var supportedCultures = new[] { "en", "ar" };
 var locOptions = new RequestLocalizationOptions()
     .SetDefaultCulture("ar")
@@ -105,7 +128,7 @@ var locOptions = new RequestLocalizationOptions()
     .AddSupportedUICultures(supportedCultures);
 app.UseRequestLocalization(locOptions);
 
-// 11) Pipeline
+// ---------- 11) Middleware Pipeline ----------
 app.UseStaticFiles();
 app.UseSession();
 app.UseRouting();
@@ -114,7 +137,7 @@ app.UseAdUser();        // BEFORE auth; your middleware populates HttpContext.It
 app.UseAuthentication(); // BEFORE UseAuthorization
 app.UseAuthorization();
 
-// 12) Routes
+// ---------- 12) Routes ----------
 if (app.Environment.IsDevelopment())
 {
     app.MapControllerRoute(
@@ -128,7 +151,18 @@ else
         pattern: "{controller=Account}/{action=Login}/{id?}");
 }
 
-// SignalR hub
+// ---------- 13) SignalR Hub ----------
 app.MapHub<NotificationHub>("/hubs/notifications");
+
+// ---------- 14) Debug: Log Current Environment ----------
+var envName = app.Environment.EnvironmentName;
+var smtp = builder.Configuration.GetSection("Smtp").Get<SmtpSettings>();
+var attachSettings = builder.Configuration.GetSection("AttachmentSettings").Get<AttachmentSettings>();
+var dbPath = builder.Configuration.GetConnectionString("DefaultConnection");
+
+Console.WriteLine($"🚀 Environment: {envName}");
+Console.WriteLine($"📧 SMTP Host: {smtp?.Host}");
+Console.WriteLine($"📦 DB Path: {dbPath}");
+Console.WriteLine($"📂 Attachment Path: {attachSettings?.BasePath}");
 
 app.Run();

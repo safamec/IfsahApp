@@ -7,7 +7,13 @@
     "build": "dotnet build IfsahApp\\IfsahApp.csproj",
     "start": "dotnet run --project IfsahApp\\IfsahApp.csproj",
     "watch": "dotnet watch run --project IfsahApp\\IfsahApp.csproj",
-    "lib": "node libman.js"
+    "lib": "node libman.js",
+    "start:dev": "dotnet run --project IfsahApp\\IfsahApp.csproj --launch-profile \"dev\"",
+    "start:stag": "dotnet run --project IfsahApp\\IfsahApp.csproj --launch-profile \"stag\"",
+    "start:prod": "dotnet run --project IfsahApp\\IfsahApp.csproj --launch-profile \"prod\"",
+    "watch:dev": "dotnet watch run --project IfsahApp\\IfsahApp.csproj --launch-profile \"dev\"",
+    "watch:stag": "dotnet watch run --project IfsahApp\\IfsahApp.csproj --launch-profile \"stag\"",
+    "watch:prod": "dotnet watch run --project IfsahApp\\IfsahApp.csproj --launch-profile \"prod\""
   },
   "keywords": [],
   "author": "",

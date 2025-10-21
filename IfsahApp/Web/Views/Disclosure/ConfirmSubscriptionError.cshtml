@@ -6,32 +6,74 @@
 
 @section Styles {
     <link rel="stylesheet" href="~/css/alerts.css" asp-append-version="true" />
+    <style>
+        body { background-color: #f8fafc; }
+
+        .alerts-card {
+            border: none;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .alerts-hero {
+            background: linear-gradient(135deg, #0078d4 0%, #005fa3 100%);
+            color: #fff;
+        }
+
+        .alerts-badge {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 50rem;
+            font-size: 0.9rem;
+        }
+
+        .alerts-icon i {
+            font-size: 3.5rem;
+            color: #dc3545; /* أحمر للفشل */
+        }
+
+        .alerts-card .card-body { background-color: #ffffff; }
+        .alerts-card .lead { font-size: 1.1rem; color: #333; }
+
+        .btn { border-radius: 50rem; padding: 0.6rem 1.4rem; }
+        .btn-primary { background-color: #0078d4; border-color: #0078d4; }
+        .btn-primary:hover { background-color: #005fa3; }
+
+        .btn-outline-secondary { color: #333; border-color: #ccc; }
+        .btn-outline-secondary:hover { background-color: #f2f2f2; }
+
+        .fade-in { animation: fadeIn 0.6s ease-in-out; }
+        
+    </style>
 }
 
-<div class="container py-5 alerts" dir="rtl">
+<div class="container py-5 alerts fade-in" dir="rtl">
     <div class="row justify-content-center">
-        <div class="col-lg-7">
-            <div class="card alerts-card shadow-sm">
-                <div class="alerts-hero text-center p-4">
-                    <span class="badge alerts-badge mb-2">@Localizer["AlertsHeaderBadge"]</span>
-                    <h2 class="m-0">@Localizer["AlertsActivationFailedTitle"]</h2>
+        <div class="col-lg-7 col-md-9">
+            <div class="card alerts-card shadow-lg border-0">
+                <!-- Hero -->
+                <div class="alerts-hero text-center p-5">
+                    <span class="alerts-badge mb-3">@Localizer["AlertsHeaderBadge"]</span>
+                    <h2 class="fw-bold m-0">@Localizer["AlertsActivationFailedTitle"]</h2>
                 </div>
 
-                <div class="card-body text-center p-4 p-md-5">
-                    <div class="alerts-icon mb-3" aria-hidden="true">
+                <!-- Body -->
+                <div class="card-body text-center p-5">
+                    <div class="alerts-icon mb-4" aria-hidden="true">
                         <i class="bi bi-x-circle-fill"></i>
                     </div>
 
                     <p class="lead mb-2">@Localizer["AlertsActivationFailedLead"]</p>
                     <p class="text-muted mb-4">@Localizer["AlertsActivationFailedHint"]</p>
 
-                  
-                <a href="https://localhost:5001/" class="btn btn-primary">
-    @Localizer["HomeButton"]
-</a>
-
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="https://localhost:5001/" class="btn btn-primary">
+                            <i class="bi bi-house-door me-1"></i> @Localizer["HomeButton"]
+                        </a>
                         <a href="javascript:history.back()" class="btn btn-outline-secondary">
-                            @Localizer["BackButton"]
+                            <i class="bi bi-arrow-right-circle me-1"></i> @Localizer["BackButton"]
                         </a>
                     </div>
                 </div>

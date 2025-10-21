@@ -1,15 +1,29 @@
 @inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 
-<a href="#main-content"
-   class="skip-link"
-   title="@Localizer["SkipToMainContentTitle"]">
-    @Localizer["SkipToMainContent"]
-</a>
+<header class="main-header" aria-label="@Localizer["HeaderRegion"]">
+    <div class="container">
+        <div class="header-content d-flex justify-content-between align-items-center">
+            <div class="logo-section d-flex align-items-center">
+                <div class="ministry-logo me-3" aria-label="@Localizer["MinistryLogoLabel"]">
+                    <svg class="logo-icon" role="img" focusable="false" aria-hidden="true" title="@Localizer["MinistryLogoTitle"]">
+<use href='@Url.Content("~/images/sprite.svg#logo")'></use>
+                    </svg>
+                    <span class="visually-hidden">@Localizer["MinistryLogoLabel"]</span>
+                </div>
+            </div>
+      <div class="system-title fw-bold fs-5" aria-label="@Localizer["SystemNameLabel"]">
+    <!-- العنوان (أيقونة + نص) في نفس السطر -->
+    <span class="d-inline-flex align-items-center gap-2">
+        <i class="bi bi-file-earmark-lock" aria-hidden="true"></i>
+        <span>@Localizer["system_name"]</span>
+    </span>
 
-<div class="header-top" role="banner" aria-label="@Localizer["TopHeaderRegion"]">
-    <div class="container-fluid d-flex justify-content-between align-items-center" aria-label="@Localizer["HeaderBar"]">
-        <div class="header-controls d-flex align-items-center" aria-label="@Localizer["HeaderControls"]">
-            @* place header buttons/controls here *@
+    <!-- السطر الثاني (الرسالة) -->
+    <small class="d-block fw-normal text-white-50 mt-1" id="system-tagline" role="note">
+        @Localizer["SystemTagline"]
+    </small>
+</div>
+
         </div>
     </div>
-</div>
+</header>

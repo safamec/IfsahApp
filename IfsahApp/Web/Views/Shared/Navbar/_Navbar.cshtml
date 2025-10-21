@@ -1,15 +1,68 @@
-﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+﻿@* Views/Shared/_Navbar.cshtml *@
+@using System
+@using System.Collections.Generic
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var action     = ViewContext.RouteData.Values["action"]?.ToString();
+
+    // 👇 الصفحات التي يكون فيها الشريط العلوي مصغّر (لغة + مبدّل الثيم فقط)
+    var disclosureActions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "FormDetails",
+        "SuspectedPeople",
+        "RelatedPeople",
+        "Attachments",
+        "ReviewForm",
+        "SubmitDisclosure",
+        "ConfirmSubscriptionSuccess",
+        "ConfirmSubscriptionError"
+    };
+
+    bool isDisclosure   = string.Equals(controller, "Disclosure", StringComparison.OrdinalIgnoreCase);
+    bool minimalNavbar  = isDisclosure && action != null && disclosureActions.Contains(action);
+
+    // ✅ إضافة دعم لإخفاء الجرس في صفحة /api/email/confirm
+    var path = Context.Request.Path.Value?.ToLower() ?? "";
+    bool isEmailConfirm = path.Contains("/api/email/confirm");
+
+    // الحالات التي يكون فيها المظهر مصغّر
+    minimalNavbar = minimalNavbar || isEmailConfirm;
+
+    // تمرير الفلاج لبارشل المستخدم
+    ViewBag.MinimalNavbar = minimalNavbar;
+    ViewBag.HideLogin     = minimalNavbar;
+
+    // CSRF Token
+    var tokens = Antiforgery.GetAndStoreTokens(Context);
+}
 
 <nav class="navbar navbar-expand-lg main-navbar">
-    <div class="container">
-        @*@await Html.PartialAsync("Navbar/_NavbarBrand")*@
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label=@Localizer["toggle_navigation"]>
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
+  <div class="container">
+
+    <button class="navbar-toggler" type="button"
+            data-bs-toggle="collapse" data-bs-target="#mainNav"
+            aria-controls="mainNav" aria-expanded="false"
+            aria-label="@Localizer["toggle_navigation"]">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    @if (minimalNavbar)
+    {
+        <!-- ✅ صفحات الإفصاح + صفحة تأكيد البريد: فقط اللغة + مبدّل الثيم -->
+        <div class="collapse navbar-collapse justify-content-end" id="mainNav">
+            @await Html.PartialAsync("Navbar/_NavbarUser")
+        </div>
+    }
+    else
+    {
+        <!-- ✅ باقي الصفحات: منيو كاملة + شريط المستخدم -->
+        <div class="collapse navbar-collapse" id="mainNav">
             @await Html.PartialAsync("Navbar/_NavbarMenu")
             @await Html.PartialAsync("Navbar/_NavbarUser")
         </div>
-    </div>
+    }
+  </div>
 </nav>

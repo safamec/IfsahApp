@@ -1,15 +1,16 @@
-@* _Navbar.cshtml *@
+@* _Navbar.cshtml (نفس الهيكلة — مع إخفاء الجرس في صفحات /Disclosure) *@
 @inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+
+@{
+    // 👇 إخفاء الجرس في كل صفحات /Disclosure/...
+    var hideBell = Context.Request.Path.StartsWithSegments("/Disclosure", StringComparison.OrdinalIgnoreCase);
+
+    // CSRf token
+    var tokens = Antiforgery.GetAndStoreTokens(Context);
+}
 
 <ul class="navbar-nav">
-
-    <!-- Dev login (visible when not authenticated) -->
-    <li class="nav-item">
-        <a class="nav-link" asp-controller="DevLogin" asp-action="Index">
-            <i class="bi bi-box-arrow-in-right me-1"></i>
-            <span>@Localizer["Login"]</span>
-        </a>
-    </li>
 
     <!-- User dropdown (you can toggle display via JS/auth) -->
     <li class="nav-item dropdown" id="user-nav" style="display: none;">
@@ -24,7 +25,7 @@
                     <span>@Localizer["profile"]</span>
                 </a>
             </li>
-            <li><hr class="dropdown-divider"></li>
+            <li><hr class="dropdown-divider" /></li>
             <li>
                 <a class="dropdown-item" href="#">
                     <i class="bi bi-box-arrow-right me-2"></i>
@@ -34,48 +35,80 @@
         </ul>
     </li>
 
-@* Inject antiforgery and expose a meta tag for JS *@
-@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
-@{
-    var tokens = Antiforgery.GetAndStoreTokens(Context);
-}
-<meta name="csrf-token" content="@tokens.RequestToken" />
+    @* CSRF meta for JS *@
+    <meta name="csrf-token" content="@tokens.RequestToken" />
 
-<!-- Notifications Bell (removed the small status dot) -->
-<div class="d-flex justify-content-end mb-3 position-relative align-items-center gap-2">
+    @* 🔔 الجرس + بانل الإشعارات — مخفي في صفحات /Disclosure *@
+    @if (!hideBell)
+    {
+        <div class="d-flex justify-content-end mb-3 position-relative align-items-center gap-2">
 
-  <button id="notifBtn" type="button" class="btn-notify" aria-label="@Localizer["Notifications"]" title="@Localizer["Notifications"]">
-    <i class="bi bi-bell i-bell"></i>
-    <span id="notifBadge" class="btn-notify__badge is-hidden">0</span>
-  </button>
+            <button id="notifBtn" type="button" class="btn-notify"
+                    aria-label="@Localizer["Notifications"]" title="@Localizer["Notifications"]">
+                <i class="bi bi-bell i-bell"></i>
+                <span id="notifBadge" class="btn-notify__badge is-hidden">0</span>
+            </button>
 
-  <!-- بانل الإشعارات بلون الثيم -->
-  <div id="notifPanel" class="card shadow position-absolute"
-       style="right:0; top:48px; width:340px; display:none; z-index:1080;
-              background:var(--notif-card-bg); border-color:var(--notif-card-border);">
-    <div class="card-header d-flex justify-content-between align-items-center py-2"
-         style="background:var(--notif-card-bg); color:var(--notif-item-text);">
-      <strong>@Localizer["Notifications"]</strong>
-      <div class="d-flex gap-2">
-        <form method="post" action="/Notifications/MarkAllRead" class="m-0 p-0">
-          @Html.AntiForgeryToken()
-          <button type="submit" class="btn btn-sm btn-outline-secondary">@Localizer["MarkAll"]</button>
-        </form>
-        <a href="/Notifications" class="btn btn-sm btn-outline-primary">@Localizer["ViewAll"]</a>
-      </div>
-    </div>
+            <!-- بانل الإشعارات بلون الثيم -->
+            <div id="notifPanel" class="card shadow position-absolute"
+                 style="right:0; top:48px; width:340px; display:none; z-index:1080;
+                        background:var(--notif-card-bg); border-color:var(--notif-card-border);">
+                <div class="card-header d-flex justify-content-between align-items-center py-2"
+                     style="background:var(--notif-card-bg); color:var(--notif-item-text);">
+                    <strong>@Localizer["Notifications"]</strong>
+                    <div class="d-flex gap-2">
+                        <form method="post" action="/Notifications/MarkAllRead" class="m-0 p-0">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">@Localizer["MarkAll"]</button>
+                        </form>
+                        <a href="/Notifications" class="btn btn-sm btn-outline-primary">@Localizer["ViewAll"]</a>
+                    </div>
+                </div>
 
-    <ul id="notifList" class="list-group list-group-flush" 
-        style="max-height:320px; overflow:auto; background:var(--notif-item-bg); color:var(--notif-item-text);">
-      <li class="list-group-item text-muted small" 
-          style="background:var(--notif-item-bg); color:var(--notif-muted);">
-        @Localizer["NoNotifications"]
-      </li>
-    </ul>
-  </div>
-</div>
+                <ul id="notifList" class="list-group list-group-flush"
+                    style="max-height:320px; overflow:auto; background:var(--notif-item-bg); color:var(--notif-item-text);">
+                    <li class="list-group-item text-muted small"
+                        style="background:var(--notif-item-bg); color:var(--notif-muted);">
+                        @Localizer["NoNotifications"]
+                    </li>
+                </ul>
+            </div>
+        </div>
+    }
 
-<!-- Toast container -->
+    <!-- Theme toggle -->
+    <li class="nav-item p-2">
+        <label class="toggle-theme">
+            <input type="checkbox" id="theme-checkbox">
+            <span class="slider"></span>
+        </label>
+    </li>
+
+    <!-- Language Toggle -->
+    <li class="nav-item p-2">
+        <div class="language-toggle">
+            @{
+                var currentUrl = Context.Request.Path + Context.Request.QueryString;
+            }
+            @if (System.Threading.Thread.CurrentThread.CurrentCulture.Name.StartsWith("ar"))
+            {
+                <a asp-controller="Culture" asp-action="SetLanguage" asp-route-culture="en"
+                   asp-route-returnUrl="@currentUrl" class="btn toggle-lang active">
+                    عربي
+                </a>
+            }
+            else
+            {
+                <a asp-controller="Culture" asp-action="SetLanguage" asp-route-culture="ar"
+                   asp-route-returnUrl="@currentUrl" class="btn toggle-lang active">
+                    English
+                </a>
+            }
+        </div>
+    </li>
+</ul>
+
+<!-- Toast container (يبقى عادي حتى لو الجرس مخفي) -->
 <div id="toastBox" class="position-fixed top-0 end-0 p-3" style="z-index:1080"></div>
 
 <!-- JS options (reads token from <meta>) -->
@@ -86,16 +119,19 @@
   };
 </script>
 
-<!-- ONE SignalR include -->
+<!-- SignalR (مسموح تبقى، مع حارس في الكود تحت) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.12/signalr.min.js"></script>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  const btn = document.getElementById("notifBtn");
+  const btn   = document.getElementById("notifBtn");
   const panel = document.getElementById("notifPanel");
   const badge = document.getElementById("notifBadge");
-  const list = document.getElementById("notifList");
-  const csrf = window.NOTIF_OPTS.csrfToken;
+  const list  = document.getElementById("notifList");
+  const csrf  = window.NOTIF_OPTS.csrfToken;
+
+  // 🔒 إذا الجرس غير موجود (صفحات /Disclosure) — نخرج بهدوء
+  if (!btn || !panel || !badge || !list) return;
 
   // Toggle panel
   btn.addEventListener("click", () => {
@@ -113,7 +149,7 @@ document.addEventListener("DOMContentLoaded", function () {
       } else {
         badge.classList.add("is-hidden");
       }
-    } catch (e) { console.error(e); }
+    } catch (e) { badge?.classList.add("is-hidden"); }
   }
 
   // List
@@ -142,35 +178,26 @@ document.addEventListener("DOMContentLoaded", function () {
           <form method="post" action="/Notifications/MarkAsRead?id=${n.id}">
             <input type="hidden" name="__RequestVerificationToken" value="${csrf}" />
             <button class="btn btn-sm btn-link" title="Mark as read">✔</button>
-          </form>
-        `;
+          </form>`;
         list.appendChild(li);
       });
-    } catch (e) { console.error(e); }
+    } catch (e) { /* ignore */ }
   }
 
   // SignalR
-  const conn = new signalR.HubConnectionBuilder()
-    .withUrl("/hubs/notifications")
-    .build();
-
+  const conn = new signalR.HubConnectionBuilder().withUrl("/hubs/notifications").build();
   conn.on("Notify", payload => {
     showToast(payload?.message || "New notification");
     refreshCount();
     refreshList();
   });
-
-  conn.start().then(() => {
-    // No status dot anymore—just refresh data on connect
-    refreshCount();
-    refreshList();
-  }).catch(err => {
-    console.error(err);
-  });
+  // لو الجرس غير موجود، ستعود الدوال أعلاه مباشرة بدون أخطاء
+  conn.start().then(() => { refreshCount(); refreshList(); }).catch(console.error);
 
   // Toast
   function showToast(msg) {
     const box = document.getElementById("toastBox");
+    if (!box) return;
     const div = document.createElement("div");
     div.className = "toast align-items-center border-0 show";
     div.style.background = "var(--notif-toast-bg)";
@@ -191,7 +218,7 @@ document.addEventListener("DOMContentLoaded", function () {
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
   const badge = document.getElementById("notifBadge");
-  if (!badge) return;
+  if (!badge) return; // لا يوجد جرس في صفحات /Disclosure
 
   async function refreshUnread(){
     try{
@@ -211,40 +238,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   await refreshUnread();
-  // تحديث كل دقيقة (اختياري)
   setInterval(refreshUnread, 60000);
 });
 </script>
-
-    <!-- Theme toggle -->
-    <li class="nav-item p-2">
-        <label class="toggle-theme">
-            <input type="checkbox" id="theme-checkbox">
-            <span class="slider"></span>
-        </label>
-    </li>
-
-    <!-- Language Toggle -->
-    <li class="nav-item p-2">
-        <div class="language-toggle">
-            @{
-                var currentUrl = Context.Request.Path + Context.Request.QueryString;
-            }
-
-            @if (System.Threading.Thread.CurrentThread.CurrentCulture.Name.StartsWith("ar"))
-            {
-                <a asp-controller="Culture" asp-action="SetLanguage" asp-route-culture="en"
-                   asp-route-returnUrl="@currentUrl" class="btn toggle-lang active">
-                    عربي
-                </a>
-            }
-            else
-            {
-                <a asp-controller="Culture" asp-action="SetLanguage" asp-route-culture="ar"
-                   asp-route-returnUrl="@currentUrl" class="btn toggle-lang active">
-                    English
-                </a>
-            }
-        </div>
-    </li>
-</ul>

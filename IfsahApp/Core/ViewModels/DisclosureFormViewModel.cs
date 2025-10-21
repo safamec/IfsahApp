@@ -28,10 +28,9 @@ namespace IfsahApp.Core.ViewModels
 
         public int Step { get; set; }
 
-
-     [AllowedExtensions(new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".mp4", ".mov", ".avi", ".wmv", ".mkv", ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx" }, ErrorMessage = "FileInvalidExtension")]
-     [MaxFileSize(10 * 1024 * 1024, ErrorMessage = "FileMaxSize")] // 10MB
-     [JsonIgnore] // Prevent from being serialized
+        [AllowedExtensions(new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".mp4", ".mov", ".avi", ".wmv", ".mkv", ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx" }, ErrorMessage = "FileInvalidExtension")]
+        [MaxFileSize(10 * 1024 * 1024, ErrorMessage = "FileMaxSize")] // 10MB
+        [JsonIgnore] // Prevent from being serialized
         public List<IFormFile>? Attachments { get; set; }
 
         public List<string> SavedAttachmentPaths { get; set; }
@@ -65,149 +64,175 @@ namespace IfsahApp.Core.ViewModels
 
         public List<SuspectedPerson> SuspectedPersons { get; set; }
         public List<RelatedPerson> RelatedPersons { get; set; }
+
+        // ✅ FIXED: replaced NotImplementedException with working validation
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            var results = new List<ValidationResult>();
+
+            if (IncidentStartDate.HasValue && IncidentEndDate.HasValue)
+            {
+                var start = IncidentStartDate.Value.Date;
+                var end = IncidentEndDate.Value.Date;
+                var today = DateTime.UtcNow.Date;
+
+                if (start > end)
+                {
+                    results.Add(new ValidationResult(
+                        "Start date cannot be after end date.",
+                        new[] { nameof(IncidentStartDate), nameof(IncidentEndDate) }
+                    ));
+                }
+
+                if (start > today || end > today)
+                {
+                    results.Add(new ValidationResult(
+                        "Future dates are not allowed.",
+                        new[] { nameof(IncidentStartDate), nameof(IncidentEndDate) }
+                    ));
+                }
+            }
+
+            return results;
+        }
     }
 
     // MaxFileSize Attribute
-   public class MaxFileSizeAttribute : ValidationAttribute
-{
-    private readonly long _maxBytes;
-
-    public MaxFileSizeAttribute(long maxBytes)
+    public class MaxFileSizeAttribute : ValidationAttribute
     {
-        _maxBytes = maxBytes;
-    }
+        private readonly long _maxBytes;
 
-    protected override ValidationResult IsValid(object value, ValidationContext validationContext)
-    {
-        if (value == null) return ValidationResult.Success;
-
-        IEnumerable<IFormFile> files = value switch
+        public MaxFileSizeAttribute(long maxBytes)
         {
-            IFormFile f => new[] { f },
-            IEnumerable<IFormFile> list => list,
-            _ => null
-        };
+            _maxBytes = maxBytes;
+        }
 
-        if (files == null) return ValidationResult.Success;
-
-        foreach (var file in files)
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            if (file == null) continue;
+            if (value == null) return ValidationResult.Success;
 
-            if (file.Length > _maxBytes)
+            IEnumerable<IFormFile> files = value switch
             {
-                double maxMb = Math.Round((double)_maxBytes / (1024 * 1024), 2);
-                
-                // الحصول على الرسالة من الـ resource
-                string template = GetLocalizedMessage("FileMaxSize", validationContext);
-                
-                var msg = string.Format(CultureInfo.CurrentCulture, template, file.FileName, maxMb);
-                return new ValidationResult(msg);
+                IFormFile f => new[] { f },
+                IEnumerable<IFormFile> list => list,
+                _ => null
+            };
+
+            if (files == null) return ValidationResult.Success;
+
+            foreach (var file in files)
+            {
+                if (file == null) continue;
+
+                if (file.Length > _maxBytes)
+                {
+                    double maxMb = Math.Round((double)_maxBytes / (1024 * 1024), 2);
+
+                    string template = GetLocalizedMessage("FileMaxSize", validationContext);
+                    var msg = string.Format(CultureInfo.CurrentCulture, template, file.FileName, maxMb);
+                    return new ValidationResult(msg);
+                }
+            }
+
+            return ValidationResult.Success;
+        }
+
+        private string GetLocalizedMessage(string key, ValidationContext validationContext)
+        {
+            try
+            {
+                var assembly = typeof(DisclosureFormViewModel).Assembly;
+                var resourceManager = new ResourceManager("IfsahApp.Resources.Core.ViewModels.DisclosureFormViewModel", assembly);
+
+                var culture = CultureInfo.CurrentUICulture;
+                var message = resourceManager.GetString(key, culture);
+
+                return message ?? GetDefaultMessage(key);
+            }
+            catch
+            {
+                return GetDefaultMessage(key);
             }
         }
 
-        return ValidationResult.Success;
-    }
-
-    private string GetLocalizedMessage(string key, ValidationContext validationContext)
-    {
-        try
+        private string GetDefaultMessage(string key)
         {
-            var assembly = typeof(DisclosureFormViewModel).Assembly;
-            var resourceManager = new ResourceManager("IfsahApp.Resources.Core.ViewModels.DisclosureFormViewModel", assembly);
-            
-            var culture = CultureInfo.CurrentUICulture;
-            var message = resourceManager.GetString(key, culture);
-            
-            return message ?? GetDefaultMessage(key);
-        }
-        catch
-        {
-            return GetDefaultMessage(key);
+            return key switch
+            {
+                "FileInvalidExtension" => "File {0} has an invalid extension. Allowed extensions: {1}.",
+                "FileMaxSize" => "File {0} exceeds the maximum allowed size of {1} MB.",
+                _ => "Validation error."
+            };
         }
     }
-
-    private string GetDefaultMessage(string key)
-    {
-        return key switch
-        {
-            "FileInvalidExtension" => "File {0} has an invalid extension. Allowed extensions: {1}.",
-            "FileMaxSize" => "File {0} exceeds the maximum allowed size of {1} MB.",
-            _ => "Validation error."
-        };
-    }
-}
 
     // AllowedExtensions Attribute
-   public class AllowedExtensionsAttribute : ValidationAttribute
-{
-    private readonly HashSet<string> _allowed;
-
-    public AllowedExtensionsAttribute(string[] extensions)
+    public class AllowedExtensionsAttribute : ValidationAttribute
     {
-        _allowed = new HashSet<string>(extensions.Select(e => e.ToLowerInvariant()));
-    }
+        private readonly HashSet<string> _allowed;
 
-    protected override ValidationResult IsValid(object value, ValidationContext validationContext)
-    {
-        if (value == null) return ValidationResult.Success;
-
-        IEnumerable<IFormFile> files = value switch
+        public AllowedExtensionsAttribute(string[] extensions)
         {
-            IFormFile f => new[] { f },
-            IEnumerable<IFormFile> list => list,
-            _ => null
-        };
+            _allowed = new HashSet<string>(extensions.Select(e => e.ToLowerInvariant()));
+        }
 
-        if (files == null) return ValidationResult.Success;
-
-        foreach (var file in files)
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            if (file == null) continue;
+            if (value == null) return ValidationResult.Success;
 
-            var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-            if (!_allowed.Contains(ext))
+            IEnumerable<IFormFile> files = value switch
             {
-                string allowedList = string.Join(", ", _allowed);
-                
-                // الحصول على الرسالة من الـ resource باستخدام النوع الصحيح
-                string template = GetLocalizedMessage("FileInvalidExtension", validationContext);
-                
-                var msg = string.Format(CultureInfo.CurrentCulture, template, file.FileName, allowedList);
-                return new ValidationResult(msg);
+                IFormFile f => new[] { f },
+                IEnumerable<IFormFile> list => list,
+                _ => null
+            };
+
+            if (files == null) return ValidationResult.Success;
+
+            foreach (var file in files)
+            {
+                if (file == null) continue;
+
+                var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+                if (!_allowed.Contains(ext))
+                {
+                    string allowedList = string.Join(", ", _allowed);
+
+                    string template = GetLocalizedMessage("FileInvalidExtension", validationContext);
+                    var msg = string.Format(CultureInfo.CurrentCulture, template, file.FileName, allowedList);
+                    return new ValidationResult(msg);
+                }
+            }
+
+            return ValidationResult.Success;
+        }
+
+        private string GetLocalizedMessage(string key, ValidationContext validationContext)
+        {
+            try
+            {
+                var assembly = typeof(DisclosureFormViewModel).Assembly;
+                var resourceManager = new ResourceManager("IfsahApp.Resources.Core.ViewModels.DisclosureFormViewModel", assembly);
+
+                var culture = CultureInfo.CurrentUICulture;
+                var message = resourceManager.GetString(key, culture);
+
+                return message ?? GetDefaultMessage(key);
+            }
+            catch
+            {
+                return GetDefaultMessage(key);
             }
         }
 
-        return ValidationResult.Success;
-    }
-
-    private string GetLocalizedMessage(string key, ValidationContext validationContext)
-    {
-        try
+        private string GetDefaultMessage(string key)
         {
-            // استخدام Assembly الخاص بالـ ViewModel
-            var assembly = typeof(DisclosureFormViewModel).Assembly;
-            var resourceManager = new ResourceManager("IfsahApp.Resources.Core.ViewModels.DisclosureFormViewModel", assembly);
-            
-            var culture = CultureInfo.CurrentUICulture;
-            var message = resourceManager.GetString(key, culture);
-            
-            return message ?? GetDefaultMessage(key);
-        }
-        catch
-        {
-            return GetDefaultMessage(key);
+            return key switch
+            {
+                "FileInvalidExtension" => "File {0} has an invalid extension. Allowed extensions: {1}.",
+                "FileMaxSize" => "File {0} exceeds the maximum allowed size of {1} MB.",
+                _ => "Validation error."
+            };
         }
     }
-
-    private string GetDefaultMessage(string key)
-    {
-        return key switch
-        {
-            "FileInvalidExtension" => "File {0} has an invalid extension. Allowed extensions: {1}.",
-            "FileMaxSize" => "File {0} exceeds the maximum allowed size of {1} MB.",
-            _ => "Validation error."
-        };
-    }
-}
 }

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="ActivateNotificationsTitle" xml:space="preserve">
+    <value>Enable alerts for report updates (optional)</value>
+  </data>
+  <data name="EmailPlaceholder" xml:space="preserve">
+    <value>name@example.com</value>
+  </data>
+  <data name="SendActivationLink" xml:space="preserve">
+    <value>Send Activation Link</value>
+  </data>
+  <data name="SendingInProgress" xml:space="preserve">
+    <value>Sending...</value>
+  </data>
+  <data name="EnterValidEmail" xml:space="preserve">
+    <value>Please enter a valid email address.</value>
+  </data>
+  <data name="RequestReceived" xml:space="preserve">
+    <value>Request received. You will receive an email to confirm notifications within a few minutes. ✅</value>
+  </data>
+  <data name="RequestFailed" xml:space="preserve">
+    <value>Unable to send request now. Please try again later.</value>
+  </data>
+</root>

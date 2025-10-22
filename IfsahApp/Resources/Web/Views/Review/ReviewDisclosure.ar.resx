@@ -1,26 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <data name="ReviewDisclosureTitle"><value>مراجعة البلاغ</value></data>
-  <data name="CaseNotFound"><value>لم يتم العثور على البلاغ.</value></data>
+  <!--
+    Microsoft ResX Schema
 
-  <data name="DisclosureDetailsHeading"><value>تفاصيل البلاغ</value></data>
-  <data name="ReferenceLabel"><value>المرجع:</value></data>
+    Version 2.0
 
-  <data name="Type"><value>النوع</value></data>
-  <data name="Date"><value>التاريخ</value></data>
-  <data name="Location"><value>الموقع</value></data>
-  <data name="Description"><value>الوصف</value></data>
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
+    associated with the data types.
 
-  <data name="ViewPeopleAndAttachments"><value>عرض الأشخاص والمرفقات</value></data>
-  <data name="RejectDisclosure"><value>رفض البلاغ</value></data>
-  <data name="ConfirmReject"><value>هل أنتِ متأكدة من رفض هذا البلاغ؟</value></data>
+    Example:
 
-  <data name="ModalTitleRelatedSuspectedAttachments"><value>ذوو الصلة / المشتبه بهم / المرفقات</value></data>
-  <data name="Close"><value>إغلاق</value></data>
-  <data name="Loading"><value>جاري التحميل…</value></data>
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
 
-  <data name="ReviewerNotes"><value>ملاحظات المراجع</value></data>
-  <data name="AddNotesPlaceholder"><value>أضيفي ملاحظاتك هنا…</value></data>
-  <data name="SubmitDisclosure"><value>إرسال البلاغ</value></data>
+    There are any number of "resheader" rows that contain simple
+    name/value pairs.
 
-  <data name="FailedToLoadExtras"><value>فشل تحميل التفاصيل الإضافية</value></data>
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
+    mimetype set.
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
+    extensible. For a given mimetype the value must be set accordingly:
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
+    read any of the formats listed below.
+
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string"/>
+              <xsd:attribute name="type" type="xsd:string"/>
+              <xsd:attribute name="mimetype" type="xsd:string"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string"/>
+              <xsd:attribute name="name" type="xsd:string"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1"/>
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ReviewDisclosureTitle" xml:space="preserve">
+    <value>مراجعة البلاغ</value>
+    <comment/>
+  </data>
+  <data name="CaseNotFound" xml:space="preserve">
+    <value>لم يتم العثور على البلاغ.</value>
+    <comment/>
+  </data>
+  <data name="DisclosureDetailsHeading" xml:space="preserve">
+    <value>تفاصيل البلاغ</value>
+    <comment/>
+  </data>
+  <data name="ReferenceLabel" xml:space="preserve">
+    <value>المرجع:</value>
+    <comment/>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>النوع</value>
+    <comment/>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>التاريخ</value>
+    <comment/>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>الموقع</value>
+    <comment/>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>الوصف</value>
+    <comment/>
+  </data>
+  <data name="ViewPeopleAndAttachments" xml:space="preserve">
+    <value>عرض الأشخاص والمرفقات</value>
+    <comment/>
+  </data>
+  <data name="RejectDisclosure" xml:space="preserve">
+    <value>رفض البلاغ</value>
+    <comment/>
+  </data>
+  <data name="ConfirmReject" xml:space="preserve">
+    <value>هل أنتِ متأكدة من رفض هذا البلاغ؟</value>
+    <comment/>
+  </data>
+  <data name="ModalTitleRelatedSuspectedAttachments" xml:space="preserve">
+    <value>ذوو الصلة / المشتبه بهم / المرفقات</value>
+    <comment/>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>إغلاق</value>
+    <comment/>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>جاري التحميل…</value>
+    <comment/>
+  </data>
+  <data name="ReviewerNotes" xml:space="preserve">
+    <value>ملاحظات المراجع</value>
+    <comment/>
+  </data>
+  <data name="AddNotesPlaceholder" xml:space="preserve">
+    <value>أضيفي ملاحظاتك هنا…</value>
+    <comment/>
+  </data>
+  <data name="SubmitDisclosure" xml:space="preserve">
+    <value>إرسال البلاغ</value>
+    <comment/>
+  </data>
+  <data name="FailedToLoadExtras" xml:space="preserve">
+    <value>فشل تحميل التفاصيل الإضافية</value>
+    <comment/>
+  </data>
+  <data name="UploadReportFile" xml:space="preserve">
+    <value>تحميل ملف التقرير</value>
+    <comment/>
+  </data>
+  <data name="OptionalReportFileHint" xml:space="preserve">
+    <value>ملف التقرير الاختياري</value>
+    <comment/>
+  </data>
 </root>

@@ -1,3 +1,5 @@
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @{
     var tokens = Antiforgery.GetAndStoreTokens(Context);
@@ -15,15 +17,15 @@
           <path d="M15.854 8.146a.5.5 0 0 1 0 .708l-3.5 3.5a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L12 11.293l3.146-3.147a.5.5 0 0 1 .708 0"/>
         </svg>
       </span>
-      <div class="fw-bold">تفعيل التنبيهات لتحديثات البلاغ (اختياري)</div>
+      <div class="fw-bold">@Localizer["ActivateNotificationsTitle"]</div>
     </div>
 
     <div class="input-group input-group-lg">
       <input id="subsEmail" type="email" class="form-control"
-             placeholder="name&#64;example.com" autocomplete="email" />
+             placeholder="@Localizer["EmailPlaceholder"]" autocomplete="email" />
       <button id="btnVerify" type="button"
               class="btn btn-primary d-inline-flex align-items-center gap-2 px-4">
-        <span class="btn-text">إرسال رابط التفعيل</span>
+        <span class="btn-text">@Localizer["SendActivationLink"]</span>
         <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
       </button>
     </div>
@@ -44,17 +46,24 @@
   const reportNumber = '@reportNumber';
   const antiToken = '@tokens.RequestToken';
 
+  // Localized messages
+  const msgValidEmail = '@Localizer["EnterValidEmail"]';
+  const msgSuccess = '@Localizer["RequestReceived"]';
+  const msgFail = '@Localizer["RequestFailed"]';
+  const txtSending = '@Localizer["SendingInProgress"]';
+  const txtSend = '@Localizer["SendActivationLink"]';
+
   function setLoading(loading) {
     if (loading) {
       btn.disabled = true;
       emailInput.disabled = true;
       spinner.classList.remove('d-none');
-      btnText.textContent = 'جارٍ الإرسال...';
+      btnText.textContent = txtSending;
     } else {
       btn.disabled = false;
       emailInput.disabled = false;
       spinner.classList.add('d-none');
-      btnText.textContent = 'إرسال رابط التفعيل';
+      btnText.textContent = txtSend;
     }
   }
 
@@ -82,7 +91,7 @@
 
     if (!validEmail(email)) {
       emailInput.classList.add('is-invalid');
-      showMsg('رجاءً أدخل بريدًا إلكترونيًا صحيحًا.', 'text-danger');
+      showMsg(msgValidEmail, 'text-danger');
       return;
     }
 
@@ -98,9 +107,9 @@
       });
 
       // رسالة محايدة تحافظ على الخصوصية
-      showMsg('تم استلام الطلب. ستصلك رسالة لتأكيد تفعيل التنبيهات خلال دقائق. ✅', 'text-success');
+      showMsg(msgSuccess, 'text-success');
     } catch (e) {
-      showMsg('تعذّر إرسال الطلب الآن، يُرجى المحاولة لاحقًا.', 'text-warning');
+      showMsg(msgFail, 'text-warning');
     } finally {
       setLoading(false);
     }

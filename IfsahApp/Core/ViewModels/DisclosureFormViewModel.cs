@@ -6,12 +6,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
 using IfsahApp.Core.Models;
-using System.IO; // Needed for Path.GetExtension
-using System.Linq;
 using System.Globalization;
-using System.Collections.Generic;
 using System.Resources;
-using System.Reflection; // Needed for Contains in AllowedExtensions
+using System.Reflection;
 
 namespace IfsahApp.Core.ViewModels
 {

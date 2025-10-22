@@ -14,7 +14,7 @@
     @Html.AntiForgeryToken()
 
     <div class="mb-3">
-        <label asp-for="Attachments" class="form-label">@Localizer["Choose files"]</label>
+        <label asp-for="Attachments" class="form-label">@Localizer["AttachmentsLabel"]</label>
 
         <!-- تعطيل التحقق للمدخل -->
         <input asp-for="Attachments"
@@ -26,7 +26,7 @@
                data-val="false" />
 
         <small class="text-muted d-block mt-1">
-            @Localizer["Allowed types: Images, Video, PDF, Word, Excel, PowerPoint (Max 10MB each)"]
+            @Localizer["AllowedAttachmentTypesHint"] (Max 10MB each)
         </small>
 
         <!-- لو عندك asp-validation-for ممكن يظل؛ لكن لن يظهر Required بعد data-val=false -->

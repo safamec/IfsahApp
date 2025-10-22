@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="ReviewDisclosureTitle" xml:space="preserve">
+    <value>Review Disclosure</value>
+  </data>
+  <data name="CaseNotFound" xml:space="preserve">
+    <value>Case not found.</value>
+  </data>
+  <data name="DisclosureDetailsHeading" xml:space="preserve">
+    <value>Disclosure Details</value>
+  </data>
+  <data name="ReferenceLabel" xml:space="preserve">
+    <value>Reference:</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>Location</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="ViewPeopleAndAttachments" xml:space="preserve">
+    <value>View People and Attachments</value>
+  </data>
+  <data name="ConfirmReject" xml:space="preserve">
+    <value>Are you sure you want to reject this disclosure?</value>
+  </data>
+  <data name="RejectDisclosure" xml:space="preserve">
+    <value>Reject Disclosure</value>
+  </data>
+  <data name="ModalTitleRelatedSuspectedAttachments" xml:space="preserve">
+    <value>Related Suspects and Attachments</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="ReviewerNotes" xml:space="preserve">
+    <value>Reviewer Notes</value>
+  </data>
+  <data name="AddNotesPlaceholder" xml:space="preserve">
+    <value>Add notes or comments here...</value>
+  </data>
+  <data name="Assign to Examiner" xml:space="preserve">
+    <value>Assign to Examiner</value>
+  </data>
+  <data name="-- Select Examiner --" xml:space="preserve">
+    <value>-- Select Examiner --</value>
+  </data>
+  <data name="SubmitDisclosure" xml:space="preserve">
+    <value>Submit Disclosure</value>
+  </data>
+  <data name="FailedToLoadExtras" xml:space="preserve">
+    <value>Failed to load extras.</value>
+  </data>
+</root>

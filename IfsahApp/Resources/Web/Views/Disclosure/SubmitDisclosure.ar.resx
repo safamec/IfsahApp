@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="ActivateNotificationsTitle" xml:space="preserve">
+    <value>تفعيل التنبيهات لتحديثات البلاغ (اختياري)</value>
+  </data>
+  <data name="EmailPlaceholder" xml:space="preserve">
+    <value>name@example.com</value>
+  </data>
+  <data name="SendActivationLink" xml:space="preserve">
+    <value>إرسال رابط التفعيل</value>
+  </data>
+  <data name="SendingInProgress" xml:space="preserve">
+    <value>جارٍ الإرسال...</value>
+  </data>
+  <data name="EnterValidEmail" xml:space="preserve">
+    <value>رجاءً أدخل بريدًا إلكترونيًا صحيحًا.</value>
+  </data>
+  <data name="RequestReceived" xml:space="preserve">
+    <value>تم استلام الطلب. ستصلك رسالة لتأكيد تفعيل التنبيهات خلال دقائق. ✅</value>
+  </data>
+  <data name="RequestFailed" xml:space="preserve">
+    <value>تعذّر إرسال الطلب الآن، يُرجى المحاولة لاحقًا.</value>
+  </data>
+</root>

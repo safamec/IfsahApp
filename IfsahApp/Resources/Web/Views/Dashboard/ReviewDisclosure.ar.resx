@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="ReviewDisclosureTitle" xml:space="preserve">
+    <value>مراجعة الإفصاح</value>
+  </data>
+  <data name="CaseNotFound" xml:space="preserve">
+    <value>لم يتم العثور على الحالة.</value>
+  </data>
+  <data name="DisclosureDetailsHeading" xml:space="preserve">
+    <value>تفاصيل الإفصاح</value>
+  </data>
+  <data name="ReferenceLabel" xml:space="preserve">
+    <value>المرجع:</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>النوع</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>التاريخ</value>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>الموقع</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>الوصف</value>
+  </data>
+  <data name="ViewPeopleAndAttachments" xml:space="preserve">
+    <value>عرض الأشخاص والمرفقات</value>
+  </data>
+  <data name="ConfirmReject" xml:space="preserve">
+    <value>هل أنت متأكد من رفض هذا الإفصاح؟</value>
+  </data>
+  <data name="RejectDisclosure" xml:space="preserve">
+    <value>رفض الإفصاح</value>
+  </data>
+  <data name="ModalTitleRelatedSuspectedAttachments" xml:space="preserve">
+    <value>المشتبه بهم والمرفقات ذات الصلة</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>إغلاق</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>جاري التحميل...</value>
+  </data>
+  <data name="ReviewerNotes" xml:space="preserve">
+    <value>ملاحظات المراجع</value>
+  </data>
+  <data name="AddNotesPlaceholder" xml:space="preserve">
+    <value>أضف الملاحظات أو التعليقات هنا...</value>
+  </data>
+  <data name="Assign to Examiner" xml:space="preserve">
+    <value>تعيين إلى الفاحص</value>
+  </data>
+  <data name="-- Select Examiner --" xml:space="preserve">
+    <value>-- اختر الفاحص --</value>
+  </data>
+  <data name="SubmitDisclosure" xml:space="preserve">
+    <value>إرسال الإفصاح</value>
+  </data>
+  <data name="FailedToLoadExtras" xml:space="preserve">
+    <value>فشل تحميل البيانات الإضافية.</value>
+  </data>
+</root>

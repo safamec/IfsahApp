@@ -1,0 +1,65 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Development",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build:dev",
+      "program": "${workspaceFolder}/IfsahApp/bin/Debug/net8.0/IfsahApp.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/IfsahApp",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "sourceFileMap": {
+        "/Views": "${workspaceFolder}/IfsahApp/Views"
+      }
+    },
+    {
+      "name": "Debug Staging",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build:staging",
+      "program": "${workspaceFolder}/IfsahApp/bin/Debug/net8.0/IfsahApp.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/IfsahApp",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Staging"
+      },
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "sourceFileMap": {
+        "/Views": "${workspaceFolder}/IfsahApp/Views"
+      }
+    },
+    {
+      "name": "Debug Production",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build:prod",
+      "program": "${workspaceFolder}/IfsahApp/bin/Release/net8.0/IfsahApp.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/IfsahApp",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Production"
+      },
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "sourceFileMap": {
+        "/Views": "${workspaceFolder}/IfsahApp/Views"
+      }
+    }
+  ]
+}

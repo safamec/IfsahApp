@@ -1,0 +1,128 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build:dev",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "${workspaceFolder}/IfsahApp/IfsahApp.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary;ForceNoAlign"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/IfsahApp",
+        "env": {
+          "ASPNETCORE_ENVIRONMENT": "Development"
+        }
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build:staging",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "${workspaceFolder}/IfsahApp/IfsahApp.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary;ForceNoAlign"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/IfsahApp",
+        "env": {
+          "ASPNETCORE_ENVIRONMENT": "Staging"
+        }
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build:prod",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "${workspaceFolder}/IfsahApp/IfsahApp.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary;ForceNoAlign"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/IfsahApp",
+        "env": {
+          "ASPNETCORE_ENVIRONMENT": "Production"
+        }
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "publish",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "publish",
+        "${workspaceFolder}/IfsahApp/IfsahApp.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary;ForceNoAlign"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/IfsahApp"
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "watch:dev",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/IfsahApp/IfsahApp.csproj"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/IfsahApp",
+        "env": {
+          "ASPNETCORE_ENVIRONMENT": "Development"
+        }
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "watch:staging",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/IfsahApp/IfsahApp.csproj"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/IfsahApp",
+        "env": {
+          "ASPNETCORE_ENVIRONMENT": "Staging"
+        }
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "watch:prod",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/IfsahApp/IfsahApp.csproj"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/IfsahApp",
+        "env": {
+          "ASPNETCORE_ENVIRONMENT": "Production"
+        }
+      },
+      "problemMatcher": "$msCompile"
+    }
+  ]
+}

@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace IfsahApp.Web.Controllers;
 
-// [Authorize]
+[Authorize]
 public class AccountController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -94,7 +94,6 @@ public class AccountController : Controller
     // =============================
     // Login (GET) — supports AD; falls back to seeded Admin when AD is absent
     // =============================
-    // [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> Login(CancellationToken ct)
     {
@@ -139,25 +138,43 @@ public class AccountController : Controller
             .AsEnumerable()
             .FirstOrDefault(u => string.Equals(u.ADUserName, samAccountName, StringComparison.OrdinalIgnoreCase));
 
+        // --- Auto-create new user if not found ---
         if (user is null)
         {
-            _logger.LogWarning("Login failed: user {Sam} not found in DB.", samAccountName);
-            return RedirectToAction("AccessDenied");
+            _logger.LogInformation("New AD user '{Sam}' not found in DB — creating a new record.", samAccountName);
+
+            user = new User
+            {
+                ADUserName = samAccountName,
+                FullName = displayName ?? samAccountName,
+                Email = email ?? string.Empty,
+                Department = department ?? "Unknown",
+                Role = Role.User,             // default role
+                IsActive = false,
+                IsEmailConfirmed = false       // assume AD users are verified
+            };
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync(ct);
+
+            _logger.LogInformation("User '{Sam}' created successfully with default Role: {Role}.", samAccountName, user.Role);
         }
 
+        // --- Check if user is active ---
         if (!user.IsActive)
         {
             _logger.LogWarning("Login failed: user {Sam} is inactive.", samAccountName);
             return RedirectToAction("AccessDenied");
         }
 
-        // Enforce email confirmation for all EXCEPT Admin
+        // --- Enforce email confirmation for all EXCEPT Admin ---
         if (user.Role != Role.Admin && !user.IsEmailConfirmed && !string.IsNullOrWhiteSpace(user.Email))
         {
             await IssueEmailConfirmationAsync(user, ct);
             await HttpContext.SignOutAsync("Cookies");
             return View("EmailNotConfirmed", new { Email = user.Email, UserId = user.Id });
         }
+
 
         //TO DO LOGINNNNNNN
 
@@ -203,7 +220,6 @@ public class AccountController : Controller
     // =============================
     // Confirm Email (GET)
     // =============================
-    // [AllowAnonymous]
     [HttpGet]
     [IgnoreAntiforgeryToken] // GET shouldn't need CSRF
     public async Task<IActionResult> ConfirmEmail(int uid, string token, CancellationToken ct)
@@ -287,7 +303,6 @@ public class AccountController : Controller
     // =============================
     // Resend Confirmation (POST)
     // =============================
-    // [AllowAnonymous]
     [HttpPost]
     [ValidateAntiForgeryToken] // keep CSRF on POST
     public async Task<IActionResult> ResendConfirmation(int uid, CancellationToken ct)
@@ -307,7 +322,6 @@ public class AccountController : Controller
     // =============================
     // Access Denied & Logout
     // =============================
-    // [AllowAnonymous]
     public IActionResult AccessDenied() => View();
 
     [HttpPost]
@@ -320,7 +334,6 @@ public class AccountController : Controller
     }
 
     // Optional quick diagnostics
-    // [AllowAnonymous]
     // public IActionResult WhoAmI()
     // {
     //     var isAuth = User?.Identity?.IsAuthenticated ?? false;

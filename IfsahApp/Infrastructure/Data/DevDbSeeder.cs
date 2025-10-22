@@ -1,37 +1,38 @@
 using IfsahApp.Core.Enums;
+using IfsahApp.Utils;
 using IfsahApp.Core.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace IfsahApp.Infrastructure.Data;
 
-public static class DbSeeder
+public static class DevDbSeeder
 {
     public static void Seed(ApplicationDbContext context)
     {
-        // Apply any pending migrations automatically
+        // Apply any pending migrations
         context.Database.Migrate();
 
-        // --- Seed Admin user only ---
-        if (!context.Users.Any(u => u.ADUserName == "Ahmed.sm"))
+        // Seed Users
+        if (!context.Users.Any())
         {
             context.Users.AddRange(
                 new User
                 {
-                     Id = 1,
-            ADUserName = "Admin",                // SamAccountName أو أي اسم AD عندك
-            FullName = "Main Administrator",
-            Email = "mgk390@gmail.com",
-            Department = "Management",
-            Role = Role.Admin,
-            IsActive = true,
-            IsEmailConfirmed = false
+                    Id = 1,
+                    ADUserName = "Admin",                // SamAccountName أو أي اسم AD عندك
+                    FullName = "Main Administrator",
+                    Email = "mgk390@gmail.com",
+                    Department = "Management",
+                    Role = Role.Admin,
+                    IsActive = true,
+                    IsEmailConfirmed = false
                 },
                 new User
                 {
                     Id = 2,
                     ADUserName = "fatima.harthy",
                     FullName = "Fatima Al Harthy",
-                    Email = "omalyousfi@gmail.com",
+                    Email = "safaa3568@gmail.com",
                     Department = "Audit",
                     Role = Role.Examiner,
                     IsActive = true
@@ -41,7 +42,7 @@ public static class DbSeeder
                     Id = 3,
                     ADUserName = "mohammed.said",
                     FullName = "Mohammed Al Said",
-                    Email = "omalyousfi@gmail.com",
+                    Email = "safaa3568@gmail.com",
                     Department = "Finance",
                     Role = Role.User,
                     IsActive = true
@@ -50,27 +51,27 @@ public static class DbSeeder
             context.SaveChanges();
         }
 
-      // Seed Disclosure Types
-if (!context.DisclosureTypes.Any())
-{
-    context.DisclosureTypes.AddRange(
-        new DisclosureType { EnglishName = "Safety", ArabicName = "السلامة" },
-        new DisclosureType { EnglishName = "Compliance", ArabicName = "الامتثال" }
-    );
-    context.SaveChanges();
-}
-else
-{
-    var safety = context.DisclosureTypes.FirstOrDefault(x => x.EnglishName == "Safety");
-    if (safety != null && string.IsNullOrWhiteSpace(safety.ArabicName))
-        safety.ArabicName = "السلامة";
+        // Seed Disclosure Types
+        if (!context.DisclosureTypes.Any())
+        {
+            context.DisclosureTypes.AddRange(
+                new DisclosureType { EnglishName = "Safety", ArabicName = "السلامة" },
+                new DisclosureType { EnglishName = "Compliance", ArabicName = "الامتثال" }
+            );
+            context.SaveChanges();
+        }
+        else
+        {
+            var safety = context.DisclosureTypes.FirstOrDefault(x => x.EnglishName == "Safety");
+            if (safety != null && string.IsNullOrWhiteSpace(safety.ArabicName))
+                safety.ArabicName = "السلامة";
 
-    var compliance = context.DisclosureTypes.FirstOrDefault(x => x.EnglishName == "Compliance");
-    if (compliance != null && string.IsNullOrWhiteSpace(compliance.ArabicName))
-        compliance.ArabicName = "الامتثال";
+            var compliance = context.DisclosureTypes.FirstOrDefault(x => x.EnglishName == "Compliance");
+            if (compliance != null && string.IsNullOrWhiteSpace(compliance.ArabicName))
+                compliance.ArabicName = "الامتثال";
 
-    context.SaveChanges();
-}
+            context.SaveChanges();
+        }
 
         // Seed Disclosures
         if (!context.Disclosures.Any())

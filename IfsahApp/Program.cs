@@ -117,7 +117,11 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    DbSeeder.Seed(db);
+
+    if (app.Environment.IsDevelopment())
+        DevDbSeeder.Seed(db); // Dev seeder with full data
+    else
+        DbSeeder.Seed(db); // Staging & Production seeder (Admin only)
 }
 
 // ---------- 10) Localization middleware (early in pipeline) ----------

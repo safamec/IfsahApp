@@ -24,34 +24,40 @@ namespace IfsahApp.Utils
 
         public static async Task<(string? fileName, string? errorMessage)> SaveFileAsync(IFormFile file, IWebHostEnvironment env)
         {
-            if (file == null || file.Length == 0)
+            try
             {
-                return (null, "File is empty.");
+                if (file == null || file.Length == 0)
+                    return (null, "File is empty.");
+
+                var extension = Path.GetExtension(file.FileName)?.ToLowerInvariant();
+                if (string.IsNullOrEmpty(extension))
+                    return (null, "File has no extension.");
+
+                if (!AppSettings.AllowedExtensions.Contains(extension))
+                    return (null, $"File type '{extension}' is not allowed.");
+
+                if (file.Length > AppSettings.MaxFileSize)
+                {
+                    var maxMB = AppSettings.MaxFileSize / (1024 * 1024);
+                    return (null, $"File '{file.FileName}' exceeds the {maxMB} MB size limit.");
+                }
+
+                var uniqueFileName = GenerateUniqueFileName(extension);
+                var uploadsFolder = GetUploadsFolderPath(env);
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                return (uniqueFileName, null);
             }
-
-            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
-
-            if (!AppSettings.AllowedExtensions.Contains(extension))
+            catch (Exception ex)
             {
-                return (null, $"File type '{extension}' is not allowed.");
+                // Catch any unexpected errors and return as error message
+                return (null, $"Unexpected error: {ex.Message}");
             }
-
-            if (file.Length > AppSettings.MaxFileSize)
-            {
-                var maxMB = AppSettings.MaxFileSize / (1024 * 1024);
-                return (null, $"File '{file.FileName}' exceeds the {maxMB} MB size limit.");
-            }
-
-            var uniqueFileName = GenerateUniqueFileName(extension);
-            var uploadsFolder = GetUploadsFolderPath(env);
-            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            return (uniqueFileName, null);
         }
 
         public static string GetAttachmentPath(string fileName, string fileType)

@@ -185,6 +185,7 @@ namespace IfsahApp.Web.Controllers
                     var (savedFileName, error) = await FilePathHelper.SaveFileAsync(file, _env);
                     if (!string.IsNullOrEmpty(error))
                     {
+                        _logger.LogError("File upload failed: {Error}", error);
                         ModelState.AddModelError("Attachments", error);
                         continue;
                     }

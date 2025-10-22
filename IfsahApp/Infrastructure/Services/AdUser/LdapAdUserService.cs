@@ -18,36 +18,48 @@ public sealed class LdapAdUserService : IAdUserService
     {
         return await Task.Run(() =>
         {
-            // Strip domain prefix if present (CORP\ahmed -> ahmed)
-            var parts = windowsIdentityName.Split('\\', StringSplitOptions.RemoveEmptyEntries);
-            string sam = parts.Length == 2 ? parts[1] : parts[0];
-
-            // Load LDAP settings from config
-            string ldapServer = _config["Ldap:Server"] ?? "ldap.company.com";
-            int port = int.TryParse(_config["Ldap:Port"], out var p) ? p : 389;
-            string bindUser = _config["Ldap:BindUser"] ?? "";
-            string bindPassword = _config["Ldap:BindPassword"] ?? "";
-            string searchBase = _config["Ldap:SearchBase"] ?? "DC=company,DC=com";
-
             try
             {
-                using var connection = new LdapConnection(new LdapDirectoryIdentifier(ldapServer, port));
-                connection.Credential = new NetworkCredential(bindUser, bindPassword);
+                // Normalize username (e.g., MEM\ahmed → ahmed)
+                var parts = windowsIdentityName.Split('\\', StringSplitOptions.RemoveEmptyEntries);
+                string sam = parts.Length == 2 ? parts[1] : parts[0];
+
+                // Load LDAP config
+                string ldapServer = _config["Ldap:LdapServer"] ?? "10.193.8.65";
+                string domain = _config["Ldap:Domain"] ?? "DC=mem,DC=local";
+                string username = _config["Ldap:Username"] ?? "ldap-micro@mem.local";
+                string password = _config["Ldap:Password"] ?? string.Empty;
+
+                _logger.LogInformation("Connecting to LDAP server {Server} for user lookup {User}", ldapServer, sam);
+
+                // Create LDAP connection
+                using var connection = new LdapConnection(new LdapDirectoryIdentifier(ldapServer, 389));
                 connection.AuthType = AuthType.Negotiate;
+                connection.Credential = new NetworkCredential(username, password);
                 connection.Bind();
 
+                // Build search filter
+                string filter = $"(&(objectClass=user)(sAMAccountName={sam}))";
+
+                // Build search request
                 var request = new SearchRequest(
-                    searchBase,
-                    $"(&(objectClass=user)(sAMAccountName={sam}))",
+                    domain,
+                    filter,
                     SearchScope.Subtree,
-                    "sAMAccountName", "displayName", "mail", "department"
+                    "sAMAccountName",
+                    "displayName",
+                    "mail",
+                    "department"
                 );
 
+                // Execute search
                 var response = (SearchResponse)connection.SendRequest(request);
 
                 var entry = response.Entries.Cast<SearchResultEntry>().FirstOrDefault();
                 if (entry != null)
                 {
+                    _logger.LogInformation("LDAP user found: {User}", sam);
+
                     return new AdUser
                     {
                         SamAccountName = entry.Attributes["sAMAccountName"]?[0]?.ToString() ?? sam,
@@ -56,10 +68,16 @@ public sealed class LdapAdUserService : IAdUserService
                         Department = entry.Attributes["department"]?[0]?.ToString() ?? string.Empty
                     };
                 }
+
+                _logger.LogWarning("LDAP user {User} not found in directory.", sam);
+            }
+            catch (LdapException ex)
+            {
+                _logger.LogError(ex, "LDAP connection or query failed for {User}", windowsIdentityName);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "LDAP lookup failed for {SamAccountName}", sam);
+                _logger.LogError(ex, "Unexpected error while querying LDAP for {User}", windowsIdentityName);
             }
 
             return null;

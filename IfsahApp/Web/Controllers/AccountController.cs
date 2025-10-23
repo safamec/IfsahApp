@@ -94,6 +94,7 @@ public class AccountController : Controller
     // =============================
     // Login (GET) — supports AD; falls back to seeded Admin when AD is absent
     // =============================
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> Login(CancellationToken ct)
     {

@@ -99,10 +99,10 @@
 
                     <p class="lead mb-4">@Localizer["AlertsActivationSuccessLead"]</p>
 
-                    <div class="d-flex justify-content-center gap-3">
-                        <a href="https://localhost:5001/" class="btn btn-primary">
-                            <i class="bi bi-house-door me-1"></i> @Localizer["HomeButton"]
-                        </a>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-primary">@Localizer["HomeButton"]</a>
+   
+</a>
+
                         <a href="javascript:history.back()" class="btn btn-outline-secondary">
                             <i class="bi bi-arrow-right-circle me-1"></i> @Localizer["BackButton"]
                         </a>

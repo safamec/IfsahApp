@@ -8,29 +8,36 @@ namespace IfsahApp.Web.Controllers;
 
 #if DEBUG
 [AllowAnonymous]
-public class DevLoginController(IAdUserService adUserService, IOptions<DevUserOptions> devUserOptions) : Controller
+public class DevLoginController : Controller
 {
-    private readonly IAdUserService _adUserService = adUserService;
-    private readonly DevUserOptions _devUserOptions = devUserOptions.Value;
+    private readonly IAdUserService _adUserService;
+    private readonly DevUserOptions _devUserOptions;
+
+    public DevLoginController(IAdUserService adUserService, IOptions<DevUserOptions> devUserOptions)
+    {
+        _adUserService = adUserService;
+        _devUserOptions = devUserOptions.Value;
+    }
 
     [HttpGet]
     public IActionResult Index()
     {
-        // Get list of fake users for dropdown
+        // قائمة المستخدمين الوهميين لعرضها في الـView
         var fakeUsers = (_adUserService as FakeAdUserService)?.Users ?? [];
         return View(fakeUsers);
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult Index(string selectedSamAccountName)
     {
-        if (string.IsNullOrEmpty(selectedSamAccountName))
+        if (string.IsNullOrWhiteSpace(selectedSamAccountName))
             return RedirectToAction(nameof(Index));
 
-        // Set the selected dev user
+        // نحدد المستخدم المختار
         _devUserOptions.SamAccountName = selectedSamAccountName;
 
-        // Redirect to your normal login action
+        // نرجع لعملية الدخول الطبيعية
         return RedirectToAction("Login", "Account");
     }
 }

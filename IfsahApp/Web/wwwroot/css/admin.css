@@ -1,102 +1,73 @@
-/* ================================
-   Admin Layout (Desktop & Mobile)
-   ================================ */
+/* ================== DARK THEME (FINAL FULL OVERRIDE) ================== */
+html[data-theme="dark"],
+:root[data-theme="dark"],
+html[data-bs-theme="dark"],
+:root[data-bs-theme="dark"]{
 
-/* Grid: 280px sidebar (first) + content */
-.admin-frame{
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 0;
-  flex: 1 1 auto;              /* stretch within a flex column wrapper */
+  /* Global page background */
+  --page-bg: #2F2F2F !important;
+
+  /* Sidebar vars */
+  --sidebar-bg: #2F2F2F !important;
+  --sidebar-fg: #ffffff !important;
+  --sidebar-line: rgba(255,255,255,.32) !important;
+  --sidebar-hover: rgba(255,255,255,.10) !important;
+  --sidebar-active: rgba(255,255,255,.18) !important;
+  --sidebar-badge-bg: #ffffff !important;
+  --sidebar-badge-fg: #798086ff !important;
+
+  /* Tables */
+  --tbl-header-bg: #798086ff !important;
+  --tbl-header-fg: #ffffff !important;
+  --tbl-border: #4b5157 !important;
+  --tbl-row-hover: #6d7379ff !important;
+  --tbl-zebra: #6b7279ff !important;
 }
 
-/* Content area */
-.admin-content{
-  padding: 1rem;
-  min-width: 0;                /* prevent horizontal overflow in grid */
-}
-.admin-content > *:first-child{ margin-top: 0; }
-.admin-content h1:first-child,
-.admin-content h2:first-child,
-.admin-content h3:first-child,
-.admin-content h4:first-child,
-.admin-content h5:first-child{ margin-top: 0; }
-
-/* ================================
-   Sidebar (solid #0f6cbd + full-height right line)
-   ================================ */
-:root{
-  --sidebar-bg: #0f6cbd;
-  --sidebar-line: #ffffff;
-  --hover-bg: rgba(255,255,255,.08);
-  --active-bg: rgba(255,255,255,.16);
+/* apply page bg */
+html[data-theme="dark"] body,
+html[data-bs-theme="dark"] body{
+  background: var(--page-bg) !important;
 }
 
-.admin-sidebar{
-  position: relative;
-  padding: 1rem;
-  background: var(--sidebar-bg);
-  color: #fff;
-  border-radius: 0;
-}
-
-/* Full-height vertical line on the right (RTL/LTR friendly) */
-.admin-sidebar::before{
-  content: "";
-  position: absolute;
-  inset-inline-end: 0;   /* right in RTL, left in LTR */
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: var(--sidebar-line);
-  opacity: .95;
+/* Sidebar apply */
+html[data-theme="dark"] .admin-sidebar,
+html[data-bs-theme="dark"] .admin-sidebar{
+  background: var(--sidebar-bg) !important;
+  color: var(--sidebar-fg) !important;
 }
 
 /* Sidebar links */
-.admin-sidebar .nav-link{
-  color: #fff;
-  padding: .6rem .9rem;
-  border-radius: 0;
-  display: flex;
-  align-items: center;
-  gap: .5rem;
-  text-decoration: none;
+html[data-theme="dark"] .admin-sidebar .nav-link,
+html[data-bs-theme="dark"] .admin-sidebar .nav-link{
+  color: var(--sidebar-fg) !important;
 }
-.admin-sidebar .nav-link i{ opacity: .95; }
-
-.admin-sidebar .nav-link:hover,
-.admin-sidebar .nav-link:focus{
-  background: var(--hover-bg);
+html[data-theme="dark"] .admin-sidebar .nav-link.active,
+html[data-bs-theme="dark"] .admin-sidebar .nav-link.active{
+  background: var(--sidebar-active) !important;
+}
+html[data-theme="dark"] .admin-sidebar .badge,
+html[data-bs-theme="dark"] .admin-sidebar .badge{
+  background: var(--sidebar-badge-bg) !important;
+  color: var(--sidebar-badge-fg) !important;
 }
 
-.admin-sidebar .nav-link.active{
-  background: var(--active-bg);
-  font-weight: 600;
-  border-inline-start: none !important;  /* we use the full-height line instead */
-  padding-inline-start: .9rem;
+/* Tables */
+html[data-theme="dark"] .table,
+html[data-bs-theme="dark"] .table{
+  border-color: var(--tbl-border) !important;
 }
-
-/* Section helper text inside sidebar */
-.admin-sidebar .small{ color: rgba(255,255,255,.8) !important; }
-
-/* ================================
-   Mobile
-   ================================ */
-@media (max-width: 992px){
-  .admin-frame{ display: block; }  /* sidebar is offcanvas on mobile */
-  .offcanvas .admin-sidebar{
-    background: var(--sidebar-bg);
-    border-radius: 0;
-  }
+html[data-theme="dark"] .table th,
+html[data-bs-theme="dark"] .table th{
+  background: var(--tbl-header-bg) !important;
+  color: var(--tbl-header-fg) !important;
+  border-bottom: 1px solid var(--tbl-border) !important;
 }
-
-/* ================================
-   Optional polish
-   ================================ */
-
-/* Tables: avoid layout jump on long strings */
-.table{ table-layout: auto; }
-.table td, .table th{ word-wrap: break-word; }
-
-/* Ensure no unintended rounded corners anywhere in admin area */
-.admin-content, .offcanvas, .offcanvas .admin-sidebar{ border-radius: 0 !important; }
+html[data-theme="dark"] .table tbody tr:nth-child(odd),
+html[data-bs-theme="dark"] .table tbody tr:nth-child(odd){
+  background: var(--tbl-zebra) !important;
+}
+html[data-theme="dark"] .table tbody tr:hover,
+html[data-bs-theme="dark"] .table tbody tr:hover{
+  background: var(--tbl-row-hover) !important;
+}

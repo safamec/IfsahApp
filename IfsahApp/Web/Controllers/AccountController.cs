@@ -159,18 +159,29 @@ public class AccountController : Controller
             return View("EmailNotConfirmed", new { Email = user.Email, UserId = user.Id });
         }
 
-
-        
         //TO DO LOGINNNNNNN
 
         // Claims + sign-in (explicit cookie scheme)
         var claims = new List<Claim>
         {
+            // اسم الدخول (SAM) كـ Name
             new Claim(ClaimTypes.Name, user.ADUserName),
+
+            // الاسم الظاهر
             new Claim(ClaimTypes.GivenName, displayName ?? user.FullName ?? string.Empty),
+
+            // بريد
             new Claim(ClaimTypes.Email, email ?? user.Email ?? string.Empty),
+
+            // قسم
             new Claim("Department", department ?? user.Department ?? string.Empty),
-            new Claim(ClaimTypes.Role, user.Role.ToString())
+
+            // دور
+            new Claim(ClaimTypes.Role, user.Role.ToString()),
+
+            // ✅ إضافات خفيفة لدعم الواجهات القديمة
+            new Claim("display_name", displayName ?? user.FullName ?? string.Empty),
+            new Claim("sam", user.ADUserName)
         };
 
         var identity  = new ClaimsIdentity(claims, "Cookies");

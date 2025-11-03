@@ -1,138 +1,57 @@
 @{
-    // Current route
     var currentAction = (ViewContext?.RouteData?.Values["action"] as string) ?? "";
     var currentController = (ViewContext?.RouteData?.Values["controller"] as string) ?? "";
-
-    // Simple active helper
     Func<string,string,bool> isActive = (ctrl, act) =>
         string.Equals(currentController, ctrl, StringComparison.OrdinalIgnoreCase) &&
         string.Equals(currentAction, act, StringComparison.OrdinalIgnoreCase);
 }
 @inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 
-<!-- Sidebar (Desktop) -->
-<aside class="admin-sidebar d-none d-lg-block">
-  <!-- Brand → link to Dashboard -->
-  <a class="brand d-inline-flex align-items-center gap-2 text-white text-decoration-none mb-2"
-     asp-area=""
-     asp-controller="Dashboard"
-     asp-action="Index">
-     <i class="bi bi-speedometer2"></i>
-     <span>@Localizer["Dashboard"]</span>
+<aside class="admin-sidebar">
+  <!-- Brand -->
+  <a class="brand d-inline-flex align-items-center gap-2 text-white text-decoration-none mb-3"
+     asp-area="" asp-controller="Dashboard" asp-action="Index">
+     <span class="brand-mark d-inline-flex align-items-center justify-content-center">
+       <i class="bi bi-speedometer2"></i>
+     </span>
+     <span class="brand-text">@Localizer["Dashboard"]</span>
   </a>
 
-  <nav class="nav flex-column gap-1">
+  <nav class="nav flex-column">
+    <div class="nav-section">@Localizer["Administration"]</div>
+
     <a class="nav-link @(isActive("Admin","AdminPanal") ? "active" : "")"
-       asp-area=""
-       asp-controller="Admin"
-       asp-action="AdminPanal"
-       aria-current="@(isActive("Admin","AdminPanal") ? "page" : null)">
-       <i class="bi bi-people"></i> @Localizer["UsersNav"]
+       asp-controller="Admin" asp-action="AdminPanal">
+       <i class="bi bi-people"></i>
+       <span>@Localizer["UsersNav"]</span>
     </a>
 
     <a class="nav-link @(isActive("Admin","AddExaminer") ? "active" : "")"
-       asp-area=""
-       asp-controller="Admin"
-       asp-action="AddExaminer"
-       aria-current="@(isActive("Admin","AddExaminer") ? "page" : null)">
-       <i class="bi bi-person-plus"></i> @Localizer["AddUserNav"]
+       asp-controller="Admin" asp-action="AddExaminer">
+       <i class="bi bi-person-plus"></i>
+       <span>@Localizer["AddUserNav"]</span>
     </a>
 
-    <div class="mt-2 small text-white-50 px-2">@Localizer["OtherSection"]</div>
+    <div class="nav-section mt-3">@Localizer["OtherSection"]</div>
 
     <a class="nav-link @(isActive("Disclosure","Index") ? "active" : "")"
-       asp-area=""
-       asp-controller="Disclosure"
-       asp-action="Index"
-       aria-current="@(isActive("Disclosure","Index") ? "page" : null)">
-       <i class="bi bi-file-earmark-text"></i> @Localizer["DisclosuresNav"]
+       asp-controller="Disclosure" asp-action="Index">
+       <i class="bi bi-file-earmark-text"></i>
+       <span>@Localizer["DisclosuresNav"]</span>
+       @if ((ViewBag.PendingCount ?? 0) > 0) { <span class="badge">@ViewBag.PendingCount</span> }
     </a>
 
     <a class="nav-link @(isActive("Notifications","Index") ? "active" : "")"
-       asp-area=""
-       asp-controller="Notifications"
-       asp-action="Index"
-       aria-current="@(isActive("Notifications","Index") ? "page" : null)">
-       <i class="bi bi-bell"></i> @Localizer["NotificationsNav"]
+       asp-controller="Notifications" asp-action="Index">
+       <i class="bi bi-bell"></i>
+       <span>@Localizer["NotificationsNav"]</span>
+       @if ((ViewBag.Unread ?? 0) > 0) { <span class="badge">@ViewBag.Unread</span> }
     </a>
 
     <a class="nav-link @(isActive("Home","Index") ? "active" : "")"
-       asp-area=""
-       asp-controller="Home"
-       asp-action="Index"
-       aria-current="@(isActive("Home","Index") ? "page" : null)">
-       <i class="bi bi-house"></i> @Localizer["HomeNav"]
+       asp-controller="Home" asp-action="Index">
+       <i class="bi bi-house"></i>
+       <span>@Localizer["HomeNav"]</span>
     </a>
   </nav>
 </aside>
-
-<!-- Offcanvas (Mobile) -->
-<div class="offcanvas offcanvas-end" tabindex="-1" id="adminAside">
-  <div class="offcanvas-header">
-    <h6 class="offcanvas-title">@Localizer["MenuTitle"]</h6>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="@Localizer["Close"]"></button>
-  </div>
-
-  <div class="offcanvas-body p-0">
-    <div class="admin-sidebar" style="display:block; position:static; height:auto; top:auto; background:var(--sidebar-bg);">
-      <!-- Brand link inside offcanvas too -->
-      <a class="brand d-inline-flex align-items-center gap-2 text-white text-decoration-none mb-2"
-         asp-area=""
-         asp-controller="Dashboard"
-         asp-action="Index"
-         data-bs-dismiss="offcanvas">
-         <i class="bi bi-speedometer2"></i>
-         <span>@Localizer["Dashboard"]</span>
-      </a>
-
-      <nav class="nav flex-column gap-1">
-        <a class="nav-link @(isActive("Admin","AdminPanal") ? "active" : "")"
-           asp-area=""
-           asp-controller="Admin"
-           asp-action="AdminPanal"
-           data-bs-dismiss="offcanvas"
-           aria-current="@(isActive("Admin","AdminPanal") ? "page" : null)">
-           <i class="bi bi-people"></i> @Localizer["UsersNav"]
-        </a>
-
-        <a class="nav-link @(isActive("Admin","AddExaminer") ? "active" : "")"
-           asp-area=""
-           asp-controller="Admin"
-           asp-action="AddExaminer"
-           data-bs-dismiss="offcanvas"
-           aria-current="@(isActive("Admin","AddExaminer") ? "page" : null)">
-           <i class="bi bi-person-plus"></i> @Localizer["AddUserNav"]
-        </a>
-
-        <div class="mt-2 small text-white-50 px-2">@Localizer["OtherSection"]</div>
-
-        <a class="nav-link @(isActive("Disclosure","Index") ? "active" : "")"
-           asp-area=""
-           asp-controller="Disclosure"
-           asp-action="Index"
-           data-bs-dismiss="offcanvas"
-           aria-current="@(isActive("Disclosure","Index") ? "page" : null)">
-           <i class="bi bi-file-earmark-text"></i> @Localizer["DisclosuresNav"]
-        </a>
-
-        <a class="nav-link @(isActive("Notifications","Index") ? "active" : "")"
-           asp-area=""
-           asp-controller="Notifications"
-           asp-action="Index"
-           data-bs-dismiss="offcanvas"
-           aria-current="@(isActive("Notifications","Index") ? "page" : null)">
-           <i class="bi bi-bell"></i> @Localizer["NotificationsNav"]
-        </a>
-
-        <a class="nav-link @(isActive("Home","Index") ? "active" : "")"
-           asp-area=""
-           asp-controller="Home"
-           asp-action="Index"
-           data-bs-dismiss="offcanvas"
-           aria-current="@(isActive("Home","Index") ? "page" : null)">
-           <i class="bi bi-house"></i> @Localizer["HomeNav"]
-        </a>
-      </nav>
-    </div>
-  </div>
-</div>

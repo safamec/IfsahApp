@@ -1,73 +1,37 @@
-/* ================== DARK THEME (FINAL FULL OVERRIDE) ================== */
-html[data-theme="dark"],
-:root[data-theme="dark"],
-html[data-bs-theme="dark"],
-:root[data-bs-theme="dark"]{
+/* ===== FIX: Sidebar + Table side-by-side, always ===== */
 
-  /* Global page background */
-  --page-bg: #2F2F2F !important;
-
-  /* Sidebar vars */
-  --sidebar-bg: #2F2F2F !important;
-  --sidebar-fg: #ffffff !important;
-  --sidebar-line: rgba(255,255,255,.32) !important;
-  --sidebar-hover: rgba(255,255,255,.10) !important;
-  --sidebar-active: rgba(255,255,255,.18) !important;
-  --sidebar-badge-bg: #ffffff !important;
-  --sidebar-badge-fg: #798086ff !important;
-
-  /* Tables */
-  --tbl-header-bg: #798086ff !important;
-  --tbl-header-fg: #ffffff !important;
-  --tbl-border: #4b5157 !important;
-  --tbl-row-hover: #6d7379ff !important;
-  --tbl-zebra: #6b7279ff !important;
+/* اجبر الغلاف يكون عمودين: سايدبار 280px + محتوى يتمدد */
+.admin-frame{
+  display: grid !important;
+  grid-template-columns: 280px 1fr !important;
+  gap: 1rem !important;
+  align-items: start !important;
+  margin-top: .5rem !important; /* نفس المسافة السابقة */
 }
 
-/* apply page bg */
-html[data-theme="dark"] body,
-html[data-bs-theme="dark"] body{
-  background: var(--page-bg) !important;
+/* عمود السايدبار */
+.admin-sidebar{
+  width: 100%;
+  flex: 0 0 280px;      /* لو كان داخل flex بالخطأ */
+  grid-row: 1;          /* يمنع سقوطه لسطر جديد */
+  align-self: start;
 }
 
-/* Sidebar apply */
-html[data-theme="dark"] .admin-sidebar,
-html[data-bs-theme="dark"] .admin-sidebar{
-  background: var(--sidebar-bg) !important;
-  color: var(--sidebar-fg) !important;
+/* عمود المحتوى (الجدول) */
+.admin-content{
+  grid-row: 1;
+  margin: 0 !important;       /* ألغِ أي دفع يمين/يسار/أعلى */
+  padding-top: .5rem !important;
+  min-width: 0;               /* مهم عشان الجدول ما يسبب تمدد */
+  overflow: hidden;           /* يحافظ على الزوايا الدائرية */
 }
 
-/* Sidebar links */
-html[data-theme="dark"] .admin-sidebar .nav-link,
-html[data-bs-theme="dark"] .admin-sidebar .nav-link{
-  color: var(--sidebar-fg) !important;
+/* سايدبار ثابت أثناء التمرير على الشاشات الكبيرة (اختياري وخفيف) */
+@media (min-width: 992px){
+  .admin-sidebar{
+    position: sticky;
+    top: 1rem;                /* تحته مباشرة بعد البار العلوي */
+    height: fit-content;
+  }
 }
-html[data-theme="dark"] .admin-sidebar .nav-link.active,
-html[data-bs-theme="dark"] .admin-sidebar .nav-link.active{
-  background: var(--sidebar-active) !important;
-}
-html[data-theme="dark"] .admin-sidebar .badge,
-html[data-bs-theme="dark"] .admin-sidebar .badge{
-  background: var(--sidebar-badge-bg) !important;
-  color: var(--sidebar-badge-fg) !important;
-}
-
-/* Tables */
-html[data-theme="dark"] .table,
-html[data-bs-theme="dark"] .table{
-  border-color: var(--tbl-border) !important;
-}
-html[data-theme="dark"] .table th,
-html[data-bs-theme="dark"] .table th{
-  background: var(--tbl-header-bg) !important;
-  color: var(--tbl-header-fg) !important;
-  border-bottom: 1px solid var(--tbl-border) !important;
-}
-html[data-theme="dark"] .table tbody tr:nth-child(odd),
-html[data-bs-theme="dark"] .table tbody tr:nth-child(odd){
-  background: var(--tbl-zebra) !important;
-}
-html[data-theme="dark"] .table tbody tr:hover,
-html[data-bs-theme="dark"] .table tbody tr:hover{
-  background: var(--tbl-row-hover) !important;
-}
+/* ==== Minimal Polish: لا يغيّر المتغيّرات ولا الهيكل ==== */ /* تقليل عرض المحتوى وتهوية بسيطة */ .page-main .container, main .container, .container { max-width: 1180px; } /* بطاقات خفيفة للمحتوى بدون ألوان جديدة */ .admin-content { padding: 1rem; border-radius: .75rem; box-shadow: 0 1px 12px rgba(0,0,0,.06); } /* سايدبار أنظف ومسافات أهدأ */ .admin-sidebar { padding: 1rem .75rem; border-radius: .75rem; box-shadow: 0 1px 10px rgba(0,0,0,.05); } .admin-sidebar .nav { gap: .25rem; } .admin-sidebar .nav-link { border-radius: .5rem; padding: .45rem .6rem; } .admin-sidebar .nav-link:hover { background: var(--sidebar-hover) !important; } .admin-sidebar .nav-section { opacity: .8; font-size: .875rem; letter-spacing: .3px; margin: .5rem .25rem .25rem; border-top: 1px solid var(--sidebar-line); padding-top: .5rem; } /* الهيدر العلوي ظل خفيف */ .header, .navbar, .site-header { box-shadow: 0 1px 8px rgba(0,0,0,.06); } /* الطاولة: حواف ناعمة وthead ثابت */ .table-wrap, .admin-content .table { border-radius: .75rem; overflow: hidden; } .table { margin-bottom: 0; vertical-align: middle; } .table th, .table td { padding: .6rem .8rem !important; border-color: var(--tbl-border) !important; } .table thead th { position: sticky; top: 0; /* يبقى الهيدر ظاهر عند السكрол */ z-index: 1; } .table tbody tr td:first-child { font-weight: 600; /* أول عمود أوضح (الاسم) */ } /* أعمدة متمركزة للأيقونات والتمب */ .table td:nth-last-child(2), .table td:nth-last-child(3) { white-space: nowrap; } .table td, .table th { white-space: nowrap; } .table .badge { border-radius: 999px; font-weight: 600; padding: .25rem .5rem; } /* أزرار الأكشن صغيرة ومصفوفة بسطر واحد */ .table td:last-child { white-space: nowrap; display: flex; gap: .4rem; align-items: center; } .table td:last-child .btn, .table td:last-child a.btn { padding: .28rem .55rem; border-radius: .5rem; line-height: 1.1; font-size: .85rem; } /* شريط الإحصالات/الفوتر */ footer, .site-footer { border-top: 1px solid var(--tbl-border); margin-top: 1rem; padding-top: .75rem; font-size: .9rem; opacity: .9; } /* تخطيط الغريد كما هو لكن بمسافات أنظف */ .admin-frame { gap: 1rem; align-items: start; } /* موبايل */ @media (max-width: 991.98px){ .admin-content { padding: .75rem; } .table td:last-child { flex-wrap: wrap; row-gap: .35rem; } } /* ================= SIDEBAR COLORS ================= */ /* Light Mode sidebar (default) */ :root:not([data-theme="dark"]):not([data-bs-theme="dark"]) .admin-sidebar { background: #0f6cbd !important; /* الازرق حق الوزارة */ color: #ffffff !important; } :root:not([data-theme="dark"]):not([data-bs-theme="dark"]) .admin-sidebar .nav-link { color: #ffffff !important; } /* Dark Mode sidebar */ html[data-theme="dark"] .admin-sidebar, html[data-bs-theme="dark"] .admin-sidebar { background: #1f1f1f !important; /* قريب للـ black */ color: #ffffff !important; } /* make table/content beside the sidebar perfectly aligned */ .admin-content{ margin-top: 0 !important; margin-left: 0 !important; padding-top: .5rem !important; } /* remove any gap that push table down */ .admin-frame{ align-items: flex-start !important; margin-top: .5rem !important; } .page-main{ padding-top: .5rem !important; }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
+
   <!-- الصفحة -->
   <data name="Review Disclosure"><value>مراجعة البلاغ</value></data>
 
@@ -31,8 +32,15 @@
   <data name="Back"><value>رجوع</value></data>
   <data name="Submit Disclosure"><value>إرسال البلاغ</value></data>
   <data name="Declarations"><value>التصريحات</value></data>
-<data name="ConfirmAccuracyLabel"><value>أقرّ بأن جميع المعلومات التي قدمتها صحيحة ودقيقة</value></data>
-<data name="AcceptLiabilityLabel"><value>أفهم أنني قد أتحمّل المسؤولية القانونية في حال تقديم معلومات مضللة أو غير صحيحة</value></data>
-<data name="SubmitDisclosure"><value>إرسال الإفصاح</value></data>
+
+  <!-- التصريحات -->
+  <data name="ConfirmAccuracyLabel">
+    <value>أقرّ أن المعلومات المقدَّمة صحيحة ومبنية على الصدق وقت تقديم البلاغ.</value>
+  </data>
+
+  <!-- هذا هو السطر المفقود الذي سبب لك الخطأ -->
+  <data name="AcceptLiabilityLabel">
+    <value>سياسة وإجراءات البلاغات</value>
+  </data>
 
 </root>

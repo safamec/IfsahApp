@@ -100,11 +100,13 @@ public class EmailController : ControllerBase
                 Request.Scheme
             ) ?? "#";
 
-            var subject = $"تأكيد تفعيل التنبيهات لتحديثات البلاغ {dto.ReportNumber}";
-            var html = $@"
-<p>لتفعيل التنبيهات لتحديثات البلاغ رقم <strong>{dto.ReportNumber}</strong>، يُرجى الضغط على الرابط التالي:</p>
-<p><a href=""{confirmUrl}"">تأكيد التفعيل</a></p>
-<p>صلاحية الرابط 24 ساعة ويُستخدم مرة واحدة.</p>";
+            var subject = $"تأكيد تفعيل الإشعارات المتعلقة بالبلاغ {dto.ReportNumber}";
+
+var html = $@"
+<p>لتفعيل الإشعارات الخاصة بالبلاغ رقم <strong>{dto.ReportNumber}</strong>، يُرجى الضغط على الرابط التالي:</p>
+<p><a href=""{confirmUrl}"">تأكيد تفعيل الإشعارات</a></p>
+<p>صلاحية الرابط 24 ساعة ويمكن استخدامه مرة واحدة فقط.</p>";
+
 
             await _email.SendAsync(dto.Email, subject, html, isHtml: true);
         }
@@ -147,7 +149,8 @@ public class EmailController : ControllerBase
             {
                 RecipientId = ev.UserId,
                 EventType   = "SubscribeReport",
-                Message     = $"تم تفعيل التنبيهات لتحديثات البلاغ {report}."
+              Message = $"تم تفعيل التنبيهات المتعلقة بالبلاغ {report}."
+
             };
             _context.Add(note);
             await _context.SaveChangesAsync();
@@ -165,7 +168,8 @@ public class EmailController : ControllerBase
             {
                 id        = note.Id,
                 eventType = "SubscribeReport",
-                message   = $"تم تفعيل التنبيهات لتحديثات البلاغ {report}.",
+              Message = $"تم تفعيل التنبيهات المتعلقة بالبلاغ {report}.",
+
                 createdAt = note.CreatedAt
             });
         }

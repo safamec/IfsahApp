@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using ClosedXML.Excel;
 
 namespace IfsahApp.Web.Controllers;
 
@@ -389,33 +390,139 @@ public async Task<IActionResult> SubmitReview(
 
         return await _context.Users.FirstOrDefaultAsync(u => u.ADUserName.ToLower() == adUserName.ToLower());
     }
-    // ============================
-// DASHBOARD SUMMARY
+// ============================
+// DASHBOARD SUMMARY (Filtered)
 // ============================
 [AllowAnonymous]
-public IActionResult DashboardSummary()
+public IActionResult DashboardSummary(DateTime? fromDate, DateTime? toDate, int? year, int? month)
 {
-    // Group disclosures by month (based on IncidentStartDate) and aggregate counts
-    var summaryData = _context.Disclosures
+    // إرسال القيم للواجهة
+    ViewBag.FromDate = fromDate?.ToString("yyyy-MM-dd");
+    ViewBag.ToDate   = toDate?.ToString("yyyy-MM-dd");
+    ViewBag.SelectedYear  = year;
+    ViewBag.SelectedMonth = month;
+
+    // جميع السنوات المتوفرة في البلاغات
+    ViewBag.Years = _context.Disclosures
         .Where(d => d.IncidentStartDate.HasValue)
+        .Select(d => d.IncidentStartDate!.Value.Year)
+        .Distinct()
+        .OrderBy(y => y)
+        .ToList();
+
+    // بداية: نسحب كل البلاغات اللي لها تاريخ
+    var query = _context.Disclosures
+        .Where(d => d.IncidentStartDate.HasValue)
+        .AsQueryable();
+
+    // فلترة حسب التاريخ من
+    if (fromDate.HasValue)
+    {
+        DateTime from = fromDate.Value.Date;
+        query = query.Where(d => d.IncidentStartDate!.Value.Date >= from);
+    }
+
+    // فلترة حسب التاريخ إلى
+    if (toDate.HasValue)
+    {
+        DateTime to = toDate.Value.Date.AddDays(1);
+        query = query.Where(d => d.IncidentStartDate!.Value < to);
+    }
+
+    // فلترة بالسنة
+    if (year.HasValue)
+    {
+        query = query.Where(d => d.IncidentStartDate!.Value.Year == year.Value);
+    }
+
+    // فلترة بالشهر
+    if (month.HasValue)
+    {
+        query = query.Where(d => d.IncidentStartDate!.Value.Month == month.Value);
+    }
+
+    // تجميع حسب الشهر والسنة
+    var summary = query
         .AsEnumerable()
         .GroupBy(d => new
         {
-            Year = d.IncidentStartDate.Value.Year,
-            Month = d.IncidentStartDate.Value.Month
+            Y = d.IncidentStartDate!.Value.Year,
+            M = d.IncidentStartDate!.Value.Month
         })
-        .Select(g => new DashboardSummaryViewModel
+        .OrderBy(g => g.Key.Y)
+        .ThenBy(g => g.Key.M)
+        .Select(g =>
         {
-            Month = new DateTime(g.Key.Year, g.Key.Month, 1).ToString("MMMM yyyy"),
-            NumberOfDisclosures = g.Count(),
-            DisclosuresUnderReview = g.Count(d => d.Status == DisclosureStatus.InReview),
-            DisclosuresInProcess = g.Count(d => d.Status == DisclosureStatus.Assigned),
-            CancelledDisclosures = g.Count(d => d.Status == DisclosureStatus.Completed)
+            var dt = new DateTime(g.Key.Y, g.Key.M, 1);
+
+            return new DashboardSummaryViewModel
+            {
+                Month = dt.ToString("yyyy/MM/dd"),   // full date
+
+                NumberOfDisclosures = g.Count(),
+                UnderReview = g.Count(d => d.Status == DisclosureStatus.InReview),
+                UnderExamination = g.Count(d => d.Status == DisclosureStatus.Assigned),
+                Completed = g.Count(d => d.Status == DisclosureStatus.Completed),
+                Rejected = g.Count(d => d.Status == DisclosureStatus.Rejected)
+            };
         })
-        .OrderBy(vm => DateTime.ParseExact(vm.Month, "MMMM yyyy", null))
         .ToList();
 
-    return View(summaryData);
+    // احسب NewRequests
+    foreach (var row in summary)
+    {
+        row.NewRequests = row.NumberOfDisclosures
+                         - row.Completed
+                         - row.Rejected
+                         - row.UnderReview
+                         - row.UnderExamination;
+    }
+
+    return View(summary);
 }
+// =========================================
+// EXPORT TO EXCEL (Filtered)
+// =========================================
+[AllowAnonymous]
+public IActionResult ExportSummaryToExcel(DateTime? fromDate, DateTime? toDate, int? year, int? month)
+{
+    // إعادة استخدام نفس التصفية
+    var data = DashboardSummary(fromDate, toDate, year, month) as ViewResult;
+    var model = data?.Model as IEnumerable<DashboardSummaryViewModel>;
+
+    var wb = new XLWorkbook();
+    var ws = wb.Worksheets.Add("Summary");
+
+    ws.Cell(1, 1).Value = "Date";
+    ws.Cell(1, 2).Value = "Total";
+    ws.Cell(1, 3).Value = "New";
+    ws.Cell(1, 4).Value = "Under Review";
+    ws.Cell(1, 5).Value = "Under Examination";
+    ws.Cell(1, 6).Value = "Completed";
+    ws.Cell(1, 7).Value = "Rejected";
+
+    int row = 2;
+
+    foreach (var d in model!)
+    {
+        ws.Cell(row, 1).Value = d.Month;
+        ws.Cell(row, 2).Value = d.NumberOfDisclosures;
+        ws.Cell(row, 3).Value = d.NewRequests;
+        ws.Cell(row, 4).Value = d.UnderReview;
+        ws.Cell(row, 5).Value = d.UnderExamination;
+        ws.Cell(row, 6).Value = d.Completed;
+        ws.Cell(row, 7).Value = d.Rejected;
+        row++;
+    }
+
+    using var stream = new MemoryStream();
+    wb.SaveAs(stream);
+    var content = stream.ToArray();
+
+    return File(content,
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "DashboardSummary.xlsx");
+}
+
 
 }

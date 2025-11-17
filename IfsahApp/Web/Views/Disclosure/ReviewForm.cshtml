@@ -152,8 +152,14 @@
 <br/>
     <label class="declaration-row">
       <input class="form-check-input" type="checkbox" id="AcceptLiability" name="AcceptLiability" required />
-      <span class="check-text">@Localizer["AcceptLiabilityLabel"]</span>
-    </label>
+<span class="check-text">
+    <a href="~/files/RisaltakBiAmanPolicy.pdf"
+       target="_blank"
+       class="text-decoration-none fw-semibold">
+       @Localizer["AcceptLiabilityLabel"]
+    </a>
+</span>
+
   </div>
 
   @if (TempData["ReviewError"] is string err && !string.IsNullOrWhiteSpace(err))

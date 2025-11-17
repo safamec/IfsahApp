@@ -122,43 +122,39 @@
     <comment/>
   </data>
   <data name="footer_mission" xml:space="preserve">
-    <value>Our mission is to provide secure and reliable services.</value>
+    <value>We strive to promote integrity in a way that serves the interests of the organization.</value>
     <comment/>
   </data>
   <data name="contact_info" xml:space="preserve">
     <value>Contact Information</value>
     <comment/>
   </data>
-  <data name="location" xml:space="preserve">
-    <value>123 Main Street, Capital City</value>
+  <data name="audit_department_address" xml:space="preserve">
+    <value>Internal Audit Department - Ministry of Energy and Minerals</value>
+    <comment/>
+  </data>
+  <data name="audit_department_phone" xml:space="preserve">
+    <value>Phone: +968 24640712</value>
+    <comment/>
+  </data>
+  <data name="audit_department_email" xml:space="preserve">
+    <value>Mobile: +968 95179369</value>
     <comment/>
   </data>
   <data name="security_privacy" xml:space="preserve">
-    <value>Security &amp; Privacy</value>
+    <value>Security and Privacy</value>
     <comment/>
   </data>
   <data name="ssl_encryption" xml:space="preserve">
-    <value>All data is SSL encrypted for your safety.</value>
+    <value>We ensure the confidentiality of information and do not share it with any unauthorized party.</value>
+    <comment/>
+  </data>
+  <data name="message_safe_policy" xml:space="preserve">
+    <value>Policies and Procedures for Reporting</value>
     <comment/>
   </data>
   <data name="copyright" xml:space="preserve">
-    <value>© 2025 Ministry of Energy and Minerals . All rights reserved.</value>
-    <comment/>
-  </data>
-  <data name="privacy_policy" xml:space="preserve">
-    <value>Privacy Policy</value>
-    <comment/>
-  </data>
-  <data name="terms_conditions" xml:space="preserve">
-    <value>Terms &amp; Conditions</value>
-    <comment/>
-  </data>
-  <data name="sitemap" xml:space="preserve">
-    <value>Sitemap</value>
-    <comment/>
-  </data>
-  <data name="info_confidentiality" xml:space="preserve">
-    <value>All information is confidential and protected.</value>
+    <value>© 2025 Ministry of Energy and Minerals. All rights reserved.</value>
     <comment/>
   </data>
 </root>

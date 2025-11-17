@@ -3,36 +3,65 @@
 <footer class="footer py-4 mt-5">
     <div class="container">
         <div class="row">
+            <!-- 1) شعار الوزارة -->
             <div class="col-md-4">
-                <h5>
-                    <i class="bi bi-shield-shaded me-2"></i>
+                <h5 class="d-flex align-items-center mb-2">
+                    <img src="~/images/Nation.png"
+                         alt="شعار سلطنة عُمان"
+                         class="me-2"
+                         style="height: 28px;" />
                     @Localizer["ministry_name"]
                 </h5>
                 <p class="mb-2">@Localizer["footer_mission"]</p>
             </div>
+
+            <!-- 2) معلومات الاتصال - دائرة التدقيق الداخلي -->
             <div class="col-md-4">
                 <h5>@Localizer["contact_info"]</h5>
-                <p><i class="bi bi-geo-alt me-2"></i> @Localizer["location"]</p>
+
+                <p class="mb-1">
+                    <i class="bi bi-geo-alt me-2"></i>
+                    @Localizer["audit_department_address"]
+                </p>
+
+                <p class="mb-1">
+                    <i class="bi bi-telephone me-2"></i>
+                    @Localizer["audit_department_phone"]
+                </p>
+
+                <p class="mb-0">
+                    <i class="bi bi-envelope me-2"></i>
+                    @Localizer["audit_department_email"]
+                </p>
             </div>
+
+            <!-- 3) الأمان والخصوصية + سياسة رسالتك بأمان -->
             <div class="col-md-4">
                 <h5>@Localizer["security_privacy"]</h5>
-                <p><i class="bi bi-shield-check me-2"></i> @Localizer["ssl_encryption"]</p>
+
+                <p>
+                    <i class="bi bi-shield-check me-2"></i>
+                    @Localizer["ssl_encryption"]
+                </p>
+
+             <p class="mb-0">
+    <a href="~/files/RisaltakBiAmanPolicy.pdf"
+       download
+       class="text-decoration-none">
+        @Localizer["message_safe_policy"]
+    </a>
+</p>
+
+                </p>
             </div>
         </div>
-        <hr>
+
+        <hr />
+
         <div class="row">
-            <div class="col-md-6 text-center text-md-start">
-                <p class="mb-1">@Localizer["copyright"]</p>
-                <div class="footer-links">
-                    <a href="#">@Localizer["privacy_policy"]</a>
-                    <a href="#">@Localizer["terms_conditions"]</a>
-                    <a href="#">@Localizer["sitemap"]</a>
-                </div>
-            </div>
-            <div class="col-md-6 text-center text-md-end">
-                <p>
-                    <i class="bi bi-shield-lock-fill me-2"></i>
-                    @Localizer["info_confidentiality"]
+            <div class="col-12 text-center">
+                <p class="mb-0">
+                    @Localizer["copyright"]
                 </p>
             </div>
         </div>

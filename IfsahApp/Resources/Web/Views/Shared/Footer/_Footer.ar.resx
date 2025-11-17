@@ -122,15 +122,27 @@
     <comment/>
   </data>
   <data name="footer_mission" xml:space="preserve">
-    <value>مهمتنا هي تقديم خدمات آمنة وموثوقة.</value>
+    <value>نسعى إلى تعزيز النزاهة بما يخدم مصلحة العمل.</value>
     <comment/>
   </data>
   <data name="contact_info" xml:space="preserve">
     <value>معلومات الاتصال</value>
     <comment/>
   </data>
+  <data name="audit_department_address" xml:space="preserve">
+    <value>دائرة التدقيق الداخلي - وزارة الطاقة والمعادن</value>
+    <comment/>
+  </data>
+  <data name="audit_department_phone" xml:space="preserve">
+    <value>هاتف :24640712</value>
+    <comment/>
+  </data>
+  <data name="audit_department_email" xml:space="preserve">
+    <value>نقال :95179369</value>
+    <comment/>
+  </data>
   <data name="location" xml:space="preserve">
-    <value>١٢٣ شارع الرئيسي، العاصمة</value>
+    <value>وزارة الطاقة والمعادن – مسقط، سلطنة عُمان</value>
     <comment/>
   </data>
   <data name="security_privacy" xml:space="preserve">
@@ -138,27 +150,15 @@
     <comment/>
   </data>
   <data name="ssl_encryption" xml:space="preserve">
-    <value>جميع البيانات مشفرة باستخدام SSL لضمان سلامتك.</value>
+    <value>نضمن الحفاظ على سرية المعلومات وعدم مشاركتها مع أي طرف غير مخوّل.</value>
     <comment/>
   </data>
   <data name="copyright" xml:space="preserve">
     <value>© 2025 وزارة الطاقة والمعادن. جميع الحقوق محفوظة.</value>
     <comment/>
   </data>
-  <data name="privacy_policy" xml:space="preserve">
-    <value>سياسة الخصوصية</value>
-    <comment/>
-  </data>
-  <data name="terms_conditions" xml:space="preserve">
-    <value>الأحكام والشروط</value>
-    <comment/>
-  </data>
-  <data name="sitemap" xml:space="preserve">
-    <value>خريطة الموقع</value>
-    <comment/>
-  </data>
-  <data name="info_confidentiality" xml:space="preserve">
-    <value>جميع المعلومات سرية ومحفوظة.</value>
+  <data name="message_safe_policy" xml:space="preserve">
+    <value>سياسة وإجراءات البلاغات </value>
     <comment/>
   </data>
 </root>

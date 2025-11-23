@@ -19,4 +19,35 @@
   <data name="ReviewBtn"><value>مراجعة</value></data>
   <data name="Previous"><value>السابق</value></data>
   <data name="Next"><value>التالي</value></data>
+
+  <!-- Date Range Picker -->
+  <data name="DateRangeLabel"><value>نطاق التاريخ</value></data>
+  <data name="SelectDateRangePlaceholder"><value>اختر نطاق التاريخ</value></data>
+
+  <data name="Apply"><value>تطبيق</value></data>
+  <data name="Cancel"><value>إلغاء</value></data>
+  <data name="From"><value>من</value></data>
+  <data name="To"><value>إلى</value></data>
+  <data name="Custom"><value>مخصص</value></data>
+
+  <data name="Su"><value>أحد</value></data>
+  <data name="Mo"><value>اثنين</value></data>
+  <data name="Tu"><value>ثلاثاء</value></data>
+  <data name="We"><value>أربعاء</value></data>
+  <data name="Th"><value>خميس</value></data>
+  <data name="Fr"><value>جمعة</value></data>
+  <data name="Sa"><value>سبت</value></data>
+
+  <data name="January"><value>يناير</value></data>
+  <data name="February"><value>فبراير</value></data>
+  <data name="March"><value>مارس</value></data>
+  <data name="April"><value>أبريل</value></data>
+  <data name="May"><value>مايو</value></data>
+  <data name="June"><value>يونيو</value></data>
+  <data name="July"><value>يوليو</value></data>
+  <data name="August"><value>أغسطس</value></data>
+  <data name="September"><value>سبتمبر</value></data>
+  <data name="October"><value>أكتوبر</value></data>
+  <data name="November"><value>نوفمبر</value></data>
+  <data name="December"><value>ديسمبر</value></data>
 </root>

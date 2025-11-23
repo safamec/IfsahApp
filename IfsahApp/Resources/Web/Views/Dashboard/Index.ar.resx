@@ -29,4 +29,35 @@
   <data name="Status_InReview"><value>قيد المراجعة</value></data>
   <data name="Status_Completed"><value>مكتمل</value></data>
   <data name="Status_Rejected"><value>مرفوض</value></data>
+
+  <data name="DateRangeLabel"><value>نطاق التاريخ</value></data>
+<data name="SelectDateRangePlaceholder"><value>اختر نطاق التاريخ</value></data>
+
+<data name="Apply"><value>تطبيق</value></data>
+<data name="Cancel"><value>إلغاء</value></data>
+<data name="From"><value>من</value></data>
+<data name="To"><value>إلى</value></data>
+<data name="Custom"><value>مخصص</value></data>
+
+<data name="Su"><value>أحد</value></data>
+<data name="Mo"><value>اثن</value></data>
+<data name="Tu"><value>ثلث</value></data>
+<data name="We"><value>أربع</value></data>
+<data name="Th"><value>خمس</value></data>
+<data name="Fr"><value>جمع</value></data>
+<data name="Sa"><value>سبت</value></data>
+
+<data name="January"><value>يناير</value></data>
+<data name="February"><value>فبراير</value></data>
+<data name="March"><value>مارس</value></data>
+<data name="April"><value>أبريل</value></data>
+<data name="May"><value>مايو</value></data>
+<data name="June"><value>يونيو</value></data>
+<data name="July"><value>يوليو</value></data>
+<data name="August"><value>أغسطس</value></data>
+<data name="September"><value>سبتمبر</value></data>
+<data name="October"><value>أكتوبر</value></data>
+<data name="November"><value>نوفمبر</value></data>
+<data name="December"><value>ديسمبر</value></data>
+
 </root>

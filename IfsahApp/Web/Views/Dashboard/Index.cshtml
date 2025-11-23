@@ -16,47 +16,63 @@
 
     <!-- Filter Box -->
     <form method="get" class="filter-box">
-        <!-- Status Filter -->
-        <div class="form-group">
-            <label for="status">@Localizer["StatusLabel"]</label>
-            <select name="status" id="status" class="filter-input">
-                @foreach (var item in statusList)
-                {
-                    var val = item.Value ?? "";
-                    var ls  = val.Equals("All", StringComparison.OrdinalIgnoreCase)
-                        ? Localizer["Status_All"]
-                        : Localizer[$"Status_{val}"];
-                    var label = ls.IsResourceNotFound ? (item.Text ?? val) : ls.Value;
 
-                    <option value="@val" selected="@(item.Selected ? "selected" : null)">@label</option>
-                }
-            </select>
-        </div>
+    <!-- Status Filter -->
+    <div class="form-group">
+        <label for="status">@Localizer["StatusLabel"]</label>
+        <select name="status" id="status" class="filter-input">
+            @foreach (var item in statusList)
+            {
+                var val = item.Value ?? "";
+                var ls  = val.Equals("All", StringComparison.OrdinalIgnoreCase)
+                    ? Localizer["Status_All"]
+                    : Localizer[$"Status_{val}"];
+                var label = ls.IsResourceNotFound ? (item.Text ?? val) : ls.Value;
 
-        <!-- Reference Filter -->
-        <div class="form-group">
-            <label for="reference">@Localizer["ReferenceLabel"]</label>
-            <input type="text" name="reference" id="reference" class="filter-input"
-                   value="@ViewBag.SelectedReference" placeholder="@Localizer["EnterReferencePlaceholder"]">
-        </div>
+                <option value="@val" selected="@(item.Selected ? "selected" : null)">@label</option>
+            }
+        </select>
+    </div>
 
-        <!-- Page Size Filter -->
-        <div class="form-group">
-            <label for="pageSize">@Localizer["ShowLabel"]</label>
-            <select name="pageSize" id="pageSize" class="filter-input">
-                @foreach (var size in sizes)
-                {
-                    <option value="@size" selected="@(ViewBag.PageSize == size ? "selected" : null)">@size</option>
-                }
-            </select>
-        </div>
+    <!-- Reference Filter -->
+    <div class="form-group">
+        <label for="reference">@Localizer["ReferenceLabel"]</label>
+        <input type="text" name="reference" id="reference" class="filter-input"
+               value="@ViewBag.SelectedReference" placeholder="@Localizer["EnterReferencePlaceholder"]">
+    </div>
 
-        <!-- Filter Buttons -->
-        <div class="button-group">
-            <button type="submit" class="filter-btn">@Localizer["FilterBtn"]</button>
-            <a href="@Url.Action("Index", "Dashboard")" class="clear-btn">@Localizer["ClearBtn"]</a>
-        </div>
-    </form>
+    <!-- Date Range Filter -->
+<div class="form-group">
+    <label>@Localizer["DateRangeLabel"]</label>
+
+    <input id="dateRangePicker" type="text" class="filter-input"
+           autocomplete="off"
+           placeholder='@Localizer["SelectDateRangePlaceholder"]' />
+
+    <input type="hidden" name="fromDate" id="fromDate" value="@ViewBag.FromDate" />
+    <input type="hidden" name="toDate" id="toDate" value="@ViewBag.ToDate" />
+</div>
+
+
+    <!-- Page Size Filter -->
+    <div class="form-group">
+        <label for="pageSize">@Localizer["ShowLabel"]</label>
+        <select name="pageSize" id="pageSize" class="filter-input">
+            @foreach (var size in sizes)
+            {
+                <option value="@size" selected="@(ViewBag.PageSize == size ? "selected" : null)">@size</option>
+            }
+        </select>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div class="button-group">
+        <button type="submit" class="filter-btn">@Localizer["FilterBtn"]</button>
+        <a href="@Url.Action("Index", "Dashboard")" class="clear-btn">@Localizer["ClearBtn"]</a>
+    </div>
+
+</form>
+
 
     <!-- Table -->
     <div class="table-custom-responsive">
@@ -105,39 +121,105 @@
 
     <!-- Pagination -->
     <nav>
-        <ul class="pagination-custom">
-            <!-- Previous button -->
-            <li class="@(ViewBag.CurrentPage == 1 ? "disabled" : "")">
-                <a href="@Url.Action("Index", new {
-                    status = statusList.FirstOrDefault(i => i.Selected)?.Value ?? "All",
-                    reference = ViewBag.SelectedReference,
-                    page = ViewBag.CurrentPage - 1,
-                    pageSize = ViewBag.PageSize
-                })">@Localizer["Previous"]</a>
-            </li>
+    <ul class="pagination-custom">
 
-            <!-- Page numbers -->
-            @for (int i = 1; i <= ViewBag.TotalPages; i++)
-            {
-                <li class="@(ViewBag.CurrentPage == i ? "active" : "")">
-                    <a href="@Url.Action("Index", new {
-                        status = statusList.FirstOrDefault(s => s.Selected)?.Value ?? "All",
-                        reference = ViewBag.SelectedReference,
-                        page = i,
-                        pageSize = ViewBag.PageSize
-                    })">@i</a>
-                </li>
-            }
+        <!-- Previous -->
+        <li class="@(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+            <a href="@Url.Action("Index", new {
+                status = ViewBag.SelectedStatus,
+                reference = ViewBag.SelectedReference,
+                fromDate = ViewBag.FromDate,
+                toDate   = ViewBag.ToDate,
+                page = ViewBag.CurrentPage - 1,
+                pageSize = ViewBag.PageSize
+            })">@Localizer["Previous"]</a>
+        </li>
 
-            <!-- Next button -->
-            <li class="@(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+        <!-- Page numbers -->
+        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+        {
+            <li class="@(ViewBag.CurrentPage == i ? "active" : "")">
                 <a href="@Url.Action("Index", new {
-                    status = statusList.FirstOrDefault(i => i.Selected)?.Value ?? "All",
+                    status = ViewBag.SelectedStatus,
                     reference = ViewBag.SelectedReference,
-                    page = ViewBag.CurrentPage + 1,
+                    fromDate = ViewBag.FromDate,
+                    toDate = ViewBag.ToDate,
+                    page = i,
                     pageSize = ViewBag.PageSize
-                })">@Localizer["Next"]</a>
+                })">@i</a>
             </li>
-        </ul>
-    </nav>
+        }
+
+        <!-- Next -->
+        <li class="@(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+            <a href="@Url.Action("Index", new {
+                status = ViewBag.SelectedStatus,
+                reference = ViewBag.SelectedReference,
+                fromDate = ViewBag.FromDate,
+                toDate = ViewBag.ToDate,
+                page = ViewBag.CurrentPage + 1,
+                pageSize = ViewBag.PageSize
+            })">@Localizer["Next"]</a>
+        </li>
+
+    </ul>
+</nav>
+
 </div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <!-- Date Range Picker dependencies -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+    <script>
+        $(function () {
+            $('#dateRangePicker').daterangepicker({
+                locale: {
+                    format: 'YYYY-MM-DD',
+                    applyLabel: '@Localizer["Apply"]',
+                    cancelLabel: '@Localizer["Cancel"]',
+                    fromLabel: '@Localizer["From"]',
+                    toLabel: '@Localizer["To"]',
+                    customRangeLabel: '@Localizer["Custom"]',
+                    daysOfWeek: [
+                        '@Localizer["Su"]', '@Localizer["Mo"]', '@Localizer["Tu"]',
+                        '@Localizer["We"]', '@Localizer["Th"]', '@Localizer["Fr"]', '@Localizer["Sa"]'
+                    ],
+                    monthNames: [
+                        '@Localizer["January"]', '@Localizer["February"]', '@Localizer["March"]',
+                        '@Localizer["April"]', '@Localizer["May"]', '@Localizer["June"]',
+                        '@Localizer["July"]', '@Localizer["August"]', '@Localizer["September"]',
+                        '@Localizer["October"]', '@Localizer["November"]', '@Localizer["December"]'
+                    ],
+                    firstDay: 0
+                },
+                autoUpdateInput: false
+            });
+
+            $('#dateRangePicker').on('apply.daterangepicker', function (ev, picker) {
+            $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+
+            $('#fromDate').val(picker.startDate.format('YYYY-MM-DD'));
+            $('#toDate').val(picker.endDate.format('YYYY-MM-DD'));
+            });
+
+            $('#dateRangePicker').on('cancel.daterangepicker', function () {
+                $(this).val('');
+                $('#fromDate').val('');
+                $('#toDate').val('');
+            });
+
+        });
+    </script>
+}
+

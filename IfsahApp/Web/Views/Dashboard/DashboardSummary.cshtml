@@ -1,9 +1,10 @@
 @using IfsahApp.Core.ViewModels
 @model IEnumerable<DashboardSummaryViewModel>
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 
 @{
     Layout = "_Layout";
-    ViewBag.Title = "Dashboard Summary";
+    ViewBag.Title = Localizer["Title"];
 
     var monthsFull = Model.Select(m => m.Month).ToArray();
 
@@ -29,31 +30,30 @@
 
 <div class="container mb-5">
 
-    <h2 class="text-center my-4 fw-bold text-dark">Dashboard Summary</h2>
+    <h2 class="text-center my-4 fw-bold text-dark">@Localizer["Title"]</h2>
 
     <!-- FILTER -->
     <form method="get" class="row g-3 mb-4">
 
         <!-- RANGE PICKER -->
         <div class="col-md-4">
-            <label>Select Date Range</label>
-            <input type="text" id="dateRange" class="form-control" placeholder="Pick Date Range" readonly />
+            <label>@Localizer["SelectDateRange"]</label>
+            <input type="text" id="dateRange" class="form-control" placeholder="@Localizer["PickDateRange"]" readonly />
         </div>
 
-        <!-- HIDDEN REAL FILTER FIELDS -->
         <input type="hidden" name="fromDate" id="fromDate" />
         <input type="hidden" name="toDate" id="toDate" />
 
         <div class="col-md-2 d-flex align-items-end">
-            <button class="btn btn-primary w-100">Apply</button>
+            <button class="btn btn-primary w-100">@Localizer["Apply"]</button>
         </div>
 
         <div class="col-md-2 d-flex align-items-end">
-            <a href="@Url.Action("DashboardSummary")" class="btn btn-secondary w-100">Reset</a>
+            <a href="@Url.Action("DashboardSummary")" class="btn btn-secondary w-100">@Localizer["Reset"]</a>
         </div>
 
         <div class="col-md-4 d-flex align-items-end justify-content-end">
-            <a class="btn btn-success" href="@Url.Action("ExportSummaryToExcel", "Dashboard")">📥 Export Excel</a>
+            <a class="btn btn-success" href="@Url.Action("ExportSummaryToExcel", "Dashboard")">📥 @Localizer["ExportExcel"]</a>
         </div>
 
     </form>
@@ -67,31 +67,31 @@
     }
 
     <div class="badge-box">
-        <div class="dash-badge">Total <span>@total</span></div>
-        <div class="dash-badge">Completed <span>@completed</span></div>
-        <div class="dash-badge">Under Review <span>@underReview</span></div>
-        <div class="dash-badge">Rejected <span>@rejected</span></div>
+        <div class="dash-badge">@Localizer["Total"] <span>@total</span></div>
+        <div class="dash-badge">@Localizer["Completed"] <span>@completed</span></div>
+        <div class="dash-badge">@Localizer["UnderReview"] <span>@underReview</span></div>
+        <div class="dash-badge">@Localizer["Rejected"] <span>@rejected</span></div>
     </div>
 
     <!-- CHARTS -->
     <div class="row g-3">
         <div class="col-md-4">
             <div class="card chart-card">
-                <div class="chart-title">Evolution by Status</div>
+                <div class="chart-title">@Localizer["EvolutionByStatus"]</div>
                 <div class="chart-canvas-wrap"><canvas id="pieChart"></canvas></div>
             </div>
         </div>
 
         <div class="col-md-4">
             <div class="card chart-card">
-                <div class="chart-title">Trend</div>
+                <div class="chart-title">@Localizer["Trend"]</div>
                 <div class="chart-canvas-wrap"><canvas id="lineChart"></canvas></div>
             </div>
         </div>
 
         <div class="col-md-4">
             <div class="card chart-card">
-                <div class="chart-title">Monthly Comparison</div>
+                <div class="chart-title">@Localizer["MonthlyComparison"]</div>
                 <div class="chart-canvas-wrap"><canvas id="barChart"></canvas></div>
             </div>
         </div>
@@ -99,13 +99,18 @@
 
     <!-- TABLE -->
     <div class="card mt-4">
-        <div class="card-header">Details</div>
+        <div class="card-header">@Localizer["Details"]</div>
         <div class="table-responsive">
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Date</th><th>Total</th><th>New</th><th>Review</th>
-                        <th>Exam</th><th>Completed</th><th>Rejected</th>
+                        <th>@Localizer["Date"]</th>
+                        <th>@Localizer["Total"]</th>
+                        <th>@Localizer["New"]</th>
+                        <th>@Localizer["Review"]</th>
+                        <th>@Localizer["Exam"]</th>
+                        <th>@Localizer["Completed"]</th>
+                        <th>@Localizer["Rejected"]</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -133,7 +138,6 @@
 <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/bundle.js"></script>
 
 <script>
-    // Chart DATA
     const months = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(monthsShort));
     const total = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(m => m.NumberOfDisclosures)));
     const newReq = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(m => m.NewRequests)));
@@ -142,7 +146,6 @@
     const completed = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(m => m.Completed)));
     const rejected = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(m => m.Rejected)));
 
-    // 1️⃣ RANGE PICKER
     const picker = new Litepicker({
         element: document.getElementById('dateRange'),
         singleMode: false,
@@ -158,11 +161,16 @@
         }
     });
 
-    // 2️⃣ PIE
     new Chart(pieChart, {
         type:"pie",
         data:{
-            labels:["New","Review","Exam","Completed","Rejected"],
+            labels:[
+                "@Localizer["New"]",
+                "@Localizer["Review"]",
+                "@Localizer["Exam"]",
+                "@Localizer["Completed"]",
+                "@Localizer["Rejected"]"
+            ],
             datasets:[{
                 data:[
                     newReq.reduce((a,b)=>a+b,0),
@@ -176,33 +184,31 @@
         }
     });
 
-    // 3️⃣ LINE
     new Chart(lineChart, {
         type:"line",
         data:{
             labels:months,
             datasets:[
-                {label:"New", data:newReq, borderColor:"#0056A3"},
-                {label:"Review", data:review, borderColor:"#7EB6FF"},
-                {label:"Exam", data:exam, borderColor:"#FFBFA5"},
-                {label:"Completed", data:completed, borderColor:"#A8E6CF"},
-                {label:"Rejected", data:rejected, borderColor:"#CBA1FF"}
+                {label:"@Localizer["New"]", data:newReq, borderColor:"#0056A3"},
+                {label:"@Localizer["Review"]", data:review, borderColor:"#7EB6FF"},
+                {label:"@Localizer["Exam"]", data:exam, borderColor:"#FFBFA5"},
+                {label:"@Localizer["Completed"]", data:completed, borderColor:"#A8E6CF"},
+                {label:"@Localizer["Rejected"]", data:rejected, borderColor:"#CBA1FF"}
             ]
         }
     });
 
-    // 4️⃣ BAR
     new Chart(barChart, {
         type:"bar",
         data:{
             labels:months,
             datasets:[
-                {label:"Total", data:total, backgroundColor:"#0056A3"},
-                {label:"New", data:newReq, backgroundColor:"#7EB6FF"},
-                {label:"Review", data:review, backgroundColor:"#FFBFA5"},
-                {label:"Exam", data:exam, backgroundColor:"#A8E6CF"},
-                {label:"Completed", data:completed, backgroundColor:"#CBA1FF"},
-                {label:"Rejected", data:rejected, backgroundColor:"#999"}
+                {label:"@Localizer["Total"]", data:total, backgroundColor:"#0056A3"},
+                {label:"@Localizer["New"]", data:newReq, backgroundColor:"#7EB6FF"},
+                {label:"@Localizer["Review"]", data:review, backgroundColor:"#FFBFA5"},
+                {label:"@Localizer["Exam"]", data:exam, backgroundColor:"#A8E6CF"},
+                {label:"@Localizer["Completed"]", data:completed, backgroundColor:"#CBA1FF"},
+                {label:"@Localizer["Rejected"]", data:rejected, backgroundColor:"#999"}
             ]
         }
     });

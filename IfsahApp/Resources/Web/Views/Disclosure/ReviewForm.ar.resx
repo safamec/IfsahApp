@@ -1,46 +1,208 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
+  <!--
+    Microsoft ResX Schema
 
-  <!-- الصفحة -->
-  <data name="Review Disclosure"><value>مراجعة البلاغ</value></data>
+    Version 2.0
 
-  <!-- الأقسام -->
-  <data name="Disclosure Details"><value>تفاصيل البلاغ</value></data>
-  <data name="Suspected People"><value>الأشخاص المشتبه بهم</value></data>
-  <data name="Related People"><value>الأشخاص المرتبطون</value></data>
-  <data name="Attachments"><value>المرفقات</value></data>
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
+    associated with the data types.
 
-  <!-- عناوين جدول التفاصيل -->
-  <data name="Disclosure Type"><value>نوع البلاغ</value></data>
-  <data name="Description"><value>الوصف</value></data>
-  <data name="Location"><value>موقع المخالفة</value></data>
-  <data name="Incident Start Date"><value>تاريخ بداية الواقعة</value></data>
-  <data name="Incident End Date"><value>تاريخ نهاية الواقعة</value></data>
+    Example:
 
-  <!-- عناوين جدول الأشخاص -->
-  <data name="Name"><value>الاسم</value></data>
-  <data name="Email"><value>البريد الإلكتروني</value></data>
-  <data name="Phone"><value>رقم الجوال</value></data>
-  <data name="Organization"><value>الجهة</value></data>
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
 
-  <!-- الحالات الفارغة -->
-  <data name="No suspected people"><value>لا يوجد أشخاص مشتبه بهم</value></data>
-  <data name="No related people"><value>لا يوجد أشخاص مرتبطون</value></data>
-  <data name="No attachments"><value>لا توجد مرفقات</value></data>
+    There are any number of "resheader" rows that contain simple
+    name/value pairs.
 
-  <!-- الأزرار -->
-  <data name="Back"><value>رجوع</value></data>
-  <data name="Submit Disclosure"><value>إرسال البلاغ</value></data>
-  <data name="Declarations"><value>التصريحات</value></data>
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
+    mimetype set.
 
-  <!-- التصريحات -->
-  <data name="ConfirmAccuracyLabel">
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
+    extensible. For a given mimetype the value must be set accordingly:
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
+    read any of the formats listed below.
+
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string"/>
+              <xsd:attribute name="type" type="xsd:string"/>
+              <xsd:attribute name="mimetype" type="xsd:string"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string"/>
+              <xsd:attribute name="name" type="xsd:string"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1"/>
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Review Disclosure" xml:space="preserve">
+    <value>مراجعة البلاغ</value>
+    <comment/>
+  </data>
+  <data name="Disclosure Details" xml:space="preserve">
+    <value>تفاصيل البلاغ</value>
+    <comment/>
+  </data>
+  <data name="Suspected People" xml:space="preserve">
+    <value>الأشخاص المشتبه بهم</value>
+    <comment/>
+  </data>
+  <data name="Related People" xml:space="preserve">
+    <value>أشخاص لديهم معلومات ذات صلة</value>
+    <comment/>
+  </data>
+  <data name="Attachments" xml:space="preserve">
+    <value>المرفقات</value>
+    <comment/>
+  </data>
+  <data name="Disclosure Type" xml:space="preserve">
+    <value>نوع البلاغ</value>
+    <comment/>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>الوصف</value>
+    <comment/>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>موقع المخالفة</value>
+    <comment/>
+  </data>
+  <data name="Incident Start Date" xml:space="preserve">
+    <value>تاريخ بداية الواقعة</value>
+    <comment/>
+  </data>
+  <data name="Incident End Date" xml:space="preserve">
+    <value>تاريخ نهاية الواقعة</value>
+    <comment/>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>الاسم</value>
+    <comment/>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>البريد الإلكتروني</value>
+    <comment/>
+  </data>
+  <data name="Phone" xml:space="preserve">
+    <value>رقم الجوال</value>
+    <comment/>
+  </data>
+  <data name="Organization" xml:space="preserve">
+    <value>الجهة</value>
+    <comment/>
+  </data>
+  <data name="No suspected people" xml:space="preserve">
+    <value>لا يوجد أشخاص مشتبه بهم</value>
+    <comment/>
+  </data>
+  <data name="No related people" xml:space="preserve">
+    <value>لا يوجد أشخاص لديهم معلومات ذات صلة</value>
+    <comment/>
+  </data>
+  <data name="No attachments" xml:space="preserve">
+    <value>لا توجد مرفقات</value>
+    <comment/>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>رجوع</value>
+    <comment/>
+  </data>
+  <data name="Submit Disclosure" xml:space="preserve">
+    <value>إرسال البلاغ</value>
+    <comment/>
+  </data>
+  <data name="Declarations" xml:space="preserve">
+    <value>التصريحات</value>
+    <comment/>
+  </data>
+  <data name="ConfirmAccuracyLabel" xml:space="preserve">
     <value>أقرّ أن المعلومات المقدَّمة صحيحة ومبنية على الصدق وقت تقديم البلاغ.</value>
+    <comment/>
   </data>
-
-  <!-- هذا هو السطر المفقود الذي سبب لك الخطأ -->
-  <data name="AcceptLiabilityLabel">
+  <data name="AcceptLiabilityLabel" xml:space="preserve">
     <value>سياسة وإجراءات البلاغات</value>
+    <comment/>
   </data>
-
 </root>

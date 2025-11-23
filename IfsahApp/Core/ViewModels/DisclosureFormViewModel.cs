@@ -64,34 +64,46 @@ namespace IfsahApp.Core.ViewModels
 
         // ✅ FIXED: replaced NotImplementedException with working validation
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        var results = new List<ValidationResult>();
+
+        var assembly = typeof(DisclosureFormViewModel).Assembly;
+        var resourceManager = new ResourceManager("IfsahApp.Resources.Core.ViewModels.DisclosureFormViewModel", assembly);
+        var culture = CultureInfo.CurrentUICulture;
+
+        string GetMessage(string key)
         {
-            var results = new List<ValidationResult>();
+            return resourceManager.GetString(key, culture) ?? key;
+        }
 
-            if (IncidentStartDate.HasValue && IncidentEndDate.HasValue)
+        if (IncidentStartDate.HasValue && IncidentEndDate.HasValue)
+        {
+            var start = IncidentStartDate.Value.Date;
+            var end = IncidentEndDate.Value.Date;
+            var today = DateTime.UtcNow.Date;
+
+            // 1️⃣ Start date > End date
+            if (start > end)
             {
-                var start = IncidentStartDate.Value.Date;
-                var end = IncidentEndDate.Value.Date;
-                var today = DateTime.UtcNow.Date;
-
-                if (start > end)
-                {
-                    results.Add(new ValidationResult(
-                        "Start date cannot be after end date.",
-                        new[] { nameof(IncidentStartDate), nameof(IncidentEndDate) }
-                    ));
-                }
-
-                if (start > today || end > today)
-                {
-                    results.Add(new ValidationResult(
-                        "Future dates are not allowed.",
-                        new[] { nameof(IncidentStartDate), nameof(IncidentEndDate) }
-                    ));
-                }
+                results.Add(new ValidationResult(
+                    GetMessage("StartDateAfterEndDate"),
+                    new[] { nameof(IncidentStartDate), nameof(IncidentEndDate) }
+                ));
             }
 
-            return results;
+            // 2️⃣ Future dates not allowed
+            if (start > today || end > today)
+            {
+                results.Add(new ValidationResult(
+                    GetMessage("FutureDatesNotAllowed"),
+                    new[] { nameof(IncidentStartDate), nameof(IncidentEndDate) }
+                ));
+            }
         }
+
+        return results;
+     }
+
     }
 
     // MaxFileSize Attribute

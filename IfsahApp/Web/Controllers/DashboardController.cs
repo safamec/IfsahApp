@@ -31,17 +31,23 @@ public class DashboardController(
     private readonly IEnumLocalizer _enumLocalizer = enumLocalizer;
 
     // GET: Dashboard
-    public async Task<IActionResult> Index(
-        string status = "All",
-        string user = "",
-        string reference = "",
-        int page = 1,
-        int pageSize = 5)
-    {
+   public async Task<IActionResult> Index(
+    string status = "All",
+    string user = "",
+    string reference = "",
+    DateTime? fromDate = null,
+    DateTime? toDate = null,
+    int page = 1,
+    int pageSize = 5)
+{
+
         ViewBag.PageSize = pageSize;
         ViewBag.CurrentPage = page;
         ViewBag.SelectedReference = reference;
         ViewBag.SelectedStatus = status;
+        ViewBag.FromDate = fromDate?.ToString("yyyy-MM-dd");
+        ViewBag.ToDate = toDate?.ToString("yyyy-MM-dd");
+
 
         var query = _context.Disclosures
             .Include(d => d.DisclosureType)
@@ -59,6 +65,19 @@ public class DashboardController(
         {
             query = query.Where(d => d.DisclosureNumber.Contains(reference));
         }
+        
+
+        if (fromDate.HasValue)
+        {
+            query = query.Where(d => d.SubmittedAt >= fromDate.Value.Date);
+        }
+
+        if (toDate.HasValue)
+        {
+            var to = toDate.Value.Date.AddDays(1);
+            query = query.Where(d => d.SubmittedAt < to);
+        }
+
 
         var raw = await query
             .OrderByDescending(d => d.SubmittedAt)

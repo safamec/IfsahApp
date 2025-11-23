@@ -19,6 +19,20 @@
                    placeholder="@Localizer["EnterReferencePlaceholder"]" />
         </div>
 
+        <!-- Date Range Filter -->
+        <div class="form-group">
+            <label>@Localizer["DateRangeLabel"]</label>
+
+            <input id="dateRangePicker" type="text"
+                class="filter-input"
+                autocomplete="off"
+                placeholder='@Localizer["SelectDateRangePlaceholder"]' />
+
+            <input type="hidden" name="fromDate" id="fromDate" value="@ViewBag.FromDate" />
+            <input type="hidden" name="toDate" id="toDate" value="@ViewBag.ToDate" />
+        </div>
+
+
         <div class="form-group">
             <label for="pageSize">@Localizer["ShowLabel"]</label>
             <select name="pageSize" class="filter-input">
@@ -102,3 +116,59 @@
         </ul>
     </nav>
 </div>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <!-- Date Range Picker dependencies -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+<script>
+    $(function () {
+
+        $('#dateRangePicker').daterangepicker({
+            locale: {
+                format: 'YYYY-MM-DD',
+                applyLabel: '@Localizer["Apply"]',
+                cancelLabel: '@Localizer["Cancel"]',
+                fromLabel: '@Localizer["From"]',
+                toLabel: '@Localizer["To"]',
+                customRangeLabel: '@Localizer["Custom"]',
+                daysOfWeek: [
+                    '@Localizer["Su"]', '@Localizer["Mo"]', '@Localizer["Tu"]',
+                    '@Localizer["We"]', '@Localizer["Th"]', '@Localizer["Fr"]', '@Localizer["Sa"]'
+                ],
+                monthNames: [
+                    '@Localizer["January"]', '@Localizer["February"]', '@Localizer["March"]',
+                    '@Localizer["April"]', '@Localizer["May"]', '@Localizer["June"]',
+                    '@Localizer["July"]', '@Localizer["August"]', '@Localizer["September"]',
+                    '@Localizer["October"]', '@Localizer["November"]',
+                    '@Localizer["December"]'
+                ],
+                firstDay: 0
+            },
+            autoUpdateInput: false
+        });
+
+
+        // When user selects range
+        $('#dateRangePicker').on('apply.daterangepicker', function (ev, picker) {
+            $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+
+            $('#fromDate').val(picker.startDate.format('YYYY-MM-DD'));
+            $('#toDate').val(picker.endDate.format('YYYY-MM-DD'));
+        });
+
+        // When user clears selection
+        $('#dateRangePicker').on('cancel.daterangepicker', function () {
+            $(this).val('');
+            $('#fromDate').val('');
+            $('#toDate').val('');
+        });
+    });
+</script>
+}

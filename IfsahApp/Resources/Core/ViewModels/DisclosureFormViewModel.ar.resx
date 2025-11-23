@@ -153,4 +153,12 @@
     <value>تاريخ انتهاء الحادث</value>
     <comment/>
   </data>
+  <data name="StartDateAfterEndDate" xml:space="preserve">
+  <value>تاريخ البدء لا يمكن أن يكون بعد تاريخ الانتهاء.</value>
+</data>
+
+<data name="FutureDatesNotAllowed" xml:space="preserve">
+  <value>لا يُسمح باستخدام تواريخ مستقبلية.</value>
+</data>
+
 </root>

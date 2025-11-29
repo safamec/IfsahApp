@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Reflection;
 using IfsahApp.Core.Mapping;
 using IfsahApp.Hubs;
@@ -8,8 +9,11 @@ using IfsahApp.Infrastructure.Services.Email;
 using IfsahApp.Infrastructure.Settings;
 using IfsahApp.Utils;
 using IfsahApp.Web.Middleware.Auth;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication;
 
 var options = new WebApplicationOptions
 {
@@ -20,18 +24,6 @@ var options = new WebApplicationOptions
 var builder = WebApplication.CreateBuilder(options);
 
 // ---------- Configuration Loading ----------
-// ASP.NET Core automatically loads:
-// - appsettings.json
-// - appsettings.{Environment}.json (e.g., Development / Staging / Production)
-//
-// Example:
-//   Development → appsettings.Development.json
-//   Staging     → appsettings.Staging.json
-//   Production  → appsettings.Production.json
-//
-// So you don't need to manually handle them here.
-
-// Load user-secrets in Development (Smtp:UserName / Smtp:Password)
 if (builder.Environment.IsDevelopment())
 {
     builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly(), optional: true);
@@ -44,33 +36,30 @@ builder.Services.AddDbContext<ApplicationDbContext>(dbOptions =>
 // ---------- 2) AutoMapper ----------
 builder.Services.AddAutoMapper(typeof(DisclosureMappingProfile));
 
-// ---------- 3) Email settings + service ----------
-// Read Smtp settings from the environment-specific appsettings file
+// ---------- 3) Email ----------
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
 
-// Use Gmail in Development; use company SMTP in Staging/Production
 if (builder.Environment.IsDevelopment())
 {
     builder.Services.AddTransient<IEmailService, GmailEmailService>();
 }
 else
 {
-    builder.Services.AddTransient<IEmailService, SmtpEmailService>(); // Generic SMTP
+    builder.Services.AddTransient<IEmailService, SmtpEmailService>();
 }
 
-// ---------- 4) Localization + MVC + Antiforgery + TempData in Session ----------
+// ---------- 4) MVC + Localization + Antiforgery ----------
 builder.Services.AddLocalization(opts => opts.ResourcesPath = "Resources");
+
 builder.Services
     .AddControllersWithViews(o =>
     {
-        // auto-validate antiforgery on POST/PUT/DELETE etc.
         o.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
     })
     .AddViewLocalization()
     .AddDataAnnotationsLocalization()
     .AddRazorOptions(opts =>
     {
-        // custom view locations
         opts.ViewLocationFormats.Clear();
         opts.ViewLocationFormats.Add("/Web/Views/{1}/{0}.cshtml");
         opts.ViewLocationFormats.Add("/Web/Views/Shared/{0}.cshtml");
@@ -79,7 +68,7 @@ builder.Services
 
 builder.Services.AddSession();
 
-// ---------- 5) Custom Services (AD user: fake in Dev, LDAP in Staging/Prod) ----------
+// ---------- 5) Custom Services ----------
 if (builder.Environment.IsDevelopment())
 {
     builder.Services.AddSingleton<IAdUserService, FakeAdUserService>();
@@ -94,37 +83,48 @@ builder.Services.AddScoped<IEnumLocalizer, EnumLocalizer>();
 builder.Services.AddScoped<IEnumERLocalizer, EnumERLocalizer>();
 
 // ---------- 6) Authentication & Authorization ----------
-builder.Services.AddAppAuthentication(builder.Environment); // must set Cookie LoginPath/AccessDeniedPath
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+        options.SlidingExpiration = true;
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+    });
 
 builder.Services.AddAuthorization(options =>
 {
-    // require auth by default unless [AllowAnonymous]
-    options.FallbackPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
         .Build();
 });
 
-// ---------- 7) Antiforgery header name ----------
+builder.Services.AddMemoryCache();
 builder.Services.AddAntiforgery(o => o.HeaderName = "RequestVerificationToken");
 
-// ---------- 8) SignalR ----------
+// ---------- 7) SignalR ----------
 builder.Services.AddSignalR();
 
 // ---------- Build Application ----------
 var app = builder.Build();
 
-// ---------- 9) Optional: Seed database (idempotent) ----------
+// ---------- 8) Seed Database ----------
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
     if (app.Environment.IsDevelopment())
-        DevDbSeeder.Seed(db); // Dev seeder with full data
+    {
+        DevDbSeeder.Seed(db);
+    }
     else
-        DbSeeder.Seed(db); // Staging & Production seeder (Admin only)
+    {
+        DbSeeder.Seed(db, logger);
+    }
 }
 
-// ---------- 10) Localization middleware (early in pipeline) ----------
+// ---------- 9) Localization ----------
 var supportedCultures = new[] { "en", "ar" };
 var locOptions = new RequestLocalizationOptions()
     .SetDefaultCulture("ar")
@@ -132,14 +132,56 @@ var locOptions = new RequestLocalizationOptions()
     .AddSupportedUICultures(supportedCultures);
 app.UseRequestLocalization(locOptions);
 
-// ---------- 11) Middleware Pipeline ----------
+// ---------- 10) Middleware Pipeline ----------
 app.UseStaticFiles();
 app.UseSession();
 app.UseRouting();
 
-app.UseAdUser();        // BEFORE auth; your middleware populates HttpContext.Items
-app.UseAuthentication(); // BEFORE UseAuthorization
+// ---------- Silent AD Login Middleware ----------
+app.Use(async (context, next) =>
+{
+    var adService = context.RequestServices.GetRequiredService<IAdUserService>();
+
+    if (!context.User.Identity?.IsAuthenticated ?? true)
+    {
+        try
+        {
+            // Attempt silent AD login
+            var remoteUser = context.Request.Headers["REMOTE_USER"].ToString();
+            if (!string.IsNullOrEmpty(remoteUser))
+            {
+                var user = await adService.FindByWindowsIdentityAsync(remoteUser);
+                if (user != null)
+                {
+                    var claims = new List<Claim> { new Claim(ClaimTypes.Name, user.SamAccountName) };
+                    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
+                }
+            }
+        }
+        catch
+        {
+            // Fail silently, no popup
+        }
+    }
+
+    await next();
+});
+
+app.UseAdUser(); // your custom middleware
+app.UseAuthentication();
 app.UseAuthorization();
+
+// ---------- Debug Middleware (show current Windows user) ----------
+app.Use(async (context, next) =>
+{
+    if (context.User.Identity?.IsAuthenticated == true)
+        Console.WriteLine($"✅ Authenticated as: {context.User.Identity.Name}");
+    else
+        Console.WriteLine("❌ No authenticated Windows user detected.");
+
+    await next();
+});
 
 // ---------- 12) Routes ----------
 if (app.Environment.IsDevelopment())
@@ -158,15 +200,15 @@ else
 // ---------- 13) SignalR Hub ----------
 app.MapHub<NotificationHub>("/hubs/notifications");
 
-// ---------- 14) Debug: Log Current Environment ----------
-var envName = app.Environment.EnvironmentName;
-var smtp = builder.Configuration.GetSection("Smtp").Get<SmtpSettings>();
-var attachSettings = builder.Configuration.GetSection("AttachmentSettings").Get<AttachmentSettings>();
-var dbPath = builder.Configuration.GetConnectionString("DefaultConnection");
-
-Console.WriteLine($"🚀 Environment: {envName}");
-Console.WriteLine($"📧 SMTP Host: {smtp?.Host}");
-Console.WriteLine($"📦 DB Path: {dbPath}");
-Console.WriteLine($"📂 Attachment Path: {attachSettings?.BasePath}");
+// ---------- 14) Startup Logs ----------
+using (var scope = app.Services.CreateScope())
+{
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    logger.LogInformation("🚀 Environment: {Env}", app.Environment.EnvironmentName);
+    logger.LogInformation("🔐 Authentication Scheme: Cookies");
+    logger.LogInformation("📧 SMTP Host: {Smtp}", builder.Configuration["Smtp:Host"]);
+    logger.LogInformation("📦 DB Path: {Db}", builder.Configuration.GetConnectionString("DefaultConnection"));
+    logger.LogInformation("📂 Attachments Path: {Path}", builder.Configuration["FileUploadSettings:BasePath"]);
+}
 
 app.Run();

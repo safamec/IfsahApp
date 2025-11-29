@@ -1,6 +1,6 @@
 using Xunit;
 using Microsoft.Extensions.Logging;
-using IfsahApp.Services.Email;
+using IfsahApp.Infrastructure.Services.Email;
 
 namespace IfsahApp.Tests.Services.Email;
 

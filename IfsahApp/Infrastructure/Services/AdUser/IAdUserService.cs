@@ -7,12 +7,14 @@ public class AdUser
     public string Email { get; set; } = string.Empty;
     public string Department { get; set; } = string.Empty;
 }
-
 public interface IAdUserService
 {
     Task<AdUser?> FindByWindowsIdentityAsync(string windowsIdentityName, CancellationToken ct = default);
-    
-    // NEW: مطلوب للـ AJAX search
+
     Task<IReadOnlyList<AdUser>> SearchAsync(string query, int take = 8, CancellationToken ct = default);
+
+    // NEW: Validate username + password manually
+    Task<AdUser?> FindByCredentialsAsync(string username, string password, CancellationToken ct = default);
 }
+
 

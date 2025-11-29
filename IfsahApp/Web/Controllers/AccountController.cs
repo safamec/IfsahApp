@@ -12,216 +12,254 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using IfsahApp.Core.ViewModels;
+using AspNetCoreGeneratedDocument;
 
 namespace IfsahApp.Web.Controllers;
 
 [Authorize]
-public class AccountController : Controller
+public class AccountController(
+    ApplicationDbContext context,
+    ILogger<AccountController> logger,
+    IEmailService email,
+    ViewRenderService viewRender,
+    IAdUserService adUserService,
+    IWebHostEnvironment env) : Controller
 {
-    private readonly ApplicationDbContext _context;
-    private readonly ILogger<AccountController> _logger;
-    private readonly IEmailService _email;
-    private readonly ViewRenderService _viewRender;
+    private readonly ApplicationDbContext _context = context;
+    private readonly ILogger<AccountController> _logger = logger;
+    private readonly IEmailService _email = email;
+    private readonly ViewRenderService _viewRender = viewRender;
+    private readonly IAdUserService _adUserService = adUserService;
+    private readonly IWebHostEnvironment _env = env;
 
-    public AccountController(
-        ApplicationDbContext context,
-        ILogger<AccountController> logger,
-        IEmailService email,
-        ViewRenderService viewRender)
+// =============================
+// Login (GET) — AD first, fallback to local Admin
+// =============================
+[AllowAnonymous]
+[HttpGet]
+public async Task<IActionResult> Login(CancellationToken ct)
+{
+    // --- FIX: allow email confirmation without auto-login ---
+    if (Request.Query.ContainsKey("uid") && Request.Query.ContainsKey("token"))
     {
-        _context = context;
-        _logger  = logger;
-        _email   = email;
-        _viewRender = viewRender;
+        return RedirectToAction(nameof(ConfirmEmail), new {
+            uid = Request.Query["uid"],
+            token = Request.Query["token"]
+        });
     }
 
-    // =============================
-    // Issue email confirmation link
-    // =============================
-    private async Task IssueEmailConfirmationAsync(User user, CancellationToken ct = default)
+    // // If already logged in → redirect
+    // if (User?.Identity?.IsAuthenticated == true)
+    //     return RedirectToHomeByRole();
+
+    // ---------------------------
+    // 1) Silent Windows Login (Stag/Prod Only)
+    // ---------------------------
+    if (!_env.IsDevelopment())
     {
-        if (string.IsNullOrWhiteSpace(user.Email)) return;
+        string? windowsName = User.Identity?.Name;
 
-        // Throttle resends
-        var last = await _context.EmailVerifications
-            .Where(v => v.UserId == user.Id && v.Purpose == "email_confirm")
-            .OrderByDescending(v => v.CreatedAt)
-            .FirstOrDefaultAsync(ct);
-
-        if (last != null && (DateTime.UtcNow - last.CreatedAt) < TimeSpan.FromMinutes(2))
+        // Browser DID NOT send Windows credentials
+        if (string.IsNullOrWhiteSpace(windowsName))
         {
-            _logger.LogInformation("Skip issuing email confirm token (throttled) for user {UserId}", user.Id);
-            return;
+            _logger.LogWarning("No silent Windows login. Showing login page.");
+            return View(); // (You can create a simple blank view)
         }
 
-        var token = EmailTokenHelper.GenerateToken();
-        var hash  = EmailTokenHelper.Sha256Hex(token);
+        // Browser DID send credentials → validate with LDAP
+        var adUser = await _adUserService.FindByWindowsIdentityAsync(windowsName, ct);
 
-        var ev = new EmailVerification
+        if (adUser != null)
         {
-            UserId    = user.Id,
-            TokenHash = hash,
-            CreatedAt = DateTime.UtcNow,
-            ExpiresAt = DateTime.UtcNow.AddHours(24),
-            Purpose   = "email_confirm"
-        };
+            _logger.LogInformation("Silent Windows login succeeded for {Sam}", adUser.SamAccountName);
 
-        _context.EmailVerifications.Add(ev);
-        await _context.SaveChangesAsync(ct);
-
-        var link = Url.Action(
-            action: nameof(ConfirmEmail),
-            controller: "Account",
-            values: new { uid = user.Id, token },
-            protocol: Request.Scheme,
-            host: Request.Host.ToString());
-
-        // Render Razor email
-        var model = new { FullName = user.FullName, Link = link! };
-        var html  = await _viewRender.RenderToStringAsync("Emails/ConfirmEmail", model);
-
-        try
-        {
-            await _email.SendAsync(user.Email, "Confirm your email - IfsahApp", html, isHtml: true, ct: ct);
-            _logger.LogInformation("Sent confirmation email to {Email} for user {UserId}", user.Email, user.Id);
+            return await SignInWithUserAsync(
+                adUser.SamAccountName,
+                adUser.DisplayName,
+                adUser.Email,
+                adUser.Department,
+                ct);
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed sending confirmation email to {Email}", user.Email);
-        }
+
+        // Windows credentials sent but not found in AD → fallback to login page
+        _logger.LogWarning("Windows user not found in AD: {Win}", windowsName);
+        return View();
     }
 
-    // =============================
-    // Login (GET) — supports AD; falls back to seeded Admin when AD is absent
-    // =============================
-    [AllowAnonymous]
-    [HttpGet]
-    public async Task<IActionResult> Login(CancellationToken ct)
+    // ---------------------------
+    // 2) DEV: Always do fallback Admin Login (No Windows Auth)
+    // ---------------------------
+    var admin = await _context.Users
+        .Where(u => u.IsActive && u.Role == Role.Admin)
+        .FirstOrDefaultAsync(ct);
+
+    if (admin != null)
     {
-        // Try AD from middleware
-        if (HttpContext.Items.TryGetValue("AdUser", out var obj) && obj is AdUser adUser)
-        {
-            _logger.LogInformation("AD user detected: {Sam} | {Display} | {Email}",
-                adUser.SamAccountName, adUser.DisplayName, adUser.Email);
+        _logger.LogInformation("Dev fallback login as Admin {Sam}", admin.ADUserName);
 
-            return await SignInWithUserAsync(adUser.SamAccountName, adUser.DisplayName, adUser.Email, adUser.Department, ct);
-        }
-
-        // Fallback (no AD): use first active Admin from DB (for dev/testing)
-        var admin = await _context.Users
-            .Where(u => u.IsActive && u.Role == Role.Admin)
-            .OrderBy(u => u.Id)
-            .FirstOrDefaultAsync(ct);
-
-        if (admin == null)
-        {
-            _logger.LogWarning("No active Admin found for fallback login.");
-            return RedirectToAction("AccessDenied");
-        }
-
-        _logger.LogWarning("No AdUser found; using fallback Admin login for '{Sam}'.", admin.ADUserName);
-
-        // Build fake display/email/department from DB for claims
         return await SignInWithUserAsync(
-            samAccountName: admin.ADUserName,
-            displayName:    admin.FullName ?? admin.ADUserName,
-            email:          admin.Email ?? string.Empty,
-            department:     admin.Department ?? string.Empty,
-            ct:             ct
+            admin.ADUserName,
+            admin.FullName,
+            admin.Email,
+            admin.Department,
+            ct);
+    }
+
+    return RedirectToAction("AccessDenied");
+}
+
+[AllowAnonymous]
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Login(LoginViewModel model, CancellationToken ct)
+{
+    if (!ModelState.IsValid)
+    {
+        return View(model);
+    }
+
+    // --- Try AD user lookup via LdapAdUserService ---
+    var adUser = await _adUserService.FindByCredentialsAsync(model.UserName, model.Password, ct);
+
+    if (adUser is not null)
+    {
+        _logger.LogInformation("Manual AD login successful for {Sam}", adUser.SamAccountName);
+
+        return await SignInWithUserAsync(
+            adUser.SamAccountName,
+            adUser.DisplayName,
+            adUser.Email,
+            adUser.Department,
+            ct
         );
     }
 
-    // Unified sign-in helper (used by AD path and fallback path)
-    private async Task<IActionResult> SignInWithUserAsync(string samAccountName, string? displayName, string? email, string? department, CancellationToken ct)
+    // --- Optional: fallback to local DB users (if you allow it in dev/staging) ---
+    var localUser = await _context.Users
+        .Where(u => u.IsActive && u.ADUserName.ToLower() == model.UserName.ToLower())
+        .FirstOrDefaultAsync(ct);
+
+    if (localUser != null)
     {
-        // DB lookup (case-insensitive by ADUserName)
-        var user = _context.Users
-            .AsEnumerable()
-            .FirstOrDefault(u => string.Equals(u.ADUserName, samAccountName, StringComparison.OrdinalIgnoreCase));
+        // NOTE: In prod you may want to require password check
+        _logger.LogWarning("Fallback local login for {Sam}", localUser.ADUserName);
 
-        // --- Auto-create new user if not found ---
-        if (user is null)
-        {
-            _logger.LogInformation("New AD user '{Sam}' not found in DB — creating a new record.", samAccountName);
-
-            user = new User
-            {
-                ADUserName = samAccountName,
-                FullName = displayName ?? samAccountName,
-                Email = email ?? string.Empty,
-                Department = department ?? "Unknown",
-                Role = Role.User,             // default role
-                IsActive = false,
-                IsEmailConfirmed = false       // assume AD users are verified
-            };
-
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync(ct);
-
-            _logger.LogInformation("User '{Sam}' created successfully with default Role: {Role}.", samAccountName, user.Role);
-        }
-
-        // --- Check if user is active ---
-        if (!user.IsActive)
-        {
-            _logger.LogWarning("Login failed: user {Sam} is inactive.", samAccountName);
-            return RedirectToAction("AccessDenied");
-        }
-
-        // --- Enforce email confirmation for all EXCEPT Admin ---
-        if (user.Role != Role.Admin && !user.IsEmailConfirmed && !string.IsNullOrWhiteSpace(user.Email))
-        {
-            await IssueEmailConfirmationAsync(user, ct);
-            await HttpContext.SignOutAsync("Cookies");
-            return View("EmailNotConfirmed", new { Email = user.Email, UserId = user.Id });
-        }
-
-
-
-        //TO DO LOGINNNNNNN
-
-        // Claims + sign-in (explicit cookie scheme)
-        var claims = new List<Claim>
-        {
-            // اسم الدخول (SAM) كـ Name
-            new Claim(ClaimTypes.Name, user.ADUserName),
-
-            // الاسم الظاهر
-            new Claim(ClaimTypes.GivenName, displayName ?? user.FullName ?? string.Empty),
-
-            // بريد
-            new Claim(ClaimTypes.Email, email ?? user.Email ?? string.Empty),
-
-            // قسم
-            new Claim("Department", department ?? user.Department ?? string.Empty),
-
-            // دور
-            new Claim(ClaimTypes.Role, user.Role.ToString()),
-
-            // ✅ إضافات خفيفة لدعم الواجهات القديمة
-            new Claim("display_name", displayName ?? user.FullName ?? string.Empty),
-            new Claim("sam", user.ADUserName)
-        };
-
-        var identity  = new ClaimsIdentity(claims, "Cookies");
-        var principal = new ClaimsPrincipal(identity);
-        await HttpContext.SignInAsync("Cookies", principal);
-
-        _logger.LogInformation("User {User} logged in with role {Role}.", user.ADUserName, user.Role);
-
-        // Redirect by role
-        return user.Role switch
-        {
-            Role.Admin    => RedirectToAction("Index",  "Dashboard"),
-            Role.Examiner => RedirectToAction("Index",  "Review"),
-            Role.User     => RedirectToAction("Create", "Disclosure"),
-            _             => RedirectToAction("AccessDenied"),
-        };
+        return await SignInWithUserAsync(
+            localUser.ADUserName,
+            localUser.FullName,
+            localUser.Email,
+            localUser.Department,
+            ct
+        );
     }
+
+    // --- Failed login ---
+    _logger.LogWarning("Login failed for {User}", model.UserName);
+    model.ErrorMessage = "Invalid username or password.";
+    return View(model);
+}
+
+// =============================
+// Unified sign-in logic
+// =============================
+private async Task<IActionResult> SignInWithUserAsync(
+    string samAccountName,
+    string? displayName,
+    string? email,
+    string? department,
+    CancellationToken ct)
+{
+    // Normalize username
+    string normalizedSam = samAccountName.ToLower();
+
+    // Find existing user
+    var user = await _context.Users
+        .FirstOrDefaultAsync(u => u.ADUserName.ToLower() == normalizedSam, ct);
+
+    // Auto-create if missing
+    if (user is null)
+    {
+        user = new User
+        {
+            ADUserName = samAccountName,
+            FullName = displayName ?? samAccountName,
+            Email = email ?? string.Empty,
+            Department = department ?? "Unknown",
+            Role = Role.User,
+            IsActive = true,
+            IsEmailConfirmed = false
+        };
+
+        _context.Users.Add(user);
+       try
+        {
+            await _context.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateException ex)
+        {
+            Console.WriteLine("DbUpdateException: " + ex.Message);
+            if (ex.InnerException != null)
+                Console.WriteLine("InnerException: " + ex.InnerException.Message);
+            throw; // rethrow or handle
+        }
+
+        _logger.LogInformation("New user {Sam} created with role {Role}", samAccountName, user.Role);
+    }
+
+    // Block inactive
+    if (!user.IsActive)
+    {
+        _logger.LogWarning("Blocked inactive user {Sam}", samAccountName);
+        return RedirectToAction("AccessDenied");
+    }
+
+    // Email confirmation (non-admin only)
+    if (user.Role != Role.Admin &&
+        !user.IsEmailConfirmed &&
+        !string.IsNullOrWhiteSpace(user.Email))
+    {
+        await IssueEmailConfirmationAsync(user, ct);
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        return View("EmailNotConfirmed", new { Email = user.Email, UserId = user.Id });
+    }
+
+    // Build claims
+    var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Name, user.ADUserName),
+        new Claim(ClaimTypes.GivenName, displayName ?? user.FullName ?? ""),
+        new Claim(ClaimTypes.Email, email ?? user.Email ?? ""),
+        new Claim("Department", department ?? user.Department ?? ""),
+        new Claim(ClaimTypes.Role, user.Role.ToString())
+    };
+
+    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+    var principal = new ClaimsPrincipal(identity);
+
+    await HttpContext.SignInAsync(
+        CookieAuthenticationDefaults.AuthenticationScheme,
+        principal
+    );
+
+    _logger.LogInformation("User {Sam} logged in as {Role}", user.ADUserName, user.Role);
+
+    // Redirect based on role
+    return user.Role switch
+    {
+        Role.Admin    => RedirectToAction("Index", "Dashboard"),
+        Role.Examiner => RedirectToAction("Index", "Review"),
+        Role.User     => RedirectToAction("Create", "Disclosure"),
+        _             => RedirectToAction("AccessDenied")
+    };
+}
 
     // =============================
     // Confirm Email (GET)
     // =============================
+    [AllowAnonymous]
     [HttpGet]
     [IgnoreAntiforgeryToken] // GET shouldn't need CSRF
     public async Task<IActionResult> ConfirmEmail(int uid, string token, CancellationToken ct)
@@ -319,6 +357,62 @@ public class AccountController : Controller
         await IssueEmailConfirmationAsync(user, ct);
 
         return View("ConfirmationSent", new { Email = user.Email, Already = false });
+    }
+
+// =============================
+    // Issue email confirmation link
+    // =============================
+    private async Task IssueEmailConfirmationAsync(User user, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(user.Email)) return;
+
+        // Throttle resends
+        var last = await _context.EmailVerifications
+            .Where(v => v.UserId == user.Id && v.Purpose == "email_confirm")
+            .OrderByDescending(v => v.CreatedAt)
+            .FirstOrDefaultAsync(ct);
+
+        if (last != null && (DateTime.UtcNow - last.CreatedAt) < TimeSpan.FromMinutes(2))
+        {
+            _logger.LogInformation("Skip issuing email confirm token (throttled) for user {UserId}", user.Id);
+            return;
+        }
+
+        var token = EmailTokenHelper.GenerateToken();
+        var hash  = EmailTokenHelper.Sha256Hex(token);
+
+        var ev = new EmailVerification
+        {
+            UserId    = user.Id,
+            TokenHash = hash,
+            CreatedAt = DateTime.UtcNow,
+            ExpiresAt = DateTime.UtcNow.AddHours(24),
+            Purpose   = "email_confirm"
+        };
+
+        _context.EmailVerifications.Add(ev);
+        await _context.SaveChangesAsync(ct);
+
+        var link = Url.Action(
+            action: nameof(ConfirmEmail),
+            controller: "Account",
+            values: new { uid = user.Id, token },
+            protocol: Request.Scheme,
+            host: Request.Host.ToString());
+
+        // Render Razor email
+        var model = new { FullName = user.FullName, Link = link! };
+        var html  = await _viewRender.RenderToStringAsync("Emails/ConfirmEmail", model);
+
+        try
+        {
+            await _email.SendAsync(user.Email, "Confirm your email - IfsahApp", html, isHtml: true, ct: ct);
+            _logger.LogInformation("Sent confirmation email to {Email} for user {UserId}", user.Email, user.Id);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed sending confirmation email to {Email}", user.Email);
+        }
     }
 
     // =============================

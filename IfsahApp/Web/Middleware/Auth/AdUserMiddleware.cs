@@ -8,19 +8,28 @@ public class AdUserMiddleware(RequestDelegate next)
 
     public async Task InvokeAsync(HttpContext context, IAdUserService adService)
     {
-        // Get the Windows identity name; fallback to environment user
-        string identityName = context.User.Identity?.Name ?? Environment.UserName;
+        // 1) Check if IIS sent Windows Identity
+        string? identityName =
+            context.User.Identity?.IsAuthenticated == true
+                ? context.User.Identity?.Name
+                : null;
 
-        // Lookup AD user
+        // 2) If Windows identity not provided → do nothing (cookie auth will take over)
+        if (string.IsNullOrWhiteSpace(identityName))
+        {
+            await _next(context);
+            return;
+        }
+
+        // 3) Lookup AD user
         AdUser? adUser = await adService.FindByWindowsIdentityAsync(identityName);
 
-        // Only inject into HttpContext if user is found
+        // 4) Add to HttpContext if found
         if (adUser is not null)
         {
             context.Items["AdUser"] = adUser;
         }
 
-        // Continue the middleware pipeline
         await _next(context);
     }
 }

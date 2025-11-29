@@ -8,7 +8,6 @@ namespace IfsahApp.Web.Controllers
 {
     [Authorize]
     [Route("DisclosureTypes")]   // allow plural base URL
-    [Route("DisclosureType")]    // (optional) also allow singular
     public class DisclosureTypeController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -19,7 +18,7 @@ namespace IfsahApp.Web.Controllers
         }
 
         // GET: /DisclosureTypes
-        [HttpGet("")]
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var items = await _context.DisclosureTypes.ToListAsync();

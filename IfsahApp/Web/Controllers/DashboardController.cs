@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IfsahApp.Infrastructure.Data;
+using IfsahApp.Infrastructure.Services.AdUser;
 using IfsahApp.Core.Enums;
 using IfsahApp.Core.Models;
 using IfsahApp.Core.ViewModels;
@@ -19,16 +20,18 @@ using ClosedXML.Excel;
 
 namespace IfsahApp.Web.Controllers;
 
-[Authorize(Roles = "Admin")]
+[Authorize]
 public class DashboardController(
     ApplicationDbContext context,
     IWebHostEnvironment env,
-    IEnumLocalizer enumLocalizer
+    IEnumLocalizer enumLocalizer,
+    ILogger<LdapAdUserService> logger
 ) : Controller
 {
     private readonly ApplicationDbContext _context = context;
     private readonly IWebHostEnvironment _env = env;
     private readonly IEnumLocalizer _enumLocalizer = enumLocalizer;
+    private readonly ILogger<LdapAdUserService> _logger = logger;
 
     // GET: Dashboard
    public async Task<IActionResult> Index(
@@ -65,19 +68,6 @@ public class DashboardController(
         {
             query = query.Where(d => d.DisclosureNumber.Contains(reference));
         }
-        
-
-        if (fromDate.HasValue)
-        {
-            query = query.Where(d => d.SubmittedAt >= fromDate.Value.Date);
-        }
-
-        if (toDate.HasValue)
-        {
-            var to = toDate.Value.Date.AddDays(1);
-            query = query.Where(d => d.SubmittedAt < to);
-        }
-
 
         var raw = await query
             .OrderByDescending(d => d.SubmittedAt)

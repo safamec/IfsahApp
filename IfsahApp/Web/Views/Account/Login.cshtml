@@ -1,30 +1,41 @@
-@model AdUser
+@model LoginViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+
+@inject IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = "Welcome";
+    ViewData["Title"] = Localizer["LoginTitle"];
 }
 
-<h2>Welcome, @Model.DisplayName!</h2>
+    <div class="card border-0" style="width: 350px; border-radius: 0;">
+        <div class="card-body p-4">
+            <h2 class="text-center mb-4">@Localizer["LoginHeading"]</h2>
 
-<table>
-    <tr><th>Username:</th><td>@Model.SamAccountName</td></tr>
-    <tr><th>Email:</th><td>@Model.Email</td></tr>
-    <tr><th>Department:</th><td>@Model.Department</td></tr>
-</table>
+            @if (!string.IsNullOrEmpty(Model?.ErrorMessage))
+            {
+                <div class="alert alert-danger mb-3" style="border-radius: 0;">@Model.ErrorMessage</div>
+            }
 
-<!-- ✅ تنبيه لو البريد مو مؤكّد -->
-@if (ViewData["EmailNotConfirmed"] as bool? == true)
-{
-    <div class="alert alert-warning mt-3">
-        بريدك الإلكتروني غير مؤكد. <br />
-        لقد أرسلنا رابط تأكيد إلى: <strong>@ViewData["UserEmail"]</strong>
-        <form asp-action="ResendConfirmation" method="post" class="mt-2">
-            <input type="hidden" name="uid" value="@ViewData["UserId"]" />
-            <button type="submit" class="btn btn-primary">إعادة إرسال رابط التفعيل</button>
-        </form>
+            <form asp-action="Login" method="post" class="d-flex flex-column gap-3">
+                <div class="mb-3">
+                    <label asp-for="UserName" class="form-label">@Localizer["UsernameLabel"]</label>
+                    <input asp-for="UserName" class="form-control" style="border-radius: 0;" autocomplete="username" />
+                    <span asp-validation-for="UserName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label">@Localizer["PasswordLabel"]</label>
+                    <input asp-for="Password" type="password" class="form-control" style="border-radius: 0;" autocomplete="current-password" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary" style="border-radius: 0;">@Localizer["LoginBtn"]</button>
+                </div>
+            </form>
+        </div>
     </div>
-}
 
-<form method="post" asp-action="Logout" class="mt-3">
-    <button type="submit" class="btn btn-danger">Logout</button>
-</form>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

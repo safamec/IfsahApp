@@ -45,6 +45,7 @@ namespace IfsahApp.Infrastructure.Services.AdUser
             }
         ];
 
+       
         public Task<AdUser?> FindByWindowsIdentityAsync(string windowsIdentityName, CancellationToken ct = default)
         {
             // Use Dev-selected user if present, otherwise fallback to identity
@@ -54,6 +55,11 @@ namespace IfsahApp.Infrastructure.Services.AdUser
                 string.Equals(u.SamAccountName, sam, StringComparison.OrdinalIgnoreCase));
 
             return Task.FromResult(user);
+        }
+
+        public Task<AdUser?> FindByCredentialsAsync(string username, string password, CancellationToken ct = default)
+        {
+            throw new NotImplementedException();
         }
 
         // NEW: للبحث السريع (AJAX)

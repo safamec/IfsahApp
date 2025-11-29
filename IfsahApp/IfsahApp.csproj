@@ -6,6 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>f4a45d8e-cc43-4336-a11d-4c5f1d51b313</UserSecretsId>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <!-- 👇 Disable auto inclusion so we control it manually -->
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,6 +23,21 @@
     </PackageReference>
     <PackageReference Include="MimeKit" Version="4.13.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+  </ItemGroup>
+ <!-- Include wwwroot for static files -->
+  <ItemGroup>
+<Content Include="Web\wwwroot\**\*" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- ✅ Include Views so Razor pages are published -->
+  <ItemGroup>
+   <Content Include="Web\Views\**\*.cshtml" CopyToPublishDirectory="Always" />
+  </ItemGroup>
+
+     <!-- ✅ Include configuration files -->
+  <ItemGroup>
+    <Content Include="*.json" CopyToPublishDirectory="Always" />
+    <Content Include="*.ico" CopyToPublishDirectory="Always" />
   </ItemGroup>
 
 </Project>

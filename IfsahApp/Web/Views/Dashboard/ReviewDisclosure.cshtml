@@ -1,3 +1,4 @@
+@* Views/Dashboard/ReviewDisclosure.cshtml (Admin) *@
 @model CaseItem
 @inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Mvc.Rendering
@@ -29,7 +30,6 @@ else
 
                 <hr />
 
-                <!-- Top action row -->
                 <div class="row g-2 mb-3 align-items-stretch">
                     <div class="col-12 col-md-6">
                         <button id="btnExtras"
@@ -52,19 +52,18 @@ else
                     </div>
                 </div>
 
-                <!-- Modal -->
                 <div class="modal fade" id="extrasModal" tabindex="-1" aria-hidden="true">
                   <div class="modal-dialog modal-lg modal-dialog-scrollable">
                     <div class="modal-content">
                       <div class="modal-header d-flex align-items-center">
-    <h5 class="modal-title flex-grow-1 text-truncate">
-        @Localizer["ModalTitleRelatedSuspectedAttachments"]
-    </h5>
-    <button type="button"
-            class="btn-close ms-2"
-            data-bs-dismiss="modal"
-            aria-label='@Localizer["Close"]'></button>
-                    </div>
+                        <h5 class="modal-title flex-grow-1 text-truncate">
+                            @Localizer["ModalTitleRelatedSuspectedAttachments"]
+                        </h5>
+                        <button type="button"
+                                class="btn-close ms-2"
+                                data-bs-dismiss="modal"
+                                aria-label='@Localizer["Close"]'></button>
+                      </div>
                       <div class="modal-body">
                         <div id="extrasContainer" class="py-2 text-center text-muted">@Localizer["Loading"]</div>
                       </div>
@@ -72,7 +71,6 @@ else
                   </div>
                 </div>
 
-                <!-- Submit Review (notes + assign examiner) -->
                 <form asp-action="SubmitReview"
                       asp-controller="Dashboard"
                       method="post"
@@ -81,15 +79,14 @@ else
                     <input type="hidden" name="reference" value="@Model.Reference" />
 
                     <div class="mb-3">
-                        <label for="reviewerNotes" class="form-label">@Localizer["ReviewerNotes"]</label>
+                        <label for="reviewerNotes" class="form-label">@Localizer["Notes"]</label>
                         <textarea id="reviewerNotes"
                                   name="reviewerNotes"
                                   class="form-control"
                                   rows="4"
-                                  placeholder="@Localizer["AddNotesPlaceholder"]"></textarea>
+                                  placeholder="@Localizer["AddNotesPlaceholder"]">@ViewBag.ReviewSummary</textarea>
                     </div>
 
-                    <!-- Assign to Examiner -->
                     <div class="mb-3">
                         <label class="form-label">@Localizer["Assign to Examiner"]</label>
                         <select name="assignToDiscloserId" class="form-select">

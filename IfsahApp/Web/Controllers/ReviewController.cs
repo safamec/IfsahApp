@@ -1,3 +1,4 @@
+// Controllers/ReviewController.cs
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -5,6 +6,7 @@ using Microsoft.AspNetCore.Hosting; // IWebHostEnvironment
 using Microsoft.AspNetCore.Http;    // IFormFile
 using IfsahApp.Core.Enums;
 using IfsahApp.Core.Models;
+using IfsahApp.Core.ViewModels;
 using IfsahApp.Infrastructure.Data;
 using IfsahApp.Infrastructure.Services;
 using System;
@@ -12,6 +14,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace IfsahApp.Web.Controllers;
 
@@ -34,11 +37,9 @@ public class ReviewController : Controller
     // ============================
     public async Task<IActionResult> Index(string? reference, int page = 1, int pageSize = 10)
     {
-        // Resolve current DB user robustly
         var dbUser = await CurrentDbUserAsync();
         var currentDbUserId = dbUser?.Id ?? 0;
 
-        // Can see all if: identity role Admin OR DB role Admin OR custom claim perm=ReviewAll
         var canSeeAll = User.IsInRole("Admin")
                         || (dbUser?.Role == Role.Admin)
                         || User.HasClaim("perm", "ReviewAll");
@@ -51,10 +52,8 @@ public class ReviewController : Controller
 
         if (!canSeeAll)
         {
-            // Examiner-only view: only items assigned to them and in Assigned status
             if (currentDbUserId == 0)
             {
-                // No DB user resolved -> nothing would match; return empty safely
                 ViewBag.SelectedReference = reference;
                 ViewBag.PageSize = pageSize;
                 ViewBag.CurrentPage = page;
@@ -63,6 +62,7 @@ public class ReviewController : Controller
                 return View(Enumerable.Empty<CaseItem>().ToList());
             }
 
+            // المختبر يرى فقط ما هو Assigned له
             query = query.Where(d =>
                 d.AssignedToUserId == currentDbUserId &&
                 d.Status == DisclosureStatus.Assigned);
@@ -100,8 +100,9 @@ public class ReviewController : Controller
     }
 
     // ============================
-    // REVIEW DISCLOSURE
+    // REVIEW DISCLOSURE (GET)
     // ============================
+    [HttpGet]
     public async Task<IActionResult> ReviewDisclosure(string reference)
     {
         if (string.IsNullOrWhiteSpace(reference))
@@ -114,15 +115,25 @@ public class ReviewController : Controller
         if (disclosure == null)
             return NotFound();
 
-        // If user is Examiner (no Admin claim), enforce assignment ownership
+        // Examiner فقط لا يرى إلا ما هو مسند له وحالته Assigned
         var isExaminerOnly = User.IsInRole("Examiner") && !User.IsInRole("Admin");
         if (isExaminerOnly)
         {
             var dbUser = await CurrentDbUserAsync();
             var currentDbUserId = dbUser?.Id ?? 0;
-            if (disclosure.AssignedToUserId != currentDbUserId || disclosure.Status != DisclosureStatus.Assigned)
+
+            if (disclosure.AssignedToUserId != currentDbUserId
+                || disclosure.Status != DisclosureStatus.Assigned)
                 return Forbid();
         }
+
+        // جلب آخر Review حتى نعرض الـ Notes المشتركة
+        var review = await _context.Set<DisclosureReview>()
+            .AsNoTracking()
+            .FirstOrDefaultAsync(r => r.DisclosureId == disclosure.Id);
+
+        ViewBag.ReviewerNotes = review?.ReviewSummary;
+        ViewBag.ReviewSummary = review?.ReviewSummary; // لو استخدمتي الاسم الثاني في الـ View
 
         var caseItem = new CaseItem
         {
@@ -154,7 +165,6 @@ public class ReviewController : Controller
 
         if (d == null) return NotFound();
 
-        // People
         ViewBag.Suspected = d.SuspectedPeople
             .Select(p => new { p.Name, p.Email, p.Phone, p.Organization })
             .ToList();
@@ -163,7 +173,6 @@ public class ReviewController : Controller
             .Select(p => new { p.Name, p.Email, p.Phone, p.Organization })
             .ToList();
 
-        // DB attachments for this disclosure
         var attachments = _context.DisclosureAttachments
             .AsNoTracking()
             .Where(a => a.DisclosureId == d.Id)
@@ -172,14 +181,13 @@ public class ReviewController : Controller
             {
                 Kind = "attachment",
                 a.Id,
-                FileName = a.FileName,
+                a.FileName,
                 a.FileType,
                 a.FileSize,
                 Url = Url.Action("Download", "Files", new { id = a.Id })
             })
             .ToList();
 
-        // Include the latest review report, if any
         var review = _context.Set<DisclosureReview>()
             .AsNoTracking()
             .Where(r => r.DisclosureId == d.Id && !string.IsNullOrWhiteSpace(r.ReportFilePath))
@@ -205,15 +213,15 @@ public class ReviewController : Controller
     }
 
     // ============================
-    // SUBMIT REVIEW (saves DisclosureReview)
+    // SUBMIT REVIEW (Examiner)
     // ============================
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SubmitReview(
         string reference,
         string? reviewerNotes,
-        IFormFile? reportFile,    // name MUST match input name in the form
-        string? outcome           // Approved / Escalated / Closed (optional)
+        IFormFile? reportFile,
+        string? outcome
     )
     {
         if (string.IsNullOrWhiteSpace(reference))
@@ -235,7 +243,7 @@ public class ReviewController : Controller
                 return Forbid();
         }
 
-        // Save report (optional)
+        // رفع ملف التقرير (اختياري)
         string? reportRelativePath = null;
         if (reportFile != null && reportFile.Length > 0)
         {
@@ -243,7 +251,7 @@ public class ReviewController : Controller
             if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
 
             var safeName = Path.GetFileName(reportFile.FileName);
-            var newName = $"{Guid.NewGuid()}{Path.GetExtension(safeName)}";
+            var newName  = $"{Guid.NewGuid()}{Path.GetExtension(safeName)}";
             var physical = Path.Combine(folder, newName);
 
             await using (var fs = new FileStream(physical, FileMode.Create))
@@ -252,8 +260,7 @@ public class ReviewController : Controller
             reportRelativePath = $"/uploads/reviews/{newName}";
         }
 
-        // Upsert review row
-        var reviewer = await CurrentDbUserAsync();
+        var reviewer   = await CurrentDbUserAsync();
         var reviewerId = reviewer?.Id ?? 0;
 
         var review = await _context.Set<DisclosureReview>()
@@ -263,26 +270,35 @@ public class ReviewController : Controller
         {
             review = new DisclosureReview
             {
-                DisclosureId  = disclosure.Id,
-                ReviewerId    = reviewerId,
-                ReviewSummary = string.IsNullOrWhiteSpace(reviewerNotes) ? null : reviewerNotes.Trim(),
-                ReportFilePath= reportRelativePath,
-                Outcome       = string.IsNullOrWhiteSpace(outcome) ? null : outcome.Trim(),
-                ReviewedAt    = DateTime.UtcNow
+                DisclosureId   = disclosure.Id,
+                ReviewerId     = reviewerId,
+                ReviewSummary  = string.IsNullOrWhiteSpace(reviewerNotes) ? null : reviewerNotes.Trim(),
+                ReportFilePath = reportRelativePath,
+                Outcome        = string.IsNullOrWhiteSpace(outcome) ? null : outcome.Trim(),
+                ReviewedAt     = DateTime.UtcNow
             };
             _context.Add(review);
         }
         else
         {
-            review.ReviewerId    = reviewerId;
-            review.ReviewSummary = string.IsNullOrWhiteSpace(reviewerNotes) ? review.ReviewSummary : reviewerNotes.Trim();
+            review.ReviewerId = reviewerId;
+
+            if (!string.IsNullOrWhiteSpace(reviewerNotes))
+                review.ReviewSummary = reviewerNotes.Trim();
+
             if (!string.IsNullOrWhiteSpace(reportRelativePath))
                 review.ReportFilePath = reportRelativePath;
+
             if (!string.IsNullOrWhiteSpace(outcome))
                 review.Outcome = outcome.Trim();
+
             review.ReviewedAt = DateTime.UtcNow;
             _context.Update(review);
         }
+
+        // رجوع البلاغ للأدمن – يختفي من جدول المختبر
+        disclosure.Status = DisclosureStatus.InReview;
+        disclosure.AssignedToUserId = null;
 
         await _context.SaveChangesAsync();
 
@@ -304,7 +320,6 @@ public class ReviewController : Controller
         if (disclosure == null)
             return NotFound();
 
-        // Examiner-only restriction
         var isExaminerOnly = User.IsInRole("Examiner") && !User.IsInRole("Admin");
         if (isExaminerOnly)
         {
@@ -337,13 +352,12 @@ public class ReviewController : Controller
         // 2) Try Email claim
         var email = User.FindFirstValue(ClaimTypes.Email);
 
-        // 3) Try ADUserName via DOMAIN\username or plain username
+        // 3) Try ADUserName عبر DOMAIN\username
         var rawName = User.Identity?.Name;
         string? adUser = null;
         if (!string.IsNullOrWhiteSpace(rawName))
             adUser = rawName.Contains('\\') ? rawName.Split('\\').Last() : rawName;
 
-        // Single DB roundtrip that checks both
         return await _context.Users
             .FirstOrDefaultAsync(u =>
                 (!string.IsNullOrWhiteSpace(email) && u.Email == email) ||

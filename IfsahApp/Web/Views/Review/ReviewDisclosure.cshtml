@@ -3,6 +3,7 @@
 
 @{
     ViewBag.Title = Localizer["ReviewDisclosureTitle"];
+    var adminNotes = ViewBag.ReviewSummary as string;   // ملاحظات الأدمن (ممكن تكون null)
 }
 
 @if (Model == null)
@@ -28,9 +29,9 @@ else
 
                 <hr />
 
-                <!-- صف الإجراءات العلوي: إبقاء زر "People & Attachments" فقط -->
+                <!-- Top action row -->
                 <div class="row g-2 mb-3 align-items-stretch">
-                    <div class="col-12">
+                    <div class="col-12 col-md-6">
                         <button id="btnExtras"
                                 type="button"
                                 class="btn btn-outline-secondary w-100"
@@ -38,21 +39,22 @@ else
                             @Localizer["ViewPeopleAndAttachments"]
                         </button>
                     </div>
+                  
                 </div>
 
                 <!-- Modal -->
                 <div class="modal fade" id="extrasModal" tabindex="-1" aria-hidden="true">
                   <div class="modal-dialog modal-lg modal-dialog-scrollable">
                     <div class="modal-content">
-                     <div class="modal-header d-flex align-items-center">
-    <h5 class="modal-title flex-grow-1 text-truncate">
-        @Localizer["ModalTitleRelatedSuspectedAttachments"]
-    </h5>
-    <button type="button"
-            class="btn-close ms-2"
-            data-bs-dismiss="modal"
-            aria-label='@Localizer["Close"]'></button>
-</div>
+                      <div class="modal-header d-flex align-items-center">
+                        <h5 class="modal-title flex-grow-1 text-truncate">
+                            @Localizer["ModalTitleRelatedSuspectedAttachments"]
+                        </h5>
+                        <button type="button"
+                                class="btn-close ms-2"
+                                data-bs-dismiss="modal"
+                                aria-label='@Localizer["Close"]'></button>
+                      </div>
                       <div class="modal-body">
                         <div id="extrasContainer" class="py-2 text-center text-muted">@Localizer["Loading"]</div>
                       </div>
@@ -60,7 +62,7 @@ else
                   </div>
                 </div>
 
-                <!-- Submit Review (notes + upload + outcome) -->
+                <!-- Examiner review form -->
                 <form asp-action="SubmitReview"
                       asp-controller="Review"
                       method="post"
@@ -69,31 +71,32 @@ else
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="reference" value="@Model.Reference" />
 
-                    <div class="mb-3">
-                        <label for="reviewerNotes" class="form-label">@Localizer["ReviewerNotes"]</label>
-                        <textarea id="reviewerNotes"
-                                  name="reviewerNotes"
-                                  class="form-control"
-                                  rows="4"
-                                  placeholder="@Localizer["AddNotesPlaceholder"]"></textarea>
+                    @* 🔹 خانة ملاحظات الأدمن تظهر فقط لو فيها نص *@
+                    @if (!string.IsNullOrWhiteSpace(adminNotes))
+                    {
+                        <div class="mb-3">
+                            <label for="adminNotes" class="form-label">@Localizer["Notes"]</label>
+                            <textarea id="adminNotes"
+                                      class="form-control"
+                                      rows="4"
+                                      readonly>@adminNotes</textarea>
+                        </div>
+                    }
+                      <div class="mb-3">
+                        <label for="outcome" class="form-label">@Localizer["Outcome"]</label>
+                        <input type="text" id="outcome" name="outcome" class="form-control" />
                     </div>
 
-                    <!-- رفع ملف التقرير (مرتبط بـ reportFile في الأكشن) -->
                     <div class="mb-3">
-                        <label for="reportFile" class="form-label">@Localizer["UploadReportFile"]</label>
-                        <input id="reportFile"
-                               name="reportFile"
-                               type="file"
-                               class="form-control"
-                               accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.mp4,.mov,.avi,.wmv,.mkv" />
-                        <small class="text-muted">@Localizer["OptionalReportFileHint"]</small>
+                        <label for="reportFile" class="form-label">@Localizer["ReviewReportFile"]</label>
+                        <input type="file" id="reportFile" name="reportFile" class="form-control" />
                     </div>
 
-                   
+                  
 
-                    <!-- لا تعيين للممتحّن / لا زر Reject (حسب طلبك) -->
-
-                    <button type="submit" class="btn btn-primary w-100">@Localizer["SubmitDisclosure"]</button>
+                    <button type="submit" class="btn btn-primary w-100">
+                        @Localizer["SubmitReviewAction"]
+                    </button>
                 </form>
             </div>
         </div>
@@ -112,7 +115,10 @@ else
 
       btn?.addEventListener('click', function () {
         container.textContent = LOADING_TXT;
-        fetch(this.dataset.url, { credentials: 'same-origin' })
+        fetch(this.dataset.url, {
+            credentials: 'same-origin',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
           .then(r => { if (!r.ok) throw new Error(LOAD_ERR_TXT); return r.text(); })
           .then(html => { container.innerHTML = html; })
           .catch(err => { container.innerHTML = '<div class="text-danger">' + err.message + '</div>'; });

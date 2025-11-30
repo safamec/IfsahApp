@@ -1,9 +1,11 @@
+// Controllers/DashboardController.cs
 using System;
 using System.IO;
 using System.Linq;
 using System.Globalization;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using IfsahApp.Infrastructure.Data;
 using IfsahApp.Infrastructure.Services.AdUser;
 using IfsahApp.Core.Enums;
@@ -179,39 +181,46 @@ public class DashboardController(
         return RedirectToAction(nameof(Details), new { id = disclosureId });
     }
 
-    [HttpGet]
-    public IActionResult ReviewDisclosure(string reference)
+[HttpGet]
+public IActionResult ReviewDisclosure(string reference)
+{
+    if (string.IsNullOrWhiteSpace(reference))
+        return NotFound();
+
+    var disclosure = _context.Disclosures
+        .Include(d => d.DisclosureType)
+        .FirstOrDefault(d => d.DisclosureNumber == reference);
+
+    if (disclosure == null) return NotFound();
+
+    // جلب آخر Review عشان نظهر الـ Notes (من المختبر أو من الأدمن لو عدّلها)
+    var review = _context.Set<DisclosureReview>()
+        .AsNoTracking()
+        .FirstOrDefault(r => r.DisclosureId == disclosure.Id);
+
+    ViewBag.ReviewerNotes = review?.ReviewSummary;   // نفس الحقل المشترك
+
+    var caseItem = new CaseItem
     {
-        if (string.IsNullOrWhiteSpace(reference))
-            return NotFound();
+        Type        = disclosure.DisclosureType?.EnglishName ?? "N/A",
+        Reference   = disclosure.DisclosureNumber,
+        Date        = disclosure.SubmittedAt,
+        Location    = disclosure.Location ?? string.Empty,
+        Status      = _enumLocalizer.LocalizeEnum(disclosure.Status),
+        Description = disclosure.Description ?? string.Empty
+    };
 
-        var disclosure = _context.Disclosures
-            .Include(d => d.DisclosureType)
-            .FirstOrDefault(d => d.DisclosureNumber == reference);
-
-        if (disclosure == null) return NotFound();
-
-        var caseItem = new CaseItem
+    ViewBag.Examiners = _context.Users
+        .Where(u => u.IsActive && u.Role == Role.Examiner)
+        .Select(u => new SelectListItem
         {
-            Type = disclosure.DisclosureType?.EnglishName ?? "N/A",
-            Reference = disclosure.DisclosureNumber,
-            Date = disclosure.SubmittedAt,
-            Location = disclosure.Location ?? string.Empty,
-            Status = _enumLocalizer.LocalizeEnum(disclosure.Status),
-            Description = disclosure.Description ?? string.Empty
-        };
+            Value = u.Id.ToString(),
+            Text  = u.FullName ?? u.Email
+        })
+        .ToList();
 
-        ViewBag.Examiners = _context.Users
-            .Where(u => u.IsActive && u.Role == Role.Examiner)
-            .Select(u => new SelectListItem
-            {
-                Value = u.Id.ToString(),
-                Text = u.FullName ?? u.Email
-            })
-            .ToList();
-
-        return View(caseItem);
-    }
+    return View(caseItem);
+}
 
     [HttpGet]
     public IActionResult Extras(string reference)
@@ -274,13 +283,11 @@ public class DashboardController(
         return PartialView("_ReviewExtras");
     }
 
-    [HttpPost]
+[HttpPost]
 [ValidateAntiForgeryToken]
 public async Task<IActionResult> SubmitReview(
     string reference,
     string? reviewerNotes,
-    IFormFile? reportFile,
-    string? outcome,
     int? assignToDiscloserId
 )
 {
@@ -293,29 +300,11 @@ public async Task<IActionResult> SubmitReview(
     if (disclosure == null)
         return NotFound("Disclosure not found.");
 
-    string? reportRelativePath = null;
-
-    if (reportFile is { Length: > 0 })
-    {
-        var folder = Path.Combine(_env.WebRootPath, "uploads", "reviews");
-        if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
-
-        var safeName = Path.GetFileName(reportFile.FileName);
-        var newName = $"{Guid.NewGuid()}{Path.GetExtension(safeName)}";
-        var physical = Path.Combine(folder, newName);
-
-        await using (var fs = new FileStream(physical, FileMode.Create))
-        {
-            await reportFile.CopyToAsync(fs);
-        }
-
-        reportRelativePath = $"/uploads/reviews/{newName}";
-    }
-
     var reviewer = await GetCurrentUserAsync();
     if (reviewer == null)
         return RedirectToAction("AccessDenied", "Account");
 
+    // استخدام نفس ReviewSummary كملاحظات مشتركة
     var review = await _context.Set<DisclosureReview>()
         .FirstOrDefaultAsync(r => r.DisclosureId == disclosure.Id);
 
@@ -323,33 +312,23 @@ public async Task<IActionResult> SubmitReview(
     {
         review = new DisclosureReview
         {
-            DisclosureId   = disclosure.Id,
-            ReviewerId     = reviewer.Id, // FIX: use actual reviewer.Id
-            ReviewSummary  = string.IsNullOrWhiteSpace(reviewerNotes) ? null : reviewerNotes.Trim(),
-            ReportFilePath = reportRelativePath,
-            Outcome        = string.IsNullOrWhiteSpace(outcome) ? null : outcome.Trim(),
-            ReviewedAt     = DateTime.UtcNow
+            DisclosureId  = disclosure.Id,
+            ReviewerId    = reviewer.Id,
+            ReviewSummary = string.IsNullOrWhiteSpace(reviewerNotes) ? null : reviewerNotes.Trim(),
+            ReviewedAt    = DateTime.UtcNow
         };
-
         _context.Add(review);
     }
     else
     {
-        review.ReviewerId = reviewer.Id; // FIX: remove non-existent reviewerId
+        review.ReviewerId = reviewer.Id;
         if (!string.IsNullOrWhiteSpace(reviewerNotes))
             review.ReviewSummary = reviewerNotes.Trim();
-
-        if (!string.IsNullOrWhiteSpace(reportRelativePath))
-            review.ReportFilePath = reportRelativePath;
-
-        if (!string.IsNullOrWhiteSpace(outcome))
-            review.Outcome = outcome.Trim();
-
         review.ReviewedAt = DateTime.UtcNow;
-        // No need to call Update() if the entity is tracked, but it's harmless:
         _context.Update(review);
     }
 
+    // تعيين للمختبر (نفس السابق)
     if (assignToDiscloserId.HasValue)
     {
         var assigneeId = assignToDiscloserId.Value;
@@ -365,13 +344,16 @@ public async Task<IActionResult> SubmitReview(
             disclosure.Status = DisclosureStatus.Assigned;
         }
     }
+    else
+    {
+        disclosure.Status = DisclosureStatus.InReview;
+    }
 
     await _context.SaveChangesAsync();
 
     TempData["Message"] = $"Review for disclosure {reference} saved.";
-    return RedirectToAction("ReviewDisclosure", new { reference });
+    return RedirectToAction("Index", "Dashboard");
 }
-
 
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -391,7 +373,6 @@ public async Task<IActionResult> SubmitReview(
         return RedirectToAction("Index", "Dashboard");
     }
 
-    // Helper to get current user from AD
     private async Task<User?> GetCurrentUserAsync()
     {
         var adUserName = User.Identity?.Name?.Split('\\').Last();
@@ -399,139 +380,122 @@ public async Task<IActionResult> SubmitReview(
 
         return await _context.Users.FirstOrDefaultAsync(u => u.ADUserName.ToLower() == adUserName.ToLower());
     }
-// ============================
-// DASHBOARD SUMMARY (Filtered)
-// ============================
-[AllowAnonymous]
-public IActionResult DashboardSummary(DateTime? fromDate, DateTime? toDate, int? year, int? month)
-{
-    // إرسال القيم للواجهة
-    ViewBag.FromDate = fromDate?.ToString("yyyy-MM-dd");
-    ViewBag.ToDate   = toDate?.ToString("yyyy-MM-dd");
-    ViewBag.SelectedYear  = year;
-    ViewBag.SelectedMonth = month;
 
-    // جميع السنوات المتوفرة في البلاغات
-    ViewBag.Years = _context.Disclosures
-        .Where(d => d.IncidentStartDate.HasValue)
-        .Select(d => d.IncidentStartDate!.Value.Year)
-        .Distinct()
-        .OrderBy(y => y)
-        .ToList();
-
-    // بداية: نسحب كل البلاغات اللي لها تاريخ
-    var query = _context.Disclosures
-        .Where(d => d.IncidentStartDate.HasValue)
-        .AsQueryable();
-
-    // فلترة حسب التاريخ من
-    if (fromDate.HasValue)
+    [AllowAnonymous]
+    public IActionResult DashboardSummary(DateTime? fromDate, DateTime? toDate, int? year, int? month)
     {
-        DateTime from = fromDate.Value.Date;
-        query = query.Where(d => d.IncidentStartDate!.Value.Date >= from);
-    }
+        ViewBag.FromDate = fromDate?.ToString("yyyy-MM-dd");
+        ViewBag.ToDate   = toDate?.ToString("yyyy-MM-dd");
+        ViewBag.SelectedYear  = year;
+        ViewBag.SelectedMonth = month;
 
-    // فلترة حسب التاريخ إلى
-    if (toDate.HasValue)
-    {
-        DateTime to = toDate.Value.Date.AddDays(1);
-        query = query.Where(d => d.IncidentStartDate!.Value < to);
-    }
+        ViewBag.Years = _context.Disclosures
+            .Where(d => d.IncidentStartDate.HasValue)
+            .Select(d => d.IncidentStartDate!.Value.Year)
+            .Distinct()
+            .OrderBy(y => y)
+            .ToList();
 
-    // فلترة بالسنة
-    if (year.HasValue)
-    {
-        query = query.Where(d => d.IncidentStartDate!.Value.Year == year.Value);
-    }
+        var query = _context.Disclosures
+            .Where(d => d.IncidentStartDate.HasValue)
+            .AsQueryable();
 
-    // فلترة بالشهر
-    if (month.HasValue)
-    {
-        query = query.Where(d => d.IncidentStartDate!.Value.Month == month.Value);
-    }
-
-    // تجميع حسب الشهر والسنة
-    var summary = query
-        .AsEnumerable()
-        .GroupBy(d => new
+        if (fromDate.HasValue)
         {
-            Y = d.IncidentStartDate!.Value.Year,
-            M = d.IncidentStartDate!.Value.Month
-        })
-        .OrderBy(g => g.Key.Y)
-        .ThenBy(g => g.Key.M)
-        .Select(g =>
-        {
-            var dt = new DateTime(g.Key.Y, g.Key.M, 1);
+            DateTime from = fromDate.Value.Date;
+            query = query.Where(d => d.IncidentStartDate!.Value.Date >= from);
+        }
 
-            return new DashboardSummaryViewModel
+        if (toDate.HasValue)
+        {
+            DateTime to = toDate.Value.Date.AddDays(1);
+            query = query.Where(d => d.IncidentStartDate!.Value < to);
+        }
+
+        if (year.HasValue)
+        {
+            query = query.Where(d => d.IncidentStartDate!.Value.Year == year.Value);
+        }
+
+        if (month.HasValue)
+        {
+            query = query.Where(d => d.IncidentStartDate!.Value.Month == month.Value);
+        }
+
+        var summary = query
+            .AsEnumerable()
+            .GroupBy(d => new
             {
-                Month = dt.ToString("yyyy/MM/dd"),   // full date
+                Y = d.IncidentStartDate!.Value.Year,
+                M = d.IncidentStartDate!.Value.Month
+            })
+            .OrderBy(g => g.Key.Y)
+            .ThenBy(g => g.Key.M)
+            .Select(g =>
+            {
+                var dt = new DateTime(g.Key.Y, g.Key.M, 1);
 
-                NumberOfDisclosures = g.Count(),
-                UnderReview = g.Count(d => d.Status == DisclosureStatus.InReview),
-                UnderExamination = g.Count(d => d.Status == DisclosureStatus.Assigned),
-                Completed = g.Count(d => d.Status == DisclosureStatus.Completed),
-                Rejected = g.Count(d => d.Status == DisclosureStatus.Rejected)
-            };
-        })
-        .ToList();
+                return new DashboardSummaryViewModel
+                {
+                    Month = dt.ToString("yyyy/MM/dd"),
+                    NumberOfDisclosures = g.Count(),
+                    UnderReview = g.Count(d => d.Status == DisclosureStatus.InReview),
+                    UnderExamination = g.Count(d => d.Status == DisclosureStatus.Assigned),
+                    Completed = g.Count(d => d.Status == DisclosureStatus.Completed),
+                    Rejected = g.Count(d => d.Status == DisclosureStatus.Rejected)
+                };
+            })
+            .ToList();
 
-    // احسب NewRequests
-    foreach (var row in summary)
-    {
-        row.NewRequests = row.NumberOfDisclosures
-                         - row.Completed
-                         - row.Rejected
-                         - row.UnderReview
-                         - row.UnderExamination;
+        foreach (var row in summary)
+        {
+            row.NewRequests = row.NumberOfDisclosures
+                             - row.Completed
+                             - row.Rejected
+                             - row.UnderReview
+                             - row.UnderExamination;
+        }
+
+        return View(summary);
     }
 
-    return View(summary);
-}
-// =========================================
-// EXPORT TO EXCEL (Filtered)
-// =========================================
-[AllowAnonymous]
-public IActionResult ExportSummaryToExcel(DateTime? fromDate, DateTime? toDate, int? year, int? month)
-{
-    // إعادة استخدام نفس التصفية
-    var data = DashboardSummary(fromDate, toDate, year, month) as ViewResult;
-    var model = data?.Model as IEnumerable<DashboardSummaryViewModel>;
-
-    var wb = new XLWorkbook();
-    var ws = wb.Worksheets.Add("Summary");
-
-    ws.Cell(1, 1).Value = "Date";
-    ws.Cell(1, 2).Value = "Total";
-    ws.Cell(1, 3).Value = "New";
-    ws.Cell(1, 4).Value = "Under Review";
-    ws.Cell(1, 5).Value = "Under Examination";
-    ws.Cell(1, 6).Value = "Completed";
-    ws.Cell(1, 7).Value = "Rejected";
-
-    int row = 2;
-
-    foreach (var d in model!)
+    [AllowAnonymous]
+    public IActionResult ExportSummaryToExcel(DateTime? fromDate, DateTime? toDate, int? year, int? month)
     {
-        ws.Cell(row, 1).Value = d.Month;
-        ws.Cell(row, 2).Value = d.NumberOfDisclosures;
-        ws.Cell(row, 3).Value = d.NewRequests;
-        ws.Cell(row, 4).Value = d.UnderReview;
-        ws.Cell(row, 5).Value = d.UnderExamination;
-        ws.Cell(row, 6).Value = d.Completed;
-        ws.Cell(row, 7).Value = d.Rejected;
-        row++;
+        var data = DashboardSummary(fromDate, toDate, year, month) as ViewResult;
+        var model = data?.Model as IEnumerable<DashboardSummaryViewModel>;
+
+        var wb = new XLWorkbook();
+        var ws = wb.Worksheets.Add("Summary");
+
+        ws.Cell(1, 1).Value = "Date";
+        ws.Cell(1, 2).Value = "Total";
+        ws.Cell(1, 3).Value = "New";
+        ws.Cell(1, 4).Value = "Under Review";
+        ws.Cell(1, 5).Value = "Under Examination";
+        ws.Cell(1, 6).Value = "Completed";
+        ws.Cell(1, 7).Value = "Rejected";
+
+        int row = 2;
+
+        foreach (var d in model!)
+        {
+            ws.Cell(row, 1).Value = d.Month;
+            ws.Cell(row, 2).Value = d.NumberOfDisclosures;
+            ws.Cell(row, 3).Value = d.NewRequests;
+            ws.Cell(row, 4).Value = d.UnderReview;
+            ws.Cell(row, 5).Value = d.UnderExamination;
+            ws.Cell(row, 6).Value = d.Completed;
+            ws.Cell(row, 7).Value = d.Rejected;
+            row++;
+        }
+
+        using var stream = new MemoryStream();
+        wb.SaveAs(stream);
+        var content = stream.ToArray();
+
+        return File(content,
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "DashboardSummary.xlsx");
     }
-
-    using var stream = new MemoryStream();
-    wb.SaveAs(stream);
-    var content = stream.ToArray();
-
-    return File(content,
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        "DashboardSummary.xlsx");
-}
-
-
 }
